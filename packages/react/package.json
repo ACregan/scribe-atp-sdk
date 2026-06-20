@@ -1,6 +1,6 @@
 {
   "name": "@scribe-atp/react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React hooks for reading Scribe CMS content from the AT Protocol.",
   "license": "MIT",
   "engines": {
@@ -20,6 +20,22 @@
   "files": [
     "dist"
   ],
+  "keywords": [
+    "at-protocol",
+    "atproto",
+    "bluesky",
+    "scribe",
+    "scribe-cms",
+    "blog",
+    "cms",
+    "react",
+    "hooks",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+  },
   "publishConfig": {
     "access": "public"
   },
