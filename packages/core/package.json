@@ -1,6 +1,6 @@
 {
   "name": "@scribe-atp/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pure TypeScript fetch functions, PDS resolution, and types for reading Scribe CMS content from the AT Protocol.",
   "license": "MIT",
   "engines": {
@@ -20,6 +20,20 @@
   "files": [
     "dist"
   ],
+  "keywords": [
+    "at-protocol",
+    "atproto",
+    "bluesky",
+    "scribe",
+    "scribe-cms",
+    "blog",
+    "cms",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+  },
   "publishConfig": {
     "access": "public"
   },

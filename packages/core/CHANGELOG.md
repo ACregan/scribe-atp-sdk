@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 1.0.1
+
+### Patch Changes
+
+- Add per-package README files so each package page on npm displays documentation.
+
 ## 1.0.0
 
 ### Major Changes

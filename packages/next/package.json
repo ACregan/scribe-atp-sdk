@@ -1,7 +1,7 @@
 {
-  "name": "@scribe-atp/react-router-framework",
-  "version": "1.0.1",
-  "description": "Loader factories for reading Scribe CMS content in React Router v7 framework mode.",
+  "name": "@scribe-atp/next",
+  "version": "0.1.0",
+  "description": "Next.js App Router adapter for reading Scribe CMS content from the AT Protocol.",
   "license": "MIT",
   "engines": {
     "node": ">=22"
@@ -20,22 +20,6 @@
   "files": [
     "dist"
   ],
-  "keywords": [
-    "at-protocol",
-    "atproto",
-    "bluesky",
-    "scribe",
-    "scribe-cms",
-    "blog",
-    "cms",
-    "react",
-    "react-router",
-    "typescript"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
-  },
   "publishConfig": {
     "access": "public"
   },
@@ -47,9 +31,23 @@
     "@scribe-atp/core": "*"
   },
   "peerDependencies": {
-    "react-router": "^7.0.0"
+    "next": ">=13.0.0"
   },
   "devDependencies": {
-    "react-router": "^7.6.2"
+    "next": "^15.0.0"
+  },
+  "keywords": [
+    "scribe",
+    "atproto",
+    "at-protocol",
+    "bluesky",
+    "next",
+    "nextjs",
+    "cms",
+    "blog"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
   }
 }

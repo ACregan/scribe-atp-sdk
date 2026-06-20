@@ -1,5 +1,13 @@
 # @scribe-atp/react-router-framework
 
+## 1.0.1
+
+### Patch Changes
+
+- Add per-package README files so each package page on npm displays documentation.
+- Updated dependencies
+  - @scribe-atp/core@1.0.1
+
 ## 1.0.0
 
 ### Major Changes

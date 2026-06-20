@@ -1,7 +1,7 @@
 # @scribe-atp/sdk
 
 [![npm](https://img.shields.io/npm/v/@scribe-atp/core?label=%40scribe-atp%2Fcore)](https://www.npmjs.com/package/@scribe-atp/core)
-[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
 A TypeScript SDK for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Authors write and publish articles in Scribe CMS; this SDK is for developers who want to display that content in their own sites and apps.
 
@@ -17,6 +17,7 @@ It handles the parts that are easy to get wrong: resolving author identities to 
 | `@scribe-atp/react` | `npm install @scribe-atp/react` | React SPA / client-rendered components. |
 | `@scribe-atp/react-router-framework` | `npm install @scribe-atp/react-router-framework` | React Router v7 framework (server) mode. |
 | `@scribe-atp/angular` | `npm install @scribe-atp/angular` | Angular 16+. |
+| `@scribe-atp/next` | `npm install @scribe-atp/next` | Next.js 13+ App Router. |
 | `@scribe-atp/vue` | `npm install @scribe-atp/vue` | Vue 3+ SPA / client-rendered components. |
 | `@scribe-atp/nuxt` | `npm install @scribe-atp/nuxt` | Nuxt 3+. |
 
@@ -383,4 +384,4 @@ PDS lookups are cached in memory for the lifetime of the module, so repeated cal
 
 ## License
 
-[MIT](./LICENSE) — © 2025 Anthony Cregan
+[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE) — © 2025 Anthony Cregan

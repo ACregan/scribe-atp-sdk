@@ -7,7 +7,8 @@ A monorepo of packages for reading Scribe content from the AT Protocol. Authors 
 | File | Purpose |
 | ---- | ------- |
 | `CLAUDE.md` | This file — architecture, patterns, and conventions |
-| `PLANNING.md` | Feature specs and implementation notes |
+| `DEVELOPER_NOTES.md` | Day-to-day development workflow, changeset process, key commands |
+| `UBIQUITOUS_LANGUAGE.md` | Shared vocabulary across the codebase and documentation |
 
 ## Packages
 
