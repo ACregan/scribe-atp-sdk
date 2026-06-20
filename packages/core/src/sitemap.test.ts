@@ -73,7 +73,14 @@ describe("generateSitemap", () => {
     );
   });
 
-  it("includes the site index URL with urlPrefix", () => {
+  it("always includes the homepage URL", () => {
+    const sitemap = generateSitemap(mockSite, {
+      baseUrl: "https://norobots.blog",
+    });
+    expect(sitemap).toContain("<url><loc>https://norobots.blog</loc></url>");
+  });
+
+  it("includes the blog index URL when urlPrefix is set", () => {
     const sitemap = generateSitemap(mockSite, {
       baseUrl: "https://norobots.blog",
     });
@@ -82,14 +89,13 @@ describe("generateSitemap", () => {
     );
   });
 
-  it("includes the site index URL without urlPrefix", () => {
+  it("does not duplicate the root URL when urlPrefix is empty", () => {
     const siteNoPrefix: Site = { ...mockSite, urlPrefix: "" };
     const sitemap = generateSitemap(siteNoPrefix, {
       baseUrl: "https://norobots.blog",
     });
-    expect(sitemap).toContain(
-      "<url><loc>https://norobots.blog</loc></url>"
-    );
+    const matches = sitemap.match(/<loc>https:\/\/norobots\.blog<\/loc>/g);
+    expect(matches).toHaveLength(1);
   });
 
   it("includes group URLs with urlPrefix", () => {

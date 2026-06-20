@@ -34,10 +34,15 @@ export function generateSitemap(site: Site, options: SitemapOptions): string {
   const prefix = site.urlPrefix ?? "";
   const entries: string[] = [];
 
-  // 1. Site index
-  entries.push(urlEntry(siteIndexUrl(options.baseUrl, prefix)));
+  // 1. Homepage
+  entries.push(urlEntry(options.baseUrl));
 
-  // 2. Group pages and article pages
+  // 2. Blog index (only when the blog lives at a sub-path, not the root)
+  if (prefix) {
+    entries.push(urlEntry(`${options.baseUrl}/${prefix}`));
+  }
+
+  // 3. Group pages and article pages
   for (const group of site.groups) {
     entries.push(urlEntry(groupUrl(options.baseUrl, prefix, group.slug)));
 
