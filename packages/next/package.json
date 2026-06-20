@@ -1,0 +1,53 @@
+{
+  "name": "@scribe-atp/next",
+  "version": "0.1.0",
+  "description": "Next.js App Router adapter for reading Scribe CMS content from the AT Protocol.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@scribe-atp/core": "*"
+  },
+  "peerDependencies": {
+    "next": ">=13.0.0"
+  },
+  "devDependencies": {
+    "next": "^15.0.0"
+  },
+  "keywords": [
+    "scribe",
+    "atproto",
+    "at-protocol",
+    "bluesky",
+    "next",
+    "nextjs",
+    "cms",
+    "blog"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+  }
+}
