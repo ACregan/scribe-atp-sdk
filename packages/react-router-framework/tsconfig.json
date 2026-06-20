@@ -3,9 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "../..",
     "paths": {
-      "@scribe-atp/core": ["packages/core/src/index.ts"]
+      "@scribe-atp/core": ["../core/src/index.ts"]
     }
   },
   "include": ["src"]

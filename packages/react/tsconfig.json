@@ -4,9 +4,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "jsx": "react-jsx",
-    "baseUrl": "../..",
     "paths": {
-      "@scribe-atp/core": ["packages/core/src/index.ts"]
+      "@scribe-atp/core": ["../core/src/index.ts"]
     }
   },
   "include": ["src"]
