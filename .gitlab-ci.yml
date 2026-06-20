@@ -1,5 +1,7 @@
 default:
   image: node:22
+  tags:
+    - SERVER-docker-runner
 
 stages:
   - typecheck
