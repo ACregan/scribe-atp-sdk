@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "paths": {
+      "@scribe-atp/core": ["../core/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

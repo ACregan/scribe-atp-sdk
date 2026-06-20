@@ -1,6 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "paths": {
       "@scribe-atp/core": ["./packages/core/src/index.ts"],
       "@scribe-atp/react": ["./packages/react/src/index.ts"]

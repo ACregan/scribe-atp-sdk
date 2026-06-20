@@ -6,6 +6,7 @@ export default defineConfig({
     alias: {
       "@scribe-atp/core": resolve(__dirname, "packages/core/src/index.ts"),
       "@scribe-atp/react": resolve(__dirname, "packages/react/src/index.ts"),
+      "@scribe-atp/angular": resolve(__dirname, "packages/angular/src/index.ts"),
     },
   },
   test: {
@@ -32,6 +33,15 @@ export default defineConfig({
           name: "react-router-framework",
           include: ["packages/react-router-framework/src/**/*.test.ts"],
           environment: "node",
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "angular",
+          include: ["packages/angular/src/**/*.test.ts"],
+          environment: "jsdom",
+          setupFiles: ["packages/angular/src/test-setup.ts"],
         },
       },
     ],
