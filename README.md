@@ -1,16 +1,15 @@
 # @scribe-atp/sdk
 
-> **Early development — not production ready.** The API is unstable and packages have not yet been published to npm.
-
 A monorepo of packages for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Authors write articles in Scribe CMS; this SDK is for developers who want to display that content in their own sites or apps.
 
 ## Packages
 
-| Package | Description | Status |
-| ------- | ----------- | ------ |
-| `@scribe-atp/core` | Pure TypeScript fetch functions, PDS resolution, types | In development |
-| `@scribe-atp/react` | React hooks wrapping core | In development |
-| `@scribe-atp/react-router-framework` | Loader factories for React Router v7 framework mode | In development |
+| Package | Description |
+| ------- | ----------- |
+| `@scribe-atp/core` | Pure TypeScript fetch functions, PDS resolution, types. No framework deps. |
+| `@scribe-atp/react` | React hooks (`useSite`, `useArticle`) wrapping core. Requires React 18+. |
+| `@scribe-atp/react-router-framework` | Loader factories for React Router v7 framework mode. |
+| `@scribe-atp/angular` | Angular service and injection functions. Requires Angular 16+. |
 
 ---
 
@@ -43,6 +42,17 @@ const article = await fetchArticle("alice.bsky.social", "my-first-post");
 
 console.log(article.title);
 console.log(article.content); // HTML string
+```
+
+### AbortSignal support
+
+Both functions accept an optional `AbortSignal` as a third argument, which cancels the in-flight request:
+
+```ts
+const controller = new AbortController();
+const site = await fetchSite("alice.bsky.social", "alice-bsky-social", controller.signal);
+
+controller.abort(); // cancels the request
 ```
 
 ### Utilities
@@ -108,6 +118,8 @@ function ArticlePage({ author, slug }: { author: string; slug: string }) {
 }
 ```
 
+Hooks abort in-flight requests automatically when the component unmounts or parameters change.
+
 ---
 
 ## `@scribe-atp/react-router-framework`
@@ -120,11 +132,12 @@ npm install @scribe-atp/react-router-framework
 
 ### `createSiteLoader`
 
+Use this for routes that display the full site index. The loader is wired up once with your author and site slug:
+
 ```ts
 // app/routes/blog.tsx
 import { createSiteLoader } from "@scribe-atp/react-router-framework";
 import { useLoaderData } from "react-router";
-import type { Site } from "@scribe-atp/react-router-framework";
 
 export const loader = createSiteLoader("alice.bsky.social", "alice-bsky-social");
 
@@ -143,14 +156,19 @@ export default function Blog() {
 }
 ```
 
-### `createArticleLoader`
+### Dynamic article routes
+
+For dynamic routes where the slug comes from URL params, use `fetchArticle` from `@scribe-atp/core` directly inside your loader:
 
 ```ts
 // app/routes/blog.$slug.tsx
-import { createArticleLoader } from "@scribe-atp/react-router-framework";
+import type { LoaderFunctionArgs } from "react-router";
+import { fetchArticle } from "@scribe-atp/core";
 import { useLoaderData } from "react-router";
 
-export const loader = createArticleLoader("alice.bsky.social", "my-first-post");
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  return fetchArticle("alice.bsky.social", params.slug!, request.signal);
+};
 
 export default function Article() {
   const article = useLoaderData<typeof loader>();
@@ -163,6 +181,116 @@ export default function Article() {
   );
 }
 ```
+
+---
+
+## `@scribe-atp/angular`
+
+Angular service and injection functions wrapping `@scribe-atp/core`. Requires Angular 16 or later. Provides two APIs — pick whichever fits your component style.
+
+```bash
+npm install @scribe-atp/angular
+```
+
+### Observable API — `ScribeService`
+
+`ScribeService` is provided in the root injector (`providedIn: 'root'`) and returns cold Observables. Unsubscribing cancels the in-flight request automatically.
+
+```ts
+// blog.component.ts
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ScribeService } from "@scribe-atp/angular";
+import type { Site } from "@scribe-atp/angular";
+import { Subscription } from "rxjs";
+
+@Component({
+  selector: "app-blog",
+  template: `
+    <p *ngIf="loading">Loading...</p>
+    <p *ngIf="error">{{ error.message }}</p>
+    <ul *ngIf="site">
+      <li *ngFor="let group of site.groups">{{ group.title }}</li>
+    </ul>
+  `,
+})
+export class BlogComponent implements OnInit, OnDestroy {
+  site: Site | null = null;
+  loading = true;
+  error: Error | null = null;
+
+  private sub: Subscription | undefined;
+
+  constructor(private scribe: ScribeService) {}
+
+  ngOnInit() {
+    this.sub = this.scribe.getSite("alice.bsky.social", "alice-bsky-social").subscribe({
+      next: (site) => { this.site = site; this.loading = false; },
+      error: (err) => { this.error = err; this.loading = false; },
+    });
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
+}
+```
+
+Or compose with the `async` pipe for automatic subscription management:
+
+```ts
+@Component({
+  template: `
+    <ng-container *ngIf="site$ | async as site">
+      <ul>
+        <li *ngFor="let group of site.groups">{{ group.title }}</li>
+      </ul>
+    </ng-container>
+  `,
+})
+export class BlogComponent {
+  site$ = inject(ScribeService).getSite("alice.bsky.social", "alice-bsky-social");
+}
+```
+
+`getArticle` follows the same pattern:
+
+```ts
+article$ = inject(ScribeService).getArticle("alice.bsky.social", "my-first-post");
+```
+
+### Signals API — `injectSite` / `injectArticle`
+
+Injection functions that return readonly signals. The fetch is aborted automatically when the host component or injector is destroyed.
+
+```ts
+// article.component.ts
+import { Component } from "@angular/core";
+import { injectArticle } from "@scribe-atp/angular";
+
+@Component({
+  selector: "app-article",
+  template: `
+    <p *ngIf="vm.loading()">Loading...</p>
+    <p *ngIf="vm.error()">{{ vm.error()!.message }}</p>
+    <article *ngIf="vm.article() as article">
+      <h1>{{ article.title }}</h1>
+      <div [innerHTML]="article.content"></div>
+    </article>
+  `,
+})
+export class ArticleComponent {
+  vm = injectArticle("alice.bsky.social", "my-first-post");
+}
+```
+
+`injectSite` follows the same pattern:
+
+```ts
+vm = injectSite("alice.bsky.social", "alice-bsky-social");
+// vm.site(), vm.loading(), vm.error() — all readonly signals
+```
+
+> **Note:** Injection functions must be called in an injection context — inside a constructor, field initialiser, or `runInInjectionContext()`. They cannot be called inside lifecycle hooks or event handlers.
 
 ---
 

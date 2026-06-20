@@ -24,6 +24,16 @@ discussion, it should match the definition here.
 : The React adapter. Thin hooks wrapping `@scribe-atp/core` with
   idiomatic React state management and cleanup.
 
+**`@scribe-atp/react-router-framework`**
+: Loader factories for React Router v7 framework mode. Wraps core fetch
+  functions in the loader/signal conventions of React Router's server-side
+  data loading model.
+
+**`@scribe-atp/angular`**
+: The Angular adapter. Provides `ScribeService` (Observable API) and
+  `injectSite` / `injectArticle` (Signals API) wrapping `@scribe-atp/core`
+  with idiomatic Angular reactivity and cleanup.
+
 ---
 
 ## AT Protocol Concepts
@@ -153,10 +163,27 @@ discussion, it should match the definition here.
 
 **AbortSignal**
 : Passed as an optional argument to core fetch functions, and wired up
-  automatically by React hooks, to cancel in-flight requests when a
-  component unmounts or parameters change.
+  automatically by framework adapters, to cancel in-flight requests when a
+  component unmounts, parameters change, or a subscription is cancelled.
 
 **PDS cache**
 : An in-memory `Map` inside `packages/core/src/resolve.ts` that stores
   resolved PDS endpoints keyed by DID. Prevents redundant DID document
   fetches within a single page load.
+
+**Injection function**
+: An Angular-idiomatic function (e.g. `injectSite`, `injectArticle`) that
+  uses Angular's `inject()` API internally. Must be called within an
+  injection context (constructor, field initialiser, or
+  `runInInjectionContext()`). Returns reactive signals and registers cleanup
+  via `DestroyRef`.
+
+**Observable**
+: An RxJS lazy data stream returned by `ScribeService` methods. Cold —
+  the fetch does not start until subscribe is called. Cancels the underlying
+  request when unsubscribed.
+
+**Signal**
+: An Angular reactive primitive (Angular 16+) returned by injection
+  functions. Synchronously readable via `signal()` call syntax. Updated
+  in-place as the fetch resolves.

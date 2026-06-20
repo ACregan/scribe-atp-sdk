@@ -10,7 +10,13 @@ This monorepo uses [Changesets](https://github.com/changesets/changesets) to man
 
 ### 1. Make your code changes
 
-Work normally — edit files in `packages/core` or `packages/react`, write tests, etc.
+`main` is a protected branch — all changes must go through a feature branch and merge request. Work in a branch:
+
+```bash
+git checkout -b feat/my-change
+```
+
+Edit files in the relevant package (`packages/core`, `packages/react`, `packages/angular`, etc.), write tests, etc.
 
 ### 2. Create a changeset
 
@@ -74,17 +80,18 @@ git push --follow-tags
 ## Key commands
 
 ```bash
-npm install                          # install all workspace deps
-npm run build                        # build all packages
-npm run test                         # run all tests
-npm run typecheck                    # type-check all packages
+npm install                               # install all workspace deps
+npm run build                             # build all packages
+npm run test                              # run all tests
+npm run typecheck                         # type-check all packages
 
-npx changeset                        # create a changeset for your changes
-npx changeset version                # bump versions + update changelogs
-npx changeset publish                # publish changed packages to npm
+npx changeset                             # create a changeset for your changes
+npx changeset version                     # bump versions + update changelogs
+npx changeset publish                     # publish changed packages to npm
 
-npm -w packages/core run build       # build a single package
-npm -w packages/core run test        # test a single package
+npm -w packages/core run build            # build a single package
+npm -w packages/angular run build         # build the angular package
+npm run test -- --project=angular         # test a single vitest project
 ```
 
 ---
