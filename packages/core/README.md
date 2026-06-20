@@ -63,6 +63,51 @@ slugFromUri("at://did:plc:abc/app.scribe.article/my-post"); // → "my-post"
 flattenArticles(site.groups); // → ArticleRef[] across all groups
 ```
 
+### Feed & Sitemap
+
+Generate an RSS 2.0 feed or an XML sitemap from a fetched `Site` object. Both functions are pure — they produce a string and make no network requests.
+
+#### RSS feed
+
+```ts
+import { fetchSite, toSlug, generateFeed } from "@scribe-atp/core";
+
+const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+
+const xml = generateFeed(site, {
+  baseUrl: "https://alice.bsky.social",
+  feedUrl: "https://alice.bsky.social/feed.xml", // adds <atom:link rel="self">
+  language: "en",  // defaults to "en"
+  limit: 20,       // cap items; omit to include all
+});
+
+// In a server handler:
+return new Response(xml, {
+  headers: { "Content-Type": "application/rss+xml; charset=utf-8" },
+});
+```
+
+Only published articles (from `site.groups`) are included. Draft articles in `site.ungroupedArticles` are excluded.
+
+#### XML sitemap
+
+```ts
+import { fetchSite, toSlug, generateSitemap } from "@scribe-atp/core";
+
+const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+
+const xml = generateSitemap(site, {
+  baseUrl: "https://alice.bsky.social",
+});
+
+// In a server handler:
+return new Response(xml, {
+  headers: { "Content-Type": "application/xml; charset=utf-8" },
+});
+```
+
+The sitemap includes the site index, each group page, and each article page. Article entries include a `<lastmod>` date when `updatedAt` is available.
+
 ## TypeScript types
 
 ```ts
