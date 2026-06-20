@@ -17,7 +17,7 @@ const mockUseAsyncData = vi.mocked(useAsyncData);
 
 beforeEach(() => {
   vi.resetAllMocks();
-  mockUseAsyncData.mockReturnValue({ data: null, pending: false, error: null } as ReturnType<typeof useAsyncData>);
+  mockUseAsyncData.mockReturnValue({ data: null, pending: false, error: null } as any);
 });
 
 describe("useScribeSite", () => {
@@ -33,9 +33,10 @@ describe("useScribeSite", () => {
   it("handler calls fetchSite with correct args", async () => {
     const mockSite = { title: "Test", url: "test.com", urlPrefix: "", groups: [], ungroupedArticles: [] };
     mockFetchSite.mockResolvedValueOnce(mockSite);
-    mockUseAsyncData.mockImplementation((_key, handler) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (mockUseAsyncData as any).mockImplementation((_key: any, handler: any) => {
       handler();
-      return { data: null, pending: false, error: null } as ReturnType<typeof useAsyncData>;
+      return {};
     });
     useScribeSite("alice.bsky.social", "alice-bsky-social");
     expect(mockFetchSite).toHaveBeenCalledWith("alice.bsky.social", "alice-bsky-social");
@@ -51,7 +52,7 @@ describe("useScribeSite", () => {
   });
 
   it("returns the result of useAsyncData", () => {
-    const mockReturn = { data: { title: "Test" }, pending: false, error: null } as unknown as ReturnType<typeof useAsyncData>;
+    const mockReturn = { data: { title: "Test" }, pending: false, error: null } as unknown as any;
     mockUseAsyncData.mockReturnValueOnce(mockReturn);
     const result = useScribeSite("alice.bsky.social", "alice-bsky-social");
     expect(result).toBe(mockReturn);

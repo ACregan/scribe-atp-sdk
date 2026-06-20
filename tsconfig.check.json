@@ -7,7 +7,8 @@
       "@scribe-atp/core": ["./packages/core/src/index.ts"],
       "@scribe-atp/react": ["./packages/react/src/index.ts"],
       "@scribe-atp/next": ["./packages/next/src/index.ts"],
-      "@scribe-atp/vue": ["./packages/vue/src/index.ts"]
+      "@scribe-atp/vue": ["./packages/vue/src/index.ts"],
+      "#app": ["./node_modules/nuxt/dist/app/index.d.ts"]
     }
   },
   "include": [
