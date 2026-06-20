@@ -18,6 +18,17 @@ A monorepo of packages for reading Scribe content from the AT Protocol. Authors 
 
 Vue and Angular adapters are planned but not started. When added, follow the same pattern as `@scribe-atp/react` — thin wrappers around the core fetch functions with framework-idiomatic reactivity.
 
+## CI/CD
+
+GitLab CI. All jobs must include the runner tag:
+
+```yaml
+tags:
+  - SERVER-docker-runner
+```
+
+Add this to the `default` block in `.gitlab-ci.yml` so it applies to every job automatically.
+
 ## Stack
 
 - **TypeScript** — strict mode; ESM + CJS dual output via `tsup`
