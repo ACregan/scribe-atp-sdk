@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `generateFeed` and `generateSitemap` utility functions for generating RSS 2.0 feeds and XML sitemaps from a Scribe site record.
+
 ## 1.0.1
 
 ### Patch Changes
