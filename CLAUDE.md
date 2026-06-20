@@ -14,10 +14,15 @@ A monorepo of packages for reading Scribe content from the AT Protocol. Authors 
 
 | Package | Path | Purpose |
 | ------- | ---- | ------- |
-| `@scribe-atp/core` | `packages/core` | Pure TS fetch functions, PDS resolution, types. No framework deps. |
+| `@scribe-atp/core` | `packages/core` | Pure TS fetch functions, PDS resolution, feed/sitemap generation, types. No framework deps. |
 | `@scribe-atp/react` | `packages/react` | React hooks (`useSite`, `useArticle`) wrapping core. |
+| `@scribe-atp/react-router-framework` | `packages/react-router-framework` | Loader factories for React Router v7 framework mode. |
+| `@scribe-atp/angular` | `packages/angular` | Angular service (`ScribeService`) and injection functions (`injectSite`, `injectArticle`). |
+| `@scribe-atp/next` | `packages/next` | Next.js 13+ App Router adapter — `createScribeSite` factory for `generateStaticParams` and `generateMetadata`. |
+| `@scribe-atp/vue` | `packages/vue` | Vue 3 composables (`useScribeSite`, `useScribeArticle`). |
+| `@scribe-atp/nuxt` | `packages/nuxt` | Nuxt 3 module — wraps vue composables with `useAsyncData` and configures auto-imports. |
 
-Vue and Angular adapters are planned but not started. When added, follow the same pattern as `@scribe-atp/react` — thin wrappers around the core fetch functions with framework-idiomatic reactivity.
+All framework adapters are thin wrappers around `@scribe-atp/core`. New adapters should follow the same pattern: framework-idiomatic reactivity on top of the core fetch functions, with `AbortController` cleanup.
 
 ## CI/CD
 
@@ -36,6 +41,8 @@ Add this to the `default` block in `.gitlab-ci.yml` so it applies to every job a
 - **npm workspaces** — monorepo; packages linked locally during development
 - **Vitest** — unit tests; `fetch` is mocked at the test level
 - **@testing-library/react** — component/hook tests in `packages/react`
+- **@vue/test-utils** — component/composable tests in `packages/vue`
+- **zone.js + TestBed** — Angular testing in `packages/angular`
 
 Each package has its own `package.json`, `tsconfig.json`, and `tsup.config.ts`. The root `package.json` holds dev tooling only.
 
@@ -144,6 +151,8 @@ packages/core/src/
   resolve.ts        — resolveIdentifier(), resolvePds() (internal helpers)
   fetch.ts          — fetchSite(), fetchArticle() (exported)
   utils.ts          — toSlug(), slugFromUri(), flattenArticles() (exported)
+  feed.ts           — generateFeed() (exported) — RSS 2.0, hand-rolled XML
+  sitemap.ts        — generateSitemap() (exported) — standard XML sitemap
   index.ts          — re-exports everything public
 ```
 
@@ -171,6 +180,67 @@ Hooks are thin wrappers — all fetch logic lives in `@scribe-atp/core`. Each ho
 
 Re-export all types from `@scribe-atp/core` so consumers only need to import one package.
 
+## `@scribe-atp/react-router-framework` — loader factories
+
+```
+packages/react-router-framework/src/
+  loaders.ts        — createSiteLoader(), createArticleLoader()
+  index.ts          — re-exports loaders and all types from core
+```
+
+Factories return a loader function compatible with React Router v7 framework mode. Each factory:
+- Accepts `author` and `siteSlug`/`articleSlug` at configuration time
+- Returns a loader that extracts `request.signal` and passes it to the core fetch function
+
+## `@scribe-atp/angular` — service and injection functions
+
+```
+packages/angular/src/
+  scribe.service.ts     — ScribeService (@Injectable providedIn: 'root') — Observable API
+  inject-site.ts        — injectSite() — Signals API
+  inject-article.ts     — injectArticle() — Signals API
+  index.ts              — re-exports everything public
+```
+
+Ships two APIs. `ScribeService` returns cold Observables; the fetch is cancelled on unsubscribe. `injectSite`/`injectArticle` return readonly signals and abort on `DestroyRef.onDestroy`. Requires `experimentalDecorators: true` and `useDefineForClassFields: false` in tsconfig.
+
+## `@scribe-atp/next` — Next.js App Router adapter
+
+```
+packages/next/src/
+  create-scribe-site.ts — createScribeSite(author, siteSlug) factory
+  index.ts              — re-exports factory and all types from core
+```
+
+`createScribeSite` returns an object with six async functions assigned directly to Next.js named exports:
+- `generateGroupParams`, `generateArticleParams`, `generateGroupArticleParams` — for `generateStaticParams`
+- `generateSiteMetadata`, `generateGroupMetadata`, `generateArticleMetadata` — for `generateMetadata`
+
+Metadata is opinionated (complete OpenGraph by default). Uses `ArticleRef` snapshots from the site record — no per-article fetch at build time. ISR is handled by Next.js route segment config (`export const revalidate`), not by the SDK.
+
+## `@scribe-atp/vue` — Vue 3 composables
+
+```
+packages/vue/src/
+  useScribeSite.ts    — useScribeSite(author, siteSlug) → { site, loading, error } (Refs)
+  useScribeArticle.ts — useScribeArticle(author, articleSlug) → { article, loading, error } (Refs)
+  index.ts            — re-exports composables and all types from core
+```
+
+Composables use `onUnmounted` for `AbortController` cleanup. Named with `Scribe` prefix (`useScribeSite` not `useSite`) to avoid collision in Nuxt's auto-import context.
+
+## `@scribe-atp/nuxt` — Nuxt 3 module
+
+```
+packages/nuxt/src/
+  module.ts                        — defineNuxtModule, registers auto-imports
+  composables/useScribeSite.ts     — wraps fetchSite with useAsyncData
+  composables/useScribeArticle.ts  — wraps fetchArticle with useAsyncData
+  index.ts                         — re-exports module and all types from core
+```
+
+Full Nuxt module — registered in `nuxt.config.ts` as `modules: ['@scribe-atp/nuxt']`. Auto-imports `useScribeSite` and `useScribeArticle` globally. Returns Nuxt conventions (`data`, `pending`, `error`). Accepts optional `useAsyncData` options as third argument. Calls `fetchSite`/`fetchArticle` from core directly (not the vue composables) to let `useAsyncData` own the SSR lifecycle.
+
 ## Relationship to scribe-cms.app
 
 `scribe-cms.app` currently has an `app/hooks/` directory with the original versions of these hooks (without PDS resolution). Once this SDK is published:
@@ -191,6 +261,7 @@ export default defineConfig({
   format: ["esm", "cjs"],
   dts: true,
   clean: true,
+  external: ["peer-dep-name"], // list peer deps here
 });
 ```
 
@@ -199,13 +270,13 @@ export default defineConfig({
 {
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts"
 }
 ```
@@ -216,7 +287,13 @@ Tests live alongside source in each package (`src/fetch.test.ts`, etc.).
 
 **Core tests** — mock `fetch` globally with `vi.stubGlobal("fetch", ...)` and assert the correct URLs are constructed for each DID type. Test the PDS resolution cache (call `resolvePds` twice with the same DID, verify only one fetch).
 
-**React hook tests** — use `@testing-library/react`'s `renderHook`. Mock the core fetch functions with `vi.mock("@scribe-atp/core")` to isolate hook logic from network behaviour. Test: loading state on mount, data set on resolve, error state on reject, cleanup/abort on unmount, re-fetch on param change.
+**React hook tests** — use `@testing-library/react`'s `renderHook`. Mock the core fetch functions with `vi.mock("@scribe-atp/core")` to isolate hook logic from network behaviour.
+
+**Vue composable tests** — use `@vue/test-utils` `mount` with a minimal wrapper component. Mock `@scribe-atp/core` with `vi.mock`. Test: loading state, data on resolve, error on reject, abort on unmount.
+
+**Angular tests** — require `zone.js` and `TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting())` in `test-setup.ts`. Use `TestBed.runInInjectionContext()` to test injection functions. `tsconfig.check.json` requires `experimentalDecorators: true` and `useDefineForClassFields: false`.
+
+**Nuxt composable tests** — mock both `@scribe-atp/core` and `#app` with `vi.mock`. The `#app` alias is resolved via a Vitest alias pointing to `packages/nuxt/node_modules/nuxt/dist/app/index.mjs`. Use `(mockUseAsyncData as any).mockImplementation(...)` to avoid fighting nuxt's complex overload types in tests.
 
 ## Key commands
 
@@ -230,9 +307,19 @@ npm -w packages/core run build   # build a single package
 
 ## Publishing
 
-Packages publish to npm under `@scribe-atp/`. Version independently (each package has its own semver). Publish `core` before `react` since `react` depends on it.
+Packages publish to npm under `@scribe-atp/`. Versions are independent (each package has its own semver). The CI publish job runs `npx changeset publish` — it detects unpublished versions and publishes them in dependency order automatically.
 
-**Do not publish** until the PDS resolution fix is complete and tested — the hardcoded `public.api.bsky.app` approach must not be carried into the published packages.
+**Workflow:**
+1. Create a changeset: `npx changeset` — select affected packages and bump type
+2. Run `npx changeset version` — updates `package.json` versions and `CHANGELOG.md` files
+3. Commit the version bump: `chore: version packages — <package>@<version>`
+4. Merge to main and trigger the manual publish job in CI
+
+New packages (never published) do not need a changeset — `changeset publish` detects that the version in `package.json` hasn't been published and ships it at the current version.
+
+## Branch protection
+
+`main` is a protected branch. All changes require a feature branch and MR. No direct pushes to main.
 
 ## Branding context
 
