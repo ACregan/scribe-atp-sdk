@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@scribe-atp/core": ["../core/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}
