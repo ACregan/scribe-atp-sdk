@@ -18,7 +18,11 @@ export async function fetchSite(
   if (!res.ok) throw new Error(`Failed to fetch site: ${res.statusText}`);
 
   const data = (await res.json()) as { value: Site };
-  return data.value;
+  return {
+    ...data.value,
+    groups: data.value.groups ?? [],
+    ungroupedArticles: data.value.ungroupedArticles ?? [],
+  };
 }
 
 export async function fetchArticle(

@@ -41,6 +41,18 @@ describe("fetchSite", () => {
       "Failed to fetch site"
     );
   });
+
+  it("normalises missing groups and ungroupedArticles to empty arrays", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: { title: "Test", url: "example.com", urlPrefix: "" },
+      }),
+    });
+    const result = await fetchSite("did:plc:testuser", "example-com");
+    expect(result.groups).toEqual([]);
+    expect(result.ungroupedArticles).toEqual([]);
+  });
 });
 
 describe("fetchArticle", () => {
