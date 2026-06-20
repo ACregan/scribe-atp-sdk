@@ -1,7 +1,7 @@
 # @scribe-atp/sdk
 
 [![npm](https://img.shields.io/npm/v/@scribe-atp/core?label=%40scribe-atp%2Fcore)](https://www.npmjs.com/package/@scribe-atp/core)
-[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
 A TypeScript SDK for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Authors write and publish articles in Scribe CMS; this SDK is for developers who want to display that content in their own sites and apps.
 
@@ -381,4 +381,4 @@ PDS lookups are cached in memory for the lifetime of the module, so repeated cal
 
 ## License
 
-[MIT](./LICENSE) — © 2025 Anthony Cregan
+[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE) — © 2025 Anthony Cregan

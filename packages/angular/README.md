@@ -1,7 +1,7 @@
 # @scribe-atp/angular
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/angular)](https://www.npmjs.com/package/@scribe-atp/angular)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://www.npmjs.com/package/@scribe-atp/angular)
+[![npm](https://img.shields.io/npm/v/@scribe-atp/angular)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
 Angular service and injection functions for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Requires Angular 16 or later.
 
@@ -117,4 +117,4 @@ import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/angular";
 
 ## License
 
-[MIT](https://www.npmjs.com/package/@scribe-atp/angular)
+[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)

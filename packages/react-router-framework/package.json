@@ -32,6 +32,10 @@
     "react-router",
     "typescript"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+  },
   "publishConfig": {
     "access": "public"
   },

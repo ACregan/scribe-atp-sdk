@@ -1,7 +1,7 @@
 # @scribe-atp/react
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/react)](https://www.npmjs.com/package/@scribe-atp/react)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://www.npmjs.com/package/@scribe-atp/react)
+[![npm](https://img.shields.io/npm/v/@scribe-atp/react)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
 React hooks for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Requires React 18 or later.
 
@@ -68,10 +68,10 @@ import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/react";
 
 ## Using with server-side rendering
 
-If you're using React Router v7 framework mode, consider [`@scribe-atp/react-router-framework`](https://www.npmjs.com/package/@scribe-atp/react-router-framework) instead — it fetches on the server and avoids client-side loading states entirely.
+If you're using React Router v7 framework mode, consider [`@scribe-atp/react-router-framework`](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE-router-framework) instead — it fetches on the server and avoids client-side loading states entirely.
 
 For Next.js App Router or other SSR frameworks, use [`@scribe-atp/core`](https://www.npmjs.com/package/@scribe-atp/core) directly in your server components or page loaders.
 
 ## License
 
-[MIT](https://www.npmjs.com/package/@scribe-atp/react)
+[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)

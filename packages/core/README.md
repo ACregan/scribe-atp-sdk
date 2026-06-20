@@ -1,7 +1,7 @@
 # @scribe-atp/core
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/core)](https://www.npmjs.com/package/@scribe-atp/core)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://www.npmjs.com/package/@scribe-atp/core)
+[![npm](https://img.shields.io/npm/v/@scribe-atp/core)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
 Framework-agnostic TypeScript functions for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. No runtime dependencies.
 
@@ -90,4 +90,4 @@ Scribe content is stored on the AT Protocol. Each author's articles live on thei
 
 ## License
 
-[MIT](https://www.npmjs.com/package/@scribe-atp/core)
+[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
