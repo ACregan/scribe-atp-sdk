@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import type { LoaderFunctionArgs } from "react-router";
 import { createSiteLoader, createArticleLoader } from "./loaders.js";
 
 vi.mock("@scribe-atp/core", () => ({
@@ -10,7 +11,8 @@ import { fetchSite, fetchArticle } from "@scribe-atp/core";
 const mockFetchSite = vi.mocked(fetchSite);
 const mockFetchArticle = vi.mocked(fetchArticle);
 
-const makeRequest = () => new Request("https://example.com");
+const makeArgs = (): LoaderFunctionArgs =>
+  ({ request: new Request("https://example.com"), params: {}, context: {} }) as unknown as LoaderFunctionArgs;
 
 const site = {
   title: "Test Site",
@@ -32,7 +34,7 @@ describe("createSiteLoader", () => {
   it("returns a loader that fetches the site", async () => {
     mockFetchSite.mockResolvedValueOnce(site);
     const loader = createSiteLoader("did:plc:test", "example-com");
-    const result = await loader({ request: makeRequest(), params: {}, context: {} });
+    const result = await loader(makeArgs());
     expect(result).toEqual(site);
     expect(mockFetchSite).toHaveBeenCalledWith(
       "did:plc:test",
@@ -44,12 +46,12 @@ describe("createSiteLoader", () => {
   it("passes the request signal to fetchSite", async () => {
     mockFetchSite.mockResolvedValueOnce(site);
     const loader = createSiteLoader("did:plc:test", "example-com");
-    const request = makeRequest();
-    await loader({ request, params: {}, context: {} });
+    const args = makeArgs();
+    await loader(args);
     expect(mockFetchSite).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(String),
-      request.signal
+      args.request.signal
     );
   });
 });
@@ -58,7 +60,7 @@ describe("createArticleLoader", () => {
   it("returns a loader that fetches the article", async () => {
     mockFetchArticle.mockResolvedValueOnce(article);
     const loader = createArticleLoader("did:plc:test", "hello");
-    const result = await loader({ request: makeRequest(), params: {}, context: {} });
+    const result = await loader(makeArgs());
     expect(result).toEqual(article);
     expect(mockFetchArticle).toHaveBeenCalledWith(
       "did:plc:test",
@@ -70,12 +72,12 @@ describe("createArticleLoader", () => {
   it("passes the request signal to fetchArticle", async () => {
     mockFetchArticle.mockResolvedValueOnce(article);
     const loader = createArticleLoader("did:plc:test", "hello");
-    const request = makeRequest();
-    await loader({ request, params: {}, context: {} });
+    const args = makeArgs();
+    await loader(args);
     expect(mockFetchArticle).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(String),
-      request.signal
+      args.request.signal
     );
   });
 });
