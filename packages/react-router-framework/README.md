@@ -1,7 +1,7 @@
 # @scribe-atp/react-router-framework
 
 [![npm](https://img.shields.io/npm/v/@scribe-atp/react-router-framework)](https://www.npmjs.com/package/@scribe-atp/react-router-framework)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/scribe-atp/sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://www.npmjs.com/package/@scribe-atp/react-router-framework)
 
 Loader factories for reading [Scribe CMS](https://scribe-cms.app) content in [React Router v7 framework mode](https://reactrouter.com).
 
@@ -77,4 +77,4 @@ import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/react-rou
 
 ## License
 
-[MIT](https://github.com/scribe-atp/sdk/blob/main/LICENSE)
+[MIT](https://www.npmjs.com/package/@scribe-atp/react-router-framework)

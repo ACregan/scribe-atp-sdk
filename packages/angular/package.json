@@ -20,6 +20,17 @@
   "files": [
     "dist"
   ],
+  "keywords": [
+    "at-protocol",
+    "atproto",
+    "bluesky",
+    "scribe",
+    "scribe-cms",
+    "blog",
+    "cms",
+    "angular",
+    "typescript"
+  ],
   "publishConfig": {
     "access": "public"
   },

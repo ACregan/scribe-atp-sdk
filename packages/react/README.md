@@ -1,7 +1,7 @@
 # @scribe-atp/react
 
 [![npm](https://img.shields.io/npm/v/@scribe-atp/react)](https://www.npmjs.com/package/@scribe-atp/react)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/scribe-atp/sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://www.npmjs.com/package/@scribe-atp/react)
 
 React hooks for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Requires React 18 or later.
 
@@ -74,4 +74,4 @@ For Next.js App Router or other SSR frameworks, use [`@scribe-atp/core`](https:/
 
 ## License
 
-[MIT](https://github.com/scribe-atp/sdk/blob/main/LICENSE)
+[MIT](https://www.npmjs.com/package/@scribe-atp/react)
