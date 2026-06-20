@@ -1,0 +1,54 @@
+{
+  "name": "@scribe-atp/vue",
+  "version": "0.1.0",
+  "description": "Vue 3 composables for reading Scribe CMS content from the AT Protocol.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@scribe-atp/core": "*"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "vue": "^3.4.0",
+    "@vue/test-utils": "^2.4.0"
+  },
+  "keywords": [
+    "scribe",
+    "atproto",
+    "at-protocol",
+    "bluesky",
+    "vue",
+    "vue3",
+    "cms",
+    "blog"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+  }
+}
