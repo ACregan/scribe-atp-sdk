@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@scribe-atp/core": ["../core/src/index.ts"],
+      "#app": ["./node_modules/nuxt/dist/app/index.d.ts"]
+    }
+  },
+  "include": ["src"]
+}

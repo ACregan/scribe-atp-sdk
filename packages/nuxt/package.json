@@ -1,0 +1,54 @@
+{
+  "name": "@scribe-atp/nuxt",
+  "version": "0.1.0",
+  "description": "Nuxt 3 module for reading Scribe CMS content from the AT Protocol.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.0.0",
+    "@scribe-atp/core": "*"
+  },
+  "peerDependencies": {
+    "nuxt": "^3.0.0"
+  },
+  "devDependencies": {
+    "nuxt": "^3.17.0"
+  },
+  "keywords": [
+    "scribe",
+    "atproto",
+    "at-protocol",
+    "bluesky",
+    "nuxt",
+    "nuxt3",
+    "cms",
+    "blog"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+  }
+}

@@ -17,8 +17,10 @@ It handles the parts that are easy to get wrong: resolving author identities to 
 | `@scribe-atp/react` | `npm install @scribe-atp/react` | React SPA / client-rendered components. |
 | `@scribe-atp/react-router-framework` | `npm install @scribe-atp/react-router-framework` | React Router v7 framework (server) mode. |
 | `@scribe-atp/angular` | `npm install @scribe-atp/angular` | Angular 16+. |
+| `@scribe-atp/vue` | `npm install @scribe-atp/vue` | Vue 3+ SPA / client-rendered components. |
+| `@scribe-atp/nuxt` | `npm install @scribe-atp/nuxt` | Nuxt 3+. |
 
-For **Next.js**, **Nuxt**, **SvelteKit**, or any other meta-framework with server-side data fetching, install `@scribe-atp/core` and call `fetchSite` / `fetchArticle` directly in your page loaders or server components. See the [Other frameworks](#other-frameworks) section.
+For **SvelteKit**, **Astro**, or any other meta-framework with server-side data fetching, install `@scribe-atp/core` and call `fetchSite` / `fetchArticle` directly in your page loaders or server components. See the [Other frameworks](#other-frameworks) section.
 
 ---
 

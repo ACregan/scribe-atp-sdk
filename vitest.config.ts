@@ -7,6 +7,7 @@ export default defineConfig({
       "@scribe-atp/core": resolve(__dirname, "packages/core/src/index.ts"),
       "@scribe-atp/react": resolve(__dirname, "packages/react/src/index.ts"),
       "@scribe-atp/angular": resolve(__dirname, "packages/angular/src/index.ts"),
+      "@scribe-atp/vue": resolve(__dirname, "packages/vue/src/index.ts"),
     },
   },
   test: {
@@ -42,6 +43,27 @@ export default defineConfig({
           include: ["packages/angular/src/**/*.test.ts"],
           environment: "jsdom",
           setupFiles: ["packages/angular/src/test-setup.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "vue",
+          include: ["packages/vue/src/**/*.test.ts"],
+          environment: "jsdom",
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "nuxt",
+          include: ["packages/nuxt/src/**/*.test.ts"],
+          environment: "node",
+        },
+        resolve: {
+          alias: {
+            "#app": resolve(__dirname, "packages/nuxt/node_modules/nuxt/dist/app/index.mjs"),
+          },
         },
       },
     ],
