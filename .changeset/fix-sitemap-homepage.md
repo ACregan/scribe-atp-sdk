@@ -2,4 +2,4 @@
 "@scribe-atp/core": patch
 ---
 
-Fix `generateSitemap` not including the homepage URL. Sites with a `urlPrefix` (e.g. blog at `/blog`) now correctly emit both the root `/` and the blog index as separate entries.
+Replace `generateSitemap` with `getSitemapEntries`, which returns `SitemapEntry[]` instead of an XML string. This correctly scopes the SDK to Scribe content — consumers merge the returned entries into their own framework's sitemap generator alongside their non-Scribe pages.

@@ -152,7 +152,7 @@ packages/core/src/
   fetch.ts          — fetchSite(), fetchArticle() (exported)
   utils.ts          — toSlug(), slugFromUri(), flattenArticles() (exported)
   feed.ts           — generateFeed() (exported) — RSS 2.0, hand-rolled XML
-  sitemap.ts        — generateSitemap() (exported) — standard XML sitemap
+  sitemap.ts        — getSitemapEntries() (exported) — returns SitemapEntry[] for merging into framework sitemap generators
   index.ts          — re-exports everything public
 ```
 

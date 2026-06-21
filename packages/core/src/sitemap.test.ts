@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateSitemap } from "./sitemap.js";
+import { getSitemapEntries } from "./sitemap.js";
 import type { Site } from "./types.js";
 
 const mockSite: Site = {
@@ -26,7 +26,6 @@ const mockSite: Site = {
           url: "second-post",
           splashImageUrl: null,
           createdAt: "2024-02-01T00:00:00Z",
-          // no updatedAt
         },
       ],
     },
@@ -56,126 +55,76 @@ const mockSite: Site = {
   ],
 };
 
-describe("generateSitemap", () => {
-  it("returns a valid XML declaration", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+describe("getSitemapEntries", () => {
+  it("returns an array", () => {
+    const entries = getSitemapEntries(mockSite, { baseUrl: "https://norobots.blog" });
+    expect(Array.isArray(entries)).toBe(true);
   });
 
-  it("includes the correct urlset xmlns", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).toContain(
-      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-    );
+  it("always includes the homepage", () => {
+    const entries = getSitemapEntries(mockSite, { baseUrl: "https://norobots.blog" });
+    expect(entries).toContainEqual({ url: "https://norobots.blog" });
   });
 
-  it("always includes the homepage URL", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).toContain("<url><loc>https://norobots.blog</loc></url>");
+  it("includes the blog index when urlPrefix is set", () => {
+    const entries = getSitemapEntries(mockSite, { baseUrl: "https://norobots.blog" });
+    expect(entries).toContainEqual({ url: "https://norobots.blog/blog" });
   });
 
-  it("includes the blog index URL when urlPrefix is set", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).toContain(
-      "<url><loc>https://norobots.blog/blog</loc></url>"
-    );
-  });
-
-  it("does not duplicate the root URL when urlPrefix is empty", () => {
+  it("does not duplicate root when urlPrefix is empty", () => {
     const siteNoPrefix: Site = { ...mockSite, urlPrefix: "" };
-    const sitemap = generateSitemap(siteNoPrefix, {
-      baseUrl: "https://norobots.blog",
-    });
-    const matches = sitemap.match(/<loc>https:\/\/norobots\.blog<\/loc>/g);
-    expect(matches).toHaveLength(1);
+    const entries = getSitemapEntries(siteNoPrefix, { baseUrl: "https://norobots.blog" });
+    const rootEntries = entries.filter(e => e.url === "https://norobots.blog");
+    expect(rootEntries).toHaveLength(1);
   });
 
   it("includes group URLs with urlPrefix", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).toContain(
-      "<url><loc>https://norobots.blog/blog/essays</loc></url>"
-    );
-    expect(sitemap).toContain(
-      "<url><loc>https://norobots.blog/blog/notes</loc></url>"
-    );
+    const entries = getSitemapEntries(mockSite, { baseUrl: "https://norobots.blog" });
+    expect(entries).toContainEqual({ url: "https://norobots.blog/blog/essays" });
+    expect(entries).toContainEqual({ url: "https://norobots.blog/blog/notes" });
   });
 
   it("includes group URLs without urlPrefix", () => {
     const siteNoPrefix: Site = { ...mockSite, urlPrefix: "" };
-    const sitemap = generateSitemap(siteNoPrefix, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).toContain(
-      "<url><loc>https://norobots.blog/essays</loc></url>"
-    );
-    expect(sitemap).toContain(
-      "<url><loc>https://norobots.blog/notes</loc></url>"
-    );
+    const entries = getSitemapEntries(siteNoPrefix, { baseUrl: "https://norobots.blog" });
+    expect(entries).toContainEqual({ url: "https://norobots.blog/essays" });
+    expect(entries).toContainEqual({ url: "https://norobots.blog/notes" });
   });
 
   it("includes article URLs with urlPrefix", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).toContain(
-      "https://norobots.blog/blog/essays/first-post"
-    );
-    expect(sitemap).toContain(
-      "https://norobots.blog/blog/notes/note-one"
-    );
+    const entries = getSitemapEntries(mockSite, { baseUrl: "https://norobots.blog" });
+    expect(entries.some(e => e.url === "https://norobots.blog/blog/essays/first-post")).toBe(true);
+    expect(entries.some(e => e.url === "https://norobots.blog/blog/notes/note-one")).toBe(true);
   });
 
   it("includes article URLs without urlPrefix", () => {
     const siteNoPrefix: Site = { ...mockSite, urlPrefix: "" };
-    const sitemap = generateSitemap(siteNoPrefix, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).toContain("https://norobots.blog/essays/first-post");
-    expect(sitemap).toContain("https://norobots.blog/notes/note-one");
+    const entries = getSitemapEntries(siteNoPrefix, { baseUrl: "https://norobots.blog" });
+    expect(entries.some(e => e.url === "https://norobots.blog/essays/first-post")).toBe(true);
+    expect(entries.some(e => e.url === "https://norobots.blog/notes/note-one")).toBe(true);
   });
 
   it("includes lastmod when updatedAt is present", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
+    const entries = getSitemapEntries(mockSite, { baseUrl: "https://norobots.blog" });
+    expect(entries).toContainEqual({
+      url: "https://norobots.blog/blog/essays/first-post",
+      lastmod: "2024-01-15",
     });
-    expect(sitemap).toContain("<lastmod>2024-01-15</lastmod>");
-    expect(sitemap).toContain("<lastmod>2024-03-10</lastmod>");
+    expect(entries).toContainEqual({
+      url: "https://norobots.blog/blog/notes/note-one",
+      lastmod: "2024-03-10",
+    });
   });
 
   it("omits lastmod when updatedAt is absent", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    // second-post has no updatedAt; extract its <url>…</url> entry and check it has no lastmod
-    const entryRegex =
-      /<url><loc>https:\/\/norobots\.blog\/blog\/essays\/second-post<\/loc>([^<]*)<\/url>/;
-    const match = sitemap.match(entryRegex);
-    expect(match).not.toBeNull();
-    expect(match![0]).not.toContain("<lastmod>");
-  });
-
-  it("does not include changefreq or priority tags", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).not.toContain("<changefreq>");
-    expect(sitemap).not.toContain("<priority>");
+    const entries = getSitemapEntries(mockSite, { baseUrl: "https://norobots.blog" });
+    const secondPost = entries.find(e => e.url === "https://norobots.blog/blog/essays/second-post");
+    expect(secondPost).toBeDefined();
+    expect(secondPost).not.toHaveProperty("lastmod");
   });
 
   it("does not include ungroupedArticles", () => {
-    const sitemap = generateSitemap(mockSite, {
-      baseUrl: "https://norobots.blog",
-    });
-    expect(sitemap).not.toContain("draft");
+    const entries = getSitemapEntries(mockSite, { baseUrl: "https://norobots.blog" });
+    expect(entries.every(e => !e.url.includes("draft"))).toBe(true);
   });
 });
