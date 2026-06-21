@@ -147,9 +147,10 @@ GET {pdsUrl}/xrpc/com.atproto.repo.getRecord?repo={did}&collection=...&rkey=...
 
 ```
 packages/core/src/
-  types.ts          — ArticleRef, SiteGroup, Site, Article (exported)
+  types.ts          — ArticleRef, SiteGroup, Site, SiteRecord, Article (exported)
   resolve.ts        — resolveIdentifier(), resolvePds() (internal helpers)
   fetch.ts          — fetchSite(), fetchArticle() (exported)
+  list.ts           — listSites(), listArticles() (exported) — com.atproto.repo.listRecords with cursor pagination
   utils.ts          — toSlug(), slugFromUri(), flattenArticles() (exported)
   feed.ts           — generateFeed() (exported) — RSS 2.0, hand-rolled XML
   sitemap.ts        — getSitemapEntries() (exported) — returns SitemapEntry[] for merging into framework sitemap generators

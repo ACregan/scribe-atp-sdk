@@ -42,9 +42,49 @@ console.log(article.content);   // full HTML string
 console.log(article.synopsis);  // short summary for cards and meta tags
 ```
 
+### List all sites
+
+When you need to discover every site an author has published — for example, to build a browser or reader interface — use `listSites`:
+
+```ts
+import { listSites, slugFromUri } from "@scribe-atp/core";
+
+const sites = await listSites("alice.bsky.social");
+
+for (const site of sites) {
+  const siteRkey = slugFromUri(site.uri); // the record key, e.g. "alice-bsky-social"
+  console.log(site.title, site.groups);
+}
+```
+
+### List all articles
+
+`listArticles` returns lightweight `ArticleRef` objects for every article in the author's repository, regardless of publication state:
+
+```ts
+import { listSites, listArticles } from "@scribe-atp/core";
+
+const [sites, articles] = await Promise.all([
+  listSites("alice.bsky.social"),
+  listArticles("alice.bsky.social"),
+]);
+
+// derive which articles are drafts (not referenced in any site record)
+const referencedUris = new Set(
+  sites.flatMap((s) => [
+    ...s.groups.flatMap((g) => g.articles),
+    ...s.ungroupedArticles,
+  ]).map((a) => a.uri)
+);
+
+const drafts = articles.filter((a) => !referencedUris.has(a.uri));
+```
+
+Both functions handle cursor-based pagination automatically and accept an optional `AbortSignal`.
+
 ### AbortSignal
 
-Both functions accept an optional `AbortSignal` as a third argument:
+All fetch functions accept an optional `AbortSignal` as their final argument:
 
 ```ts
 const site = await fetchSite("alice.bsky.social", "alice-bsky-social", request.signal);
@@ -114,12 +154,13 @@ Each entry is `{ url: string, lastmod?: string }`. Merge with your own routes an
 ## TypeScript types
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/core";
+import type { Site, SiteRecord, Article, ArticleRef, SiteGroup } from "@scribe-atp/core";
 ```
 
 | Type | Description |
 | ---- | ----------- |
 | `Site` | An author's full publication. |
+| `SiteRecord` | A `Site` with a `uri` field — the AT URI of the record. Returned by `listSites`. |
 | `Article` | A single article with full HTML content. |
 | `SiteGroup` | A named group of articles within a site. |
 | `ArticleRef` | Lightweight article snapshot for rendering lists without N+1 fetches. |
