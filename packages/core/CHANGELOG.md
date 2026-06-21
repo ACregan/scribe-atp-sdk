@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 1.1.1
+
+### Patch Changes
+
+- 0907fc0: Replace `generateSitemap` with `getSitemapEntries`, which returns `SitemapEntry[]` instead of an XML string. This correctly scopes the SDK to Scribe content — consumers merge the returned entries into their own framework's sitemap generator alongside their non-Scribe pages.
+
 ## 1.1.0
 
 ### Minor Changes
