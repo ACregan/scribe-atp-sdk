@@ -1,5 +1,13 @@
 # @scribe-atp/core
 
+## 1.2.0
+
+### Minor Changes
+
+- Add `listSites` and `listArticles` functions for discovering all of an author's content.
+
+  Both functions call `com.atproto.repo.listRecords` on the author's PDS and handle cursor-based pagination automatically. `listSites` returns `SiteRecord[]` (a `Site` with a `uri` field). `listArticles` returns `ArticleRef[]`. Cross-referencing the two lets callers identify draft articles — those not referenced in any site record.
+
 ## 1.1.1
 
 ### Patch Changes
