@@ -89,24 +89,27 @@ return new Response(xml, {
 
 Only published articles (from `site.groups`) are included. Draft articles in `site.ungroupedArticles` are excluded.
 
-#### XML sitemap
+#### Sitemap entries
+
+`getSitemapEntries` returns structured data — not XML — so you can merge Scribe URLs into your own framework's sitemap generator alongside non-Scribe pages (portfolio, contact, etc.).
 
 ```ts
-import { fetchSite, toSlug, generateSitemap } from "@scribe-atp/core";
+import { fetchSite, toSlug, getSitemapEntries } from "@scribe-atp/core";
 
 const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
 
-const xml = generateSitemap(site, {
+const entries = getSitemapEntries(site, {
   baseUrl: "https://alice.bsky.social",
 });
-
-// In a server handler:
-return new Response(xml, {
-  headers: { "Content-Type": "application/xml; charset=utf-8" },
-});
+// [
+//   { url: "https://alice.bsky.social" },
+//   { url: "https://alice.bsky.social/blog" },
+//   { url: "https://alice.bsky.social/blog/essays/first-post", lastmod: "2024-01-15" },
+//   ...
+// ]
 ```
 
-The sitemap includes the site index, each group page, and each article page. Article entries include a `<lastmod>` date when `updatedAt` is available.
+Each entry is `{ url: string, lastmod?: string }`. Merge with your own routes and pass to your framework's sitemap generator. Article entries include `lastmod` when `updatedAt` is available. Draft articles in `site.ungroupedArticles` are excluded.
 
 ## TypeScript types
 
