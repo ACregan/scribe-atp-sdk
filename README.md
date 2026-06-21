@@ -74,12 +74,43 @@ console.log(article.content);   // full HTML string — safe to render directly
 console.log(article.synopsis);  // short summary for cards and meta tags
 ```
 
+### List all sites and articles
+
+When you need to discover everything an author has published — for example, to build a content browser — use `listSites` and `listArticles`:
+
+```ts
+import { listSites, listArticles, slugFromUri } from "@scribe-atp/core";
+
+const [sites, articles] = await Promise.all([
+  listSites("alice.bsky.social"),
+  listArticles("alice.bsky.social"),
+]);
+
+// Each SiteRecord includes a `uri` field alongside the usual Site fields
+for (const site of sites) {
+  const siteRkey = slugFromUri(site.uri); // e.g. "alice-bsky-social"
+  console.log(site.title, siteRkey);
+}
+
+// Derive draft articles — those not referenced in any site record
+const referencedUris = new Set(
+  sites.flatMap((s) => [
+    ...s.groups.flatMap((g) => g.articles),
+    ...s.ungroupedArticles,
+  ]).map((a) => a.uri)
+);
+const drafts = articles.filter((a) => !referencedUris.has(a.uri));
+```
+
+Both functions handle cursor-based pagination automatically.
+
 ### AbortSignal
 
-Both functions accept an optional `AbortSignal` as a third argument. Pass `request.signal` in server contexts to cancel the fetch if the user navigates away:
+All fetch functions accept an optional `AbortSignal` as their final argument. Pass `request.signal` in server contexts to cancel the fetch if the user navigates away:
 
 ```ts
 const site = await fetchSite("alice.bsky.social", "alice-bsky-social", request.signal);
+const sites = await listSites("alice.bsky.social", request.signal);
 ```
 
 ### Utilities
@@ -355,13 +386,14 @@ export const load = async ({ fetch: _ }) => {
 All types are exported from every package so you only ever need one import:
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/core";
+import type { Site, SiteRecord, Article, ArticleRef, SiteGroup } from "@scribe-atp/core";
 // or from "@scribe-atp/react", "@scribe-atp/angular", etc.
 ```
 
 | Type | Description |
 | ---- | ----------- |
 | `Site` | An author's full publication. Contains `title`, `url`, `urlPrefix`, `groups`, and `ungroupedArticles`. |
+| `SiteRecord` | A `Site` with a `uri` field — the full AT URI of the record. Returned by `listSites`. |
 | `Article` | A single article. Contains `title`, `content` (HTML), `url`, `synopsis`, `createdAt`, `updatedAt`, and optional `splashImageUrl`. |
 | `SiteGroup` | A named group of articles within a site. Contains `slug`, `title`, and `articles` (`ArticleRef[]`). |
 | `ArticleRef` | A lightweight article snapshot cached inside the site record. Contains enough metadata to render article cards without fetching each article individually. |

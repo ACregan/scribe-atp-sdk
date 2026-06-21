@@ -34,3 +34,7 @@ export interface Article {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface SiteRecord extends Site {
+  uri: string;
+}

@@ -144,9 +144,19 @@ discussion, it should match the definition here.
 
 **Ungrouped articles**
 : Articles stored in `ungroupedArticles` on the site record — articles
-  the author has not assigned to any group. Being ungrouped is the draft
-  state; being assigned to a group is the published state. The
-  group-membership distinction is the sole publish/draft boundary.
+  the author has assigned to a site but not yet placed in any group.
+  These are in the **Unpublished** state. See *Publication states* below.
+
+**Publication states**
+: The three states an article can be in, from the perspective of
+  visibility and site assignment:
+  - **Draft** — the article exists on the author's PDS but is not
+    referenced in any site record. Not yet associated with any site.
+  - **Unpublished** — the article is referenced in a site's
+    `ungroupedArticles`. It belongs to a site but has not been placed
+    in any group.
+  - **Published** — the article is referenced in a group within a site
+    record. It has a canonical URL on the author's consumer site.
 
 ---
 
