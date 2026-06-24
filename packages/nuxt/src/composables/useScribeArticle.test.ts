@@ -31,7 +31,7 @@ describe("useScribeArticle", () => {
   });
 
   it("handler calls fetchArticle with correct args", async () => {
-    mockFetchArticle.mockResolvedValueOnce({ title: "Hello", content: "", url: "hello", createdAt: "", updatedAt: "" });
+    mockFetchArticle.mockResolvedValueOnce({ title: "Hello", content: "", path: "/hello", site: "https://example.com", publishedAt: "2024-01-01T00:00:00Z", createdAt: "", updatedAt: "" });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mockUseAsyncData as any).mockImplementation((_key: any, handler: any) => {
       handler();

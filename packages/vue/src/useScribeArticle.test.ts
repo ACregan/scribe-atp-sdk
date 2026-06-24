@@ -13,7 +13,9 @@ const mockFetchArticle = vi.mocked(fetchArticle);
 const mockArticle = {
   title: "Hello World",
   content: "<p>Hello</p>",
-  url: "hello",
+  path: "/hello",
+  site: "https://example.com",
+  publishedAt: "2024-01-01T00:00:00Z",
   createdAt: "2024-01-01T00:00:00Z",
   updatedAt: "2024-01-01T00:00:00Z",
 };

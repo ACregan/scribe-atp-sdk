@@ -56,21 +56,92 @@ describe("fetchSite", () => {
 });
 
 describe("fetchArticle", () => {
-  it("fetches an article record from the correct PDS URL", async () => {
-    const article = {
+  it("fetches an article record from site.standard.document collection", async () => {
+    const rawRecord = {
       title: "Hello World",
-      content: "<p>Hi</p>",
-      url: "hello-world",
+      content: { $type: "app.scribe.content.html", html: "<p>Hi</p>" },
+      path: "/essays/hello-world",
+      site: "https://example.com/blog",
+      publishedAt: "2024-01-02T00:00:00Z",
       createdAt: "2024-01-01T00:00:00Z",
       updatedAt: "2024-01-01T00:00:00Z",
     };
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ value: article }),
+      json: async () => ({ value: rawRecord }),
     });
 
     const result = await fetchArticle("did:plc:testuser", "hello-world");
-    expect(result).toEqual(article);
+    expect(result.title).toBe("Hello World");
+    expect(result.content).toBe("<p>Hi</p>");
+    expect(result.path).toBe("/essays/hello-world");
+    expect(result.site).toBe("https://example.com/blog");
+    expect(result.publishedAt).toBe("2024-01-02T00:00:00Z");
+  });
+
+  it("fetches from site.standard.document collection", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          title: "Test",
+          content: { $type: "app.scribe.content.html", html: "" },
+          path: "/hello-world",
+          site: "https://example.com",
+          publishedAt: "2024-01-01T00:00:00Z",
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+        },
+      }),
+    });
+
+    await fetchArticle("did:plc:testuser", "hello-world");
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        href: expect.stringContaining("site.standard.document"),
+      }),
+      expect.any(Object)
+    );
+  });
+
+  it("extracts html from app.scribe.content.html union", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          title: "Test",
+          content: { $type: "app.scribe.content.html", html: "<p>Body</p>" },
+          path: "/test",
+          site: "https://example.com",
+          publishedAt: "2024-01-01T00:00:00Z",
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+        },
+      }),
+    });
+
+    const result = await fetchArticle("did:plc:testuser", "test");
+    expect(result.content).toBe("<p>Body</p>");
+  });
+
+  it("returns empty string for content when union type is unrecognised", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          title: "Test",
+          content: { $type: "some.other.type", data: "..." },
+          path: "/test",
+          site: "https://example.com",
+          publishedAt: "2024-01-01T00:00:00Z",
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+        },
+      }),
+    });
+
+    const result = await fetchArticle("did:plc:testuser", "test");
+    expect(result.content).toBe("");
   });
 
   it("throws when the fetch fails", async () => {

@@ -13,19 +13,21 @@ const mockSite: Site = {
       title: "Essays",
       articles: [
         {
-          uri: "at://did:plc:abc/app.scribe.article/first-post",
+          uri: "at://did:plc:abc/site.standard.document/first-post",
           title: "First Post",
-          url: "first-post",
+          slug: "first-post",
           splashImageUrl: null,
           createdAt: "2024-01-01T00:00:00Z",
+          publishedAt: "2024-01-01T12:00:00Z",
           updatedAt: "2024-01-15T00:00:00Z",
         },
         {
-          uri: "at://did:plc:abc/app.scribe.article/second-post",
+          uri: "at://did:plc:abc/site.standard.document/second-post",
           title: "Second Post",
-          url: "second-post",
+          slug: "second-post",
           splashImageUrl: null,
           createdAt: "2024-02-01T00:00:00Z",
+          publishedAt: "2024-02-01T12:00:00Z",
         },
       ],
     },
@@ -34,11 +36,12 @@ const mockSite: Site = {
       title: "Notes",
       articles: [
         {
-          uri: "at://did:plc:abc/app.scribe.article/note-one",
+          uri: "at://did:plc:abc/site.standard.document/note-one",
           title: "Note One",
-          url: "note-one",
+          slug: "note-one",
           splashImageUrl: null,
           createdAt: "2024-03-01T00:00:00Z",
+          publishedAt: "2024-03-01T12:00:00Z",
           updatedAt: "2024-03-10T00:00:00Z",
         },
       ],
@@ -46,11 +49,12 @@ const mockSite: Site = {
   ],
   ungroupedArticles: [
     {
-      uri: "at://did:plc:abc/app.scribe.article/draft",
+      uri: "at://did:plc:abc/site.standard.document/draft",
       title: "Draft",
-      url: "draft",
+      slug: "draft",
       splashImageUrl: null,
       createdAt: "2024-05-01T00:00:00Z",
+      publishedAt: "2024-05-01T12:00:00Z",
     },
   ],
 };

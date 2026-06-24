@@ -68,14 +68,15 @@ export function generateFeed(site: Site, options: FeedOptions): string {
         options.baseUrl,
         site.urlPrefix ?? "",
         groupSlug,
-        article.url ?? ""
+        article.slug ?? ""
       );
+      const pubDate = article.publishedAt ?? article.createdAt;
       return [
         "<item>",
         `<title>${cdata(article.title)}</title>`,
         `<link>${escapeXml(link)}</link>`,
-        `<description>${cdata(article.synopsis ?? "")}</description>`,
-        `<pubDate>${new Date(article.createdAt).toUTCString()}</pubDate>`,
+        `<description>${cdata(article.description ?? "")}</description>`,
+        `<pubDate>${new Date(pubDate).toUTCString()}</pubDate>`,
         `<guid isPermaLink="true">${escapeXml(link)}</guid>`,
         "</item>",
       ].join("");
