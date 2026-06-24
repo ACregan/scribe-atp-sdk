@@ -1,16 +1,20 @@
 import type { Site, SiteRecord, ArticleRef } from "./types.js";
 import { resolveIdentifier, resolvePds } from "./resolve.js";
+import { slugFromUri } from "./utils.js";
 
 interface RawSite extends Omit<Site, "groups" | "ungroupedArticles"> {
   groups?: Site["groups"];
   ungroupedArticles?: Site["ungroupedArticles"];
 }
 
-interface RawArticle {
+interface RawDocument {
   title: string;
-  url: string;
+  path: string;
+  site: string;
+  publishedAt: string;
+  description?: string | null;
   splashImageUrl?: string | null;
-  synopsis?: string | null;
+  tags?: string[];
   createdAt: string;
   updatedAt?: string;
 }
@@ -71,15 +75,17 @@ export async function listArticles(
 ): Promise<ArticleRef[]> {
   const did = await resolveIdentifier(author, signal);
   const pdsUrl = await resolvePds(did, signal);
-  const records = await listAllRecords<RawArticle>(pdsUrl, did, "app.scribe.article", signal);
+  const records = await listAllRecords<RawDocument>(pdsUrl, did, "site.standard.document", signal);
 
   return records.map(({ uri, value }) => ({
     uri,
     title: value.title,
-    url: value.url,
+    slug: slugFromUri(uri),
     splashImageUrl: value.splashImageUrl ?? null,
-    synopsis: value.synopsis,
+    description: value.description,
+    tags: value.tags,
     createdAt: value.createdAt,
+    publishedAt: value.publishedAt,
     updatedAt: value.updatedAt,
   }));
 }

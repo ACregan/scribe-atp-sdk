@@ -20,21 +20,23 @@ const mockSite = {
       title: "Tech",
       articles: [
         {
-          uri: "at://did:plc:abc/app.scribe.article/hello",
+          uri: "at://did:plc:abc/site.standard.document/hello",
           title: "Hello World",
-          url: "hello",
-          synopsis: "My first post",
+          slug: "hello",
+          description: "My first post",
           splashImageUrl: "https://example.com/hello.jpg",
           createdAt: "2024-01-01T00:00:00Z",
+          publishedAt: "2024-01-01T12:00:00Z",
           updatedAt: "2024-01-02T00:00:00Z",
         },
         {
-          uri: "at://did:plc:abc/app.scribe.article/second",
+          uri: "at://did:plc:abc/site.standard.document/second",
           title: "Second Post",
-          url: "second",
-          synopsis: null,
+          slug: "second",
+          description: null,
           splashImageUrl: null,
           createdAt: "2024-02-01T00:00:00Z",
+          publishedAt: "2024-02-01T12:00:00Z",
         },
       ],
     },
@@ -43,12 +45,13 @@ const mockSite = {
       title: "Life",
       articles: [
         {
-          uri: "at://did:plc:abc/app.scribe.article/travel",
+          uri: "at://did:plc:abc/site.standard.document/travel",
           title: "Travel Notes",
-          url: "travel",
-          synopsis: "A trip",
+          slug: "travel",
+          description: "A trip",
           splashImageUrl: null,
           createdAt: "2024-03-01T00:00:00Z",
+          publishedAt: "2024-03-01T12:00:00Z",
         },
       ],
     },
@@ -145,7 +148,7 @@ describe("createScribeSite", () => {
       expect(meta.title).toBe("Hello World — Alice's Blog");
     });
 
-    it("includes synopsis as description", async () => {
+    it("includes description as description", async () => {
       const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
       const meta = await scribe.generateArticleMetadata("hello");
       expect(meta.description).toBe("My first post");

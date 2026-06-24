@@ -44,7 +44,7 @@ export function getSitemapEntries(
     entries.push({ url: groupUrl(options.baseUrl, prefix, group.slug) });
 
     for (const article of group.articles) {
-      const url = articleUrl(options.baseUrl, prefix, group.slug, article.url ?? "");
+      const url = articleUrl(options.baseUrl, prefix, group.slug, article.slug ?? "");
       const lastmod =
         article.updatedAt && article.updatedAt.length > 0
           ? new Date(article.updatedAt).toISOString().split("T")[0]

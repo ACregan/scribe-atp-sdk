@@ -12,8 +12,8 @@ export function createScribeSite(author: string, siteSlug: string) {
       const site = await fetchSite(author, siteSlug);
       return site.groups
         .flatMap((g) => g.articles)
-        .filter((a) => !!a.url)
-        .map((a) => ({ articleSlug: a.url! }));
+        .filter((a) => !!a.slug)
+        .map((a) => ({ articleSlug: a.slug! }));
     },
 
     generateGroupArticleParams: async (): Promise<
@@ -22,8 +22,8 @@ export function createScribeSite(author: string, siteSlug: string) {
       const site = await fetchSite(author, siteSlug);
       return site.groups.flatMap((g) =>
         g.articles
-          .filter((a) => !!a.url)
-          .map((a) => ({ groupSlug: g.slug, articleSlug: a.url! }))
+          .filter((a) => !!a.slug)
+          .map((a) => ({ groupSlug: g.slug, articleSlug: a.slug! }))
       );
     },
 
@@ -54,16 +54,16 @@ export function createScribeSite(author: string, siteSlug: string) {
       const site = await fetchSite(author, siteSlug);
       const article = site.groups
         .flatMap((g) => g.articles)
-        .find((a) => a.url === articleSlug);
+        .find((a) => a.slug === articleSlug);
       const title = article
         ? `${article.title} — ${site.title}`
         : site.title;
       return {
         title,
-        description: article?.synopsis ?? undefined,
+        description: article?.description ?? undefined,
         openGraph: {
           title,
-          description: article?.synopsis ?? undefined,
+          description: article?.description ?? undefined,
           ...(article?.splashImageUrl
             ? { images: [article.splashImageUrl] }
             : {}),

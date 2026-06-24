@@ -13,20 +13,22 @@ const mockSite: Site = {
       title: "Essays",
       articles: [
         {
-          uri: "at://did:plc:abc/app.scribe.article/first-post",
+          uri: "at://did:plc:abc/site.standard.document/first-post",
           title: "First Post",
-          url: "first-post",
+          slug: "first-post",
           splashImageUrl: "https://norobots.blog/splash.jpg",
-          synopsis: "This is the first post synopsis",
+          description: "This is the first post synopsis",
           createdAt: "2024-01-01T00:00:00Z",
+          publishedAt: "2024-01-01T12:00:00Z",
           updatedAt: "2024-01-02T00:00:00Z",
         },
         {
-          uri: "at://did:plc:abc/app.scribe.article/second-post",
+          uri: "at://did:plc:abc/site.standard.document/second-post",
           title: "Second Post",
-          url: "second-post",
+          slug: "second-post",
           splashImageUrl: null,
           createdAt: "2024-02-01T00:00:00Z",
+          publishedAt: "2024-02-01T12:00:00Z",
           updatedAt: "2024-02-02T00:00:00Z",
         },
       ],
@@ -36,31 +38,34 @@ const mockSite: Site = {
       title: "Notes",
       articles: [
         {
-          uri: "at://did:plc:abc/app.scribe.article/note-one",
+          uri: "at://did:plc:abc/site.standard.document/note-one",
           title: "Note One",
-          url: "note-one",
+          slug: "note-one",
           splashImageUrl: null,
-          synopsis: "A short note",
+          description: "A short note",
           createdAt: "2024-03-01T00:00:00Z",
+          publishedAt: "2024-03-01T12:00:00Z",
           updatedAt: "2024-03-02T00:00:00Z",
         },
         {
-          uri: "at://did:plc:abc/app.scribe.article/note-two",
+          uri: "at://did:plc:abc/site.standard.document/note-two",
           title: "Note Two",
-          url: "note-two",
+          slug: "note-two",
           splashImageUrl: null,
           createdAt: "2024-04-01T00:00:00Z",
+          publishedAt: "2024-04-01T12:00:00Z",
         },
       ],
     },
   ],
   ungroupedArticles: [
     {
-      uri: "at://did:plc:abc/app.scribe.article/draft",
+      uri: "at://did:plc:abc/site.standard.document/draft",
       title: "Draft Article",
-      url: "draft",
+      slug: "draft",
       splashImageUrl: null,
       createdAt: "2024-05-01T00:00:00Z",
+      publishedAt: "2024-05-01T12:00:00Z",
     },
   ],
 };
@@ -156,7 +161,7 @@ describe("generateFeed", () => {
     expect(feed).not.toContain("Draft Article");
   });
 
-  it("uses empty string for synopsis when absent", () => {
+  it("uses empty string for description when absent", () => {
     const feed = generateFeed(mockSite, { baseUrl: "https://norobots.blog" });
     // second-post has no synopsis
     expect(feed).toContain("<description><![CDATA[]]></description>");

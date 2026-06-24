@@ -122,13 +122,30 @@ discussion, it should match the definition here.
   Defined in Scribe CMS as `url.replace(/\./g, "-").replace(/[^a-z0-9-]/g, "")`.
 
 **Article**
-: A single piece of written content. Stored as a record in the
-  `app.scribe.article` collection. Contains the full HTML content,
-  title, timestamps, and optional splash image.
+: A single piece of written content. In the Draft state, stored as a
+  record in the `app.scribe.article` collection using the
+  `site.standard.document` field shape (minus `site` and `publishedAt`,
+  which are absent until publish). On publish, moved to the
+  `site.standard.document` collection with `site` and `publishedAt` set.
 
 **Article slug**
 : The `rkey` used to fetch an article record. Appears as the URL path
-  segment for the article.
+  segment for the article. Unchanged across the draft → publish
+  transition — the same slug is used as the rkey in both
+  `app.scribe.article` and `site.standard.document`.
+
+**`publishedAt`**
+: The timestamp of the instant an article transitions from Draft to
+  Unpublished — i.e. when it is first moved to `site.standard.document`.
+  Set once at publish time; never updated thereafter. Absent on draft
+  records in `app.scribe.article`.
+
+**`createdAt`**
+: A Scribe extension field retained on `site.standard.document` records
+  alongside the standard.site fields. Records the instant the draft was
+  first created in `app.scribe.article`. Set once; never changed.
+  Distinct from `publishedAt` — an article may sit as a draft for days
+  or weeks before being published.
 
 **ArticleRef**
 : The internal schema type for a lightweight article snapshot cached
@@ -147,16 +164,32 @@ discussion, it should match the definition here.
   the author has assigned to a site but not yet placed in any group.
   These are in the **Unpublished** state. See *Publication states* below.
 
+**Canonical Site**
+: The single site nominated by the author as the primary publication for
+  an article at the point of publishing. Stored in the `site` field of
+  the `site.standard.document` record as the `https://` root URL of that
+  publication (e.g. `https://norobots.blog`, or `https://norobots.blog/blog`
+  if a `urlPrefix` is set). Used by standard.site-compatible aggregators
+  and Bluesky to identify which publication an article belongs to.
+  When an article is published to only one site, that site is automatically
+  the Canonical Site. When published to multiple sites, the author is
+  prompted to nominate one. An article has exactly one Canonical Site.
+  Distinct from site membership — an article may appear in many site
+  manifests; the Canonical Site is the one that represents it in the
+  broader AT Protocol ecosystem.
+
 **Publication states**
 : The three states an article can be in, from the perspective of
   visibility and site assignment:
-  - **Draft** — the article exists on the author's PDS but is not
-    referenced in any site record. Not yet associated with any site.
-  - **Unpublished** — the article is referenced in a site's
-    `ungroupedArticles`. It belongs to a site but has not been placed
-    in any group.
-  - **Published** — the article is referenced in a group within a site
-    record. It has a canonical URL on the author's consumer site.
+  - **Draft** — the article exists on the author's PDS in the
+    `app.scribe.article` collection but is not referenced in any site
+    record. Not yet associated with any site. No `site` field.
+  - **Unpublished** — the article has been published (moved to
+    `site.standard.document`, `site` field set) but is referenced only
+    in a site's `ungroupedArticles`. It belongs to a site but has not
+    been placed in any named group.
+  - **Published** — the article is referenced in a named group within a
+    site record. It has a canonical URL on the author's consumer site.
 
 ---
 

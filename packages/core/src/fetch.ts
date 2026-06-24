@@ -1,6 +1,30 @@
 import type { Site, Article } from "./types.js";
 import { resolveIdentifier, resolvePds } from "./resolve.js";
 
+interface RawDocument {
+  title: string;
+  path: string;
+  site: string;
+  publishedAt: string;
+  description?: string;
+  content?: { $type: string; html?: string } | unknown;
+  splashImageUrl?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+function extractHtml(content: RawDocument["content"]): string {
+  if (
+    content !== null &&
+    typeof content === "object" &&
+    (content as Record<string, unknown>)["$type"] === "app.scribe.content.html"
+  ) {
+    return String((content as Record<string, unknown>)["html"] ?? "");
+  }
+  return "";
+}
+
 export async function fetchSite(
   author: string,
   siteSlug: string,
@@ -35,12 +59,24 @@ export async function fetchArticle(
 
   const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
   url.searchParams.set("repo", did);
-  url.searchParams.set("collection", "app.scribe.article");
+  url.searchParams.set("collection", "site.standard.document");
   url.searchParams.set("rkey", articleSlug);
 
   const res = await fetch(url, { signal });
   if (!res.ok) throw new Error(`Failed to fetch article: ${res.statusText}`);
 
-  const data = (await res.json()) as { value: Article };
-  return data.value;
+  const data = (await res.json()) as { value: RawDocument };
+  const raw = data.value;
+  return {
+    title: raw.title,
+    content: extractHtml(raw.content),
+    path: raw.path,
+    site: raw.site,
+    publishedAt: raw.publishedAt,
+    description: raw.description,
+    splashImageUrl: raw.splashImageUrl,
+    tags: raw.tags,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  };
 }
