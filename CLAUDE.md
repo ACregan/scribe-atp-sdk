@@ -48,7 +48,7 @@ Each package has its own `package.json`, `tsconfig.json`, and `tsup.config.ts`. 
 
 ## AT Protocol background
 
-Scribe stores content in two collections on the author's Personal Data Server (PDS):
+Scribe stores content in three collections on the author's Personal Data Server (PDS):
 
 **`app.scribe.site`** — site manifest (rkey = site slug):
 ```ts
@@ -64,18 +64,36 @@ Scribe stores content in two collections on the author's Personal Data Server (P
     title: string,
     articles: ArticleRef[],  // cached snapshots — no N+1 fetches needed
   }>,
-  ungroupedArticles: ArticleRef[],  // draft / unpublished articles
+  ungroupedArticles: ArticleRef[],  // unpublished articles (assigned to site, not yet in a group)
 }
 ```
 
-**`app.scribe.article`** — article content (rkey = article slug):
+**`site.standard.document`** — published article (rkey = slug):
 ```ts
 {
   title: string,
-  content: string,       // HTML
-  url: string,           // same as rkey
+  slug: string,          // same as rkey
+  path: string,          // full URL path e.g. "/blog/2024/my-first-post"
+  site: string,          // canonical site URL
+  content: { $type: "app.scribe.content.html", html: string },
   splashImageUrl?: string,
-  synopsis?: string,
+  description?: string,
+  tags?: string[],
+  createdAt: string,
+  publishedAt: string,
+  updatedAt: string,
+}
+```
+
+**`app.scribe.article`** — draft article (rkey = slug), not yet published:
+```ts
+{
+  title: string,
+  slug: string,          // same as rkey
+  content: { $type: "app.scribe.content.html", html: string },
+  splashImageUrl?: string,
+  description?: string,
+  tags?: string[],
   createdAt: string,
   updatedAt: string,
 }
@@ -84,12 +102,14 @@ Scribe stores content in two collections on the author's Personal Data Server (P
 **`ArticleRef`** — cached snapshot stored inside a site record:
 ```ts
 {
-  uri: string,           // full AT URI e.g. at://did/app.scribe.article/slug
+  uri: string,           // full AT URI e.g. at://did/site.standard.document/slug
   title: string,
-  url?: string,          // article slug
+  slug?: string,         // article slug / rkey
   splashImageUrl: string | null,
-  synopsis?: string | null,
+  description?: string | null,
+  tags?: string[],
   createdAt: string,
+  publishedAt?: string,
   updatedAt?: string,
 }
 ```
