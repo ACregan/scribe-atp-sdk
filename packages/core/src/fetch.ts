@@ -2,6 +2,12 @@ import type { Site, Article, ArticleResult } from "./types.js";
 import { resolveIdentifier, resolvePds } from "./resolve.js";
 import { slugFromUri } from "./utils.js";
 
+const publicationUriCache = new Map<string, string>();
+
+export function _clearPublicationUriCache(): void {
+  publicationUriCache.clear();
+}
+
 interface ScribeManifest {
   domain: string;
   basePath: string;
@@ -14,6 +20,8 @@ interface ScribeManifest {
 }
 
 interface RawPublication {
+  url?: string;
+  name?: string;
   scribe: ScribeManifest;
 }
 
@@ -31,6 +39,10 @@ interface RawDocument {
   updatedAt: string;
 }
 
+function normalizeUrl(url: string): string {
+  return url.replace(/\/+$/, "");
+}
+
 function extractHtml(content: RawDocument["content"]): string {
   if (
     content !== null &&
@@ -42,24 +54,76 @@ function extractHtml(content: RawDocument["content"]): string {
   return "";
 }
 
+export async function resolvePublicationUri(
+  author: string,
+  publicationUrl: string,
+  signal?: AbortSignal
+): Promise<string> {
+  const normalizedUrl = normalizeUrl(publicationUrl);
+  const did = await resolveIdentifier(author, signal);
+  const cacheKey = `${did}:${normalizedUrl}`;
+  const cached = publicationUriCache.get(cacheKey);
+  if (cached) return cached;
+
+  const pdsUrl = await resolvePds(did, signal);
+  const listUrl = new URL(`${pdsUrl}/xrpc/com.atproto.repo.listRecords`);
+  listUrl.searchParams.set("repo", did);
+  listUrl.searchParams.set("collection", "site.standard.publication");
+  listUrl.searchParams.set("limit", "100");
+  const res = await fetch(listUrl, { signal });
+  if (!res.ok) throw new Error(`Failed to fetch publications: ${res.statusText}`);
+  const data = (await res.json()) as {
+    records: Array<{ uri: string; value: RawPublication }>;
+  };
+  const record = data.records.find(
+    (r) => normalizeUrl(r.value.url ?? "") === normalizedUrl
+  );
+  if (!record) throw new Error(`Site not found: ${publicationUrl}`);
+  publicationUriCache.set(cacheKey, record.uri);
+  return record.uri;
+}
+
 export async function fetchSite(
   author: string,
-  siteSlug: string,
+  publicationUrl: string,
   signal?: AbortSignal
 ): Promise<Site> {
+  const normalizedUrl = normalizeUrl(publicationUrl);
   const did = await resolveIdentifier(author, signal);
   const pdsUrl = await resolvePds(did, signal);
+  const cacheKey = `${did}:${normalizedUrl}`;
+  const cachedUri = publicationUriCache.get(cacheKey);
 
-  const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
-  url.searchParams.set("repo", did);
-  url.searchParams.set("collection", "site.standard.publication");
-  url.searchParams.set("rkey", siteSlug);
+  let scribe: ScribeManifest;
 
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`Failed to fetch site: ${res.statusText}`);
+  if (cachedUri) {
+    const rkey = cachedUri.split("/").pop()!;
+    const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
+    url.searchParams.set("repo", did);
+    url.searchParams.set("collection", "site.standard.publication");
+    url.searchParams.set("rkey", rkey);
+    const res = await fetch(url, { signal });
+    if (!res.ok) throw new Error(`Failed to fetch site: ${res.statusText}`);
+    const data = (await res.json()) as { value: RawPublication };
+    scribe = data.value.scribe;
+  } else {
+    const listUrl = new URL(`${pdsUrl}/xrpc/com.atproto.repo.listRecords`);
+    listUrl.searchParams.set("repo", did);
+    listUrl.searchParams.set("collection", "site.standard.publication");
+    listUrl.searchParams.set("limit", "100");
+    const res = await fetch(listUrl, { signal });
+    if (!res.ok) throw new Error(`Failed to fetch site: ${res.statusText}`);
+    const data = (await res.json()) as {
+      records: Array<{ uri: string; value: RawPublication }>;
+    };
+    const record = data.records.find(
+      (r) => normalizeUrl(r.value.url ?? "") === normalizedUrl
+    );
+    if (!record) throw new Error(`Site not found: ${publicationUrl}`);
+    publicationUriCache.set(cacheKey, record.uri);
+    scribe = record.value.scribe;
+  }
 
-  const data = (await res.json()) as { value: RawPublication };
-  const scribe = data.value.scribe;
   return {
     title: scribe.title,
     url: scribe.domain,
@@ -107,11 +171,11 @@ export async function fetchArticle(
 
 export async function fetchArticleBySlug(
   author: string,
-  siteSlug: string,
+  publicationUrl: string,
   articleSlug: string,
   signal?: AbortSignal
 ): Promise<ArticleResult> {
-  const site = await fetchSite(author, siteSlug, signal);
+  const site = await fetchSite(author, publicationUrl, signal);
 
   const allRefs = [
     ...site.ungroupedArticles,

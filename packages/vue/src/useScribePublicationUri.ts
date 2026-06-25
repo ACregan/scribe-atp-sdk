@@ -10,7 +10,7 @@ export interface UseScribePublicationUriResult {
 
 export function useScribePublicationUri(
   author: string,
-  siteSlug: string
+  publicationUrl: string
 ): UseScribePublicationUriResult {
   const uri = ref<string | null>(null);
   const loading = ref(true);
@@ -18,7 +18,7 @@ export function useScribePublicationUri(
 
   const controller = new AbortController();
 
-  resolvePublicationUri(author, siteSlug, controller.signal)
+  resolvePublicationUri(author, publicationUrl, controller.signal)
     .then((data) => {
       uri.value = data;
       loading.value = false;

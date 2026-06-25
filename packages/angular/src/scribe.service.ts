@@ -5,10 +5,10 @@ import type { Site, Article } from "@scribe-atp/core";
 
 @Injectable({ providedIn: "root" })
 export class ScribeService {
-  getSite(author: string, siteSlug: string): Observable<Site> {
+  getSite(author: string, publicationUrl: string): Observable<Site> {
     return new Observable((subscriber) => {
       const controller = new AbortController();
-      fetchSite(author, siteSlug, controller.signal)
+      fetchSite(author, publicationUrl, controller.signal)
         .then((site) => {
           subscriber.next(site);
           subscriber.complete();
@@ -37,10 +37,10 @@ export class ScribeService {
     });
   }
 
-  getPublicationUri(author: string, siteSlug: string): Observable<string> {
+  getPublicationUri(author: string, publicationUrl: string): Observable<string> {
     return new Observable((subscriber) => {
       const controller = new AbortController();
-      resolvePublicationUri(author, siteSlug, controller.signal)
+      resolvePublicationUri(author, publicationUrl, controller.signal)
         .then((uri) => {
           subscriber.next(uri);
           subscriber.complete();
@@ -53,10 +53,10 @@ export class ScribeService {
     });
   }
 
-  getDocumentUri(author: string, siteSlug: string, articleSlug: string): Observable<string> {
+  getDocumentUri(author: string, publicationUrl: string, articleSlug: string): Observable<string> {
     return new Observable((subscriber) => {
       const controller = new AbortController();
-      fetchArticleBySlug(author, siteSlug, articleSlug, controller.signal)
+      fetchArticleBySlug(author, publicationUrl, articleSlug, controller.signal)
         .then(({ uri }) => {
           subscriber.next(uri);
           subscriber.complete();

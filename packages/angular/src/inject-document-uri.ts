@@ -10,7 +10,7 @@ interface InjectDocumentUriResult {
 
 export function injectDocumentUri(
   author: string,
-  siteSlug: string,
+  publicationUrl: string,
   articleSlug: string
 ): InjectDocumentUriResult {
   const uri = signal<string | null>(null);
@@ -20,7 +20,7 @@ export function injectDocumentUri(
   const destroyRef = inject(DestroyRef);
   const controller = new AbortController();
 
-  fetchArticleBySlug(author, siteSlug, articleSlug, controller.signal)
+  fetchArticleBySlug(author, publicationUrl, articleSlug, controller.signal)
     .then(({ uri: documentUri }) => {
       uri.set(documentUri);
       loading.set(false);

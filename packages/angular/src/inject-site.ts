@@ -9,7 +9,7 @@ interface InjectSiteResult {
   error: Signal<Error | null>;
 }
 
-export function injectSite(author: string, siteSlug: string): InjectSiteResult {
+export function injectSite(author: string, publicationUrl: string): InjectSiteResult {
   const site = signal<Site | null>(null);
   const loading = signal(true);
   const error = signal<Error | null>(null);
@@ -17,7 +17,7 @@ export function injectSite(author: string, siteSlug: string): InjectSiteResult {
   const destroyRef = inject(DestroyRef);
   const controller = new AbortController();
 
-  fetchSite(author, siteSlug, controller.signal)
+  fetchSite(author, publicationUrl, controller.signal)
     .then((data) => {
       site.set(data);
       loading.set(false);

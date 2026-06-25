@@ -10,7 +10,7 @@ interface InjectPublicationUriResult {
 
 export function injectPublicationUri(
   author: string,
-  siteSlug: string
+  publicationUrl: string
 ): InjectPublicationUriResult {
   const uri = signal<string | null>(null);
   const loading = signal(true);
@@ -19,7 +19,7 @@ export function injectPublicationUri(
   const destroyRef = inject(DestroyRef);
   const controller = new AbortController();
 
-  resolvePublicationUri(author, siteSlug, controller.signal)
+  resolvePublicationUri(author, publicationUrl, controller.signal)
     .then((data) => {
       uri.set(data);
       loading.set(false);

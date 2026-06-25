@@ -12,11 +12,11 @@ const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 
 const DOCUMENT_URI = "at://did:plc:abc/site.standard.document/3jxtctq7kqm2y";
 
-function makeWrapper(author: string, siteSlug: string, articleSlug: string) {
+function makeWrapper(author: string, publicationUrl: string, articleSlug: string) {
   let result: ReturnType<typeof useScribeDocumentUri>;
   const Component = defineComponent({
     setup() {
-      result = useScribeDocumentUri(author, siteSlug, articleSlug);
+      result = useScribeDocumentUri(author, publicationUrl, articleSlug);
       return result;
     },
     template: "<div/>",
@@ -32,7 +32,7 @@ beforeEach(() => {
 describe("useScribeDocumentUri", () => {
   it("starts with loading true and uri null", () => {
     mockFetchArticleBySlug.mockReturnValue(new Promise(() => {}));
-    const { getResult } = makeWrapper("alice.bsky.social", "alice-blog", "hello");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social", "hello");
     expect(getResult().loading.value).toBe(true);
     expect(getResult().uri.value).toBeNull();
     expect(getResult().error.value).toBeNull();
@@ -40,7 +40,7 @@ describe("useScribeDocumentUri", () => {
 
   it("sets uri and clears loading on resolve", async () => {
     mockFetchArticleBySlug.mockResolvedValueOnce({ article: {} as never, uri: DOCUMENT_URI });
-    const { getResult } = makeWrapper("alice.bsky.social", "alice-blog", "hello");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social", "hello");
     await nextTick();
     await nextTick();
     expect(getResult().uri.value).toBe(DOCUMENT_URI);
@@ -49,7 +49,7 @@ describe("useScribeDocumentUri", () => {
 
   it("sets error and clears loading on reject", async () => {
     mockFetchArticleBySlug.mockRejectedValueOnce(new Error("failed"));
-    const { getResult } = makeWrapper("alice.bsky.social", "alice-blog", "hello");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social", "hello");
     await nextTick();
     await nextTick();
     expect(getResult().error.value?.message).toBe("failed");
@@ -62,7 +62,7 @@ describe("useScribeDocumentUri", () => {
       capturedSignal = signal;
       return new Promise(() => {});
     });
-    const { wrapper } = makeWrapper("alice.bsky.social", "alice-blog", "hello");
+    const { wrapper } = makeWrapper("alice.bsky.social", "https://alice.bsky.social", "hello");
     await wrapper.unmount();
     expect(capturedSignal?.aborted).toBe(true);
   });
@@ -71,7 +71,7 @@ describe("useScribeDocumentUri", () => {
     const abortError = new Error("aborted");
     abortError.name = "AbortError";
     mockFetchArticleBySlug.mockRejectedValueOnce(abortError);
-    const { getResult } = makeWrapper("alice.bsky.social", "alice-blog", "hello");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social", "hello");
     await nextTick();
     await nextTick();
     expect(getResult().error.value).toBeNull();

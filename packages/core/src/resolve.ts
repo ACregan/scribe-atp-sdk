@@ -17,15 +17,6 @@ export async function resolveIdentifier(
   return data.did;
 }
 
-export async function resolvePublicationUri(
-  author: string,
-  siteSlug: string,
-  signal?: AbortSignal
-): Promise<string> {
-  const did = await resolveIdentifier(author, signal);
-  return `at://${did}/site.standard.publication/${siteSlug}`;
-}
-
 export async function resolvePds(
   did: string,
   signal?: AbortSignal

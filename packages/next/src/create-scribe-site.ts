@@ -1,15 +1,15 @@
 import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
 import type { Metadata } from "next";
 
-export function createScribeSite(author: string, siteSlug: string) {
+export function createScribeSite(author: string, publicationUrl: string) {
   return {
     generateGroupParams: async (): Promise<{ groupSlug: string }[]> => {
-      const site = await fetchSite(author, siteSlug);
+      const site = await fetchSite(author, publicationUrl);
       return site.groups.map((g) => ({ groupSlug: g.slug }));
     },
 
     generateArticleParams: async (): Promise<{ articleSlug: string }[]> => {
-      const site = await fetchSite(author, siteSlug);
+      const site = await fetchSite(author, publicationUrl);
       return site.groups
         .flatMap((g) => g.articles)
         .filter((a) => !!a.slug)
@@ -19,7 +19,7 @@ export function createScribeSite(author: string, siteSlug: string) {
     generateGroupArticleParams: async (): Promise<
       { groupSlug: string; articleSlug: string }[]
     > => {
-      const site = await fetchSite(author, siteSlug);
+      const site = await fetchSite(author, publicationUrl);
       return site.groups.flatMap((g) =>
         g.articles
           .filter((a) => !!a.slug)
@@ -28,7 +28,7 @@ export function createScribeSite(author: string, siteSlug: string) {
     },
 
     generateSiteMetadata: async (): Promise<Metadata> => {
-      const site = await fetchSite(author, siteSlug);
+      const site = await fetchSite(author, publicationUrl);
       return {
         title: site.title,
         description: site.description ?? undefined,
@@ -41,7 +41,7 @@ export function createScribeSite(author: string, siteSlug: string) {
     },
 
     generateGroupMetadata: async (groupSlug: string): Promise<Metadata> => {
-      const site = await fetchSite(author, siteSlug);
+      const site = await fetchSite(author, publicationUrl);
       const group = site.groups.find((g) => g.slug === groupSlug);
       const title = group ? `${group.title} — ${site.title}` : site.title;
       return {
@@ -51,7 +51,7 @@ export function createScribeSite(author: string, siteSlug: string) {
     },
 
     generateArticleMetadata: async (articleSlug: string): Promise<Metadata> => {
-      const site = await fetchSite(author, siteSlug);
+      const site = await fetchSite(author, publicationUrl);
       const article = site.groups
         .flatMap((g) => g.articles)
         .find((a) => a.slug === articleSlug);
@@ -72,16 +72,16 @@ export function createScribeSite(author: string, siteSlug: string) {
     },
 
     getDocumentUri: (articleSlug: string): Promise<string> =>
-      fetchArticleBySlug(author, siteSlug, articleSlug).then(({ uri }) => uri),
+      fetchArticleBySlug(author, publicationUrl, articleSlug).then(({ uri }) => uri),
   };
 }
 
 export function createWellKnownHandler(
   author: string,
-  siteSlug: string
+  publicationUrl: string
 ): (request: Request) => Promise<Response> {
   return async (request: Request) => {
-    const uri = await resolvePublicationUri(author, siteSlug, request.signal);
+    const uri = await resolvePublicationUri(author, publicationUrl, request.signal);
     return new Response(uri, { headers: { "Content-Type": "text/plain" } });
   };
 }

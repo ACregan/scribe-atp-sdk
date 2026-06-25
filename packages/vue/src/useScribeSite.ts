@@ -11,7 +11,7 @@ export interface UseScribeSiteResult {
 
 export function useScribeSite(
   author: string,
-  siteSlug: string
+  publicationUrl: string
 ): UseScribeSiteResult {
   const site = ref<Site | null>(null);
   const loading = ref(true);
@@ -19,7 +19,7 @@ export function useScribeSite(
 
   const controller = new AbortController();
 
-  fetchSite(author, siteSlug, controller.signal)
+  fetchSite(author, publicationUrl, controller.signal)
     .then((data) => {
       site.value = data;
       loading.value = false;

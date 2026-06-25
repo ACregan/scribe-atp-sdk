@@ -4,12 +4,12 @@ import { resolvePublicationUri } from "@scribe-atp/core";
 
 export function useScribePublicationUri(
   author: string,
-  siteSlug: string,
+  publicationUrl: string,
   options?: AsyncDataOptions<string>
 ) {
   return useAsyncData<string>(
-    `scribe:publication-uri:${author}:${siteSlug}`,
-    () => resolvePublicationUri(author, siteSlug),
+    `scribe:publication-uri:${author}:${publicationUrl}`,
+    () => resolvePublicationUri(author, publicationUrl),
     options
   );
 }
