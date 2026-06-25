@@ -1,5 +1,13 @@
 # @scribe-atp/vue
 
+## 0.4.0
+
+### Minor Changes
+
+- Add `siteSlug` parameter to document URI functions
+
+  `injectDocumentUri`, `ScribeService.getDocumentUri`, and `useScribeDocumentUri` now require a `siteSlug` argument so they can resolve article slugs to TID rkeys via the site manifest, matching the new `fetchArticleBySlug` API in core.
+
 ## 0.3.0
 
 ### Minor Changes
