@@ -12,8 +12,12 @@ _Avoid_: User, owner, writer
 A named publication belonging to an author — the top-level container for all their content. One author can have multiple sites. Stored as a `site.standard.publication` record on the author's PDS.
 _Avoid_: Blog, publication (overloaded with the AT Protocol collection name)
 
+**Publication URL**:
+The spec-defined base URL of a Site (e.g. `"https://anthonycregan.co.uk"`). Stored in the `url` field of the `site.standard.publication` record. The canonical lookup key for a Site in the SDK — `fetchSite` and `fetchArticleBySlug` take this as their second parameter (`publicationUrl`). No trailing slash.
+_Avoid_: Site URL (ambiguous), site slug (no longer the lookup key)
+
 **Site Slug**:
-A stable, human-readable identifier for a Site derived from its domain (`toSlug("norobots.blog")` → `"norobots-blog"`). Used as a lookup key throughout the SDK and consumer site config. Not the same as the Site's AT Protocol rkey.
+A stable, human-readable identifier for a Site derived from its domain (`toSlug("norobots.blog")` → `"norobots-blog"`). Stored in `scribe.slug` of the publication record for CMS display and routing. Not used as a lookup key by the SDK — use Publication URL for that. Not the same as the Site's AT Protocol rkey.
 _Avoid_: Site rkey, site key
 
 **Group**:

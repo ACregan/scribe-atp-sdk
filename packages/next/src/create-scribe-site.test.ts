@@ -70,21 +70,21 @@ beforeEach(() => {
 describe("createScribeSite", () => {
   describe("generateGroupParams", () => {
     it("returns one entry per group", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const params = await scribe.generateGroupParams();
       expect(params).toEqual([{ groupSlug: "tech" }, { groupSlug: "life" }]);
     });
 
-    it("calls fetchSite with the correct author and siteSlug", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+    it("calls fetchSite with the correct author and publicationUrl", async () => {
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       await scribe.generateGroupParams();
-      expect(mockFetchSite).toHaveBeenCalledWith("alice.bsky.social", "alice-bsky-social");
+      expect(mockFetchSite).toHaveBeenCalledWith("alice.bsky.social", "https://alice.bsky.social");
     });
   });
 
   describe("generateArticleParams", () => {
     it("returns flat list of all article slugs across all groups", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const params = await scribe.generateArticleParams();
       expect(params).toEqual([
         { articleSlug: "hello" },
@@ -96,7 +96,7 @@ describe("createScribeSite", () => {
 
   describe("generateGroupArticleParams", () => {
     it("returns groupSlug + articleSlug pairs for all articles", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const params = await scribe.generateGroupArticleParams();
       expect(params).toEqual([
         { groupSlug: "tech", articleSlug: "hello" },
@@ -108,14 +108,14 @@ describe("createScribeSite", () => {
 
   describe("generateSiteMetadata", () => {
     it("returns title and description from site", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateSiteMetadata();
       expect(meta.title).toBe("Alice's Blog");
       expect(meta.description).toBe("Thoughts from Alice");
     });
 
     it("includes openGraph with image when splashImageUrl is present", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateSiteMetadata();
       expect(meta.openGraph).toMatchObject({
         title: "Alice's Blog",
@@ -125,7 +125,7 @@ describe("createScribeSite", () => {
 
     it("omits openGraph images when splashImageUrl is absent", async () => {
       mockFetchSite.mockResolvedValueOnce({ ...mockSite, splashImageUrl: undefined });
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateSiteMetadata();
       expect((meta.openGraph as Record<string, unknown>)?.images).toBeUndefined();
     });
@@ -133,13 +133,13 @@ describe("createScribeSite", () => {
 
   describe("generateGroupMetadata", () => {
     it("composes title as group.title — site.title", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateGroupMetadata("tech");
       expect(meta.title).toBe("Tech — Alice's Blog");
     });
 
     it("falls back to site title when group is not found", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateGroupMetadata("unknown");
       expect(meta.title).toBe("Alice's Blog");
     });
@@ -147,19 +147,19 @@ describe("createScribeSite", () => {
 
   describe("generateArticleMetadata", () => {
     it("composes title as article.title — site.title", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateArticleMetadata("hello");
       expect(meta.title).toBe("Hello World — Alice's Blog");
     });
 
     it("includes description as description", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateArticleMetadata("hello");
       expect(meta.description).toBe("My first post");
     });
 
     it("includes openGraph image from splashImageUrl", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateArticleMetadata("hello");
       expect(meta.openGraph).toMatchObject({
         images: ["https://example.com/hello.jpg"],
@@ -167,13 +167,13 @@ describe("createScribeSite", () => {
     });
 
     it("omits description when synopsis is null", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateArticleMetadata("second");
       expect(meta.description).toBeUndefined();
     });
 
     it("falls back to site title when article is not found", async () => {
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const meta = await scribe.generateArticleMetadata("nonexistent");
       expect(meta.title).toBe("Alice's Blog");
     });
@@ -183,29 +183,29 @@ describe("createScribeSite", () => {
     it("returns the AT URI for a document", async () => {
       const documentUri = "at://did:plc:abc/site.standard.document/3jxtctq7kqm2y";
       mockFetchArticleBySlug.mockResolvedValueOnce({ article: {} as never, uri: documentUri });
-      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
       const uri = await scribe.getDocumentUri("hello");
       expect(uri).toBe(documentUri);
-      expect(mockFetchArticleBySlug).toHaveBeenCalledWith("alice.bsky.social", "alice-bsky-social", "hello");
+      expect(mockFetchArticleBySlug).toHaveBeenCalledWith("alice.bsky.social", "https://alice.bsky.social", "hello");
     });
   });
 });
 
 describe("createWellKnownHandler", () => {
   it("returns a handler that responds with the publication AT URI", async () => {
-    mockResolvePublicationUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.publication/my-blog");
-    const handler = createWellKnownHandler("alice.bsky.social", "my-blog");
+    mockResolvePublicationUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.publication/3jxtctq7kqm2y");
+    const handler = createWellKnownHandler("alice.bsky.social", "https://alice.bsky.social");
     const response = await handler(new Request("https://example.com/.well-known/site.standard.publication"));
     expect(response).toBeInstanceOf(Response);
-    expect(await response.text()).toBe("at://did:plc:abc/site.standard.publication/my-blog");
+    expect(await response.text()).toBe("at://did:plc:abc/site.standard.publication/3jxtctq7kqm2y");
     expect(response.headers.get("Content-Type")).toBe("text/plain");
   });
 
   it("passes the request signal to resolvePublicationUri", async () => {
-    mockResolvePublicationUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.publication/my-blog");
-    const handler = createWellKnownHandler("alice.bsky.social", "my-blog");
+    mockResolvePublicationUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.publication/3jxtctq7kqm2y");
+    const handler = createWellKnownHandler("alice.bsky.social", "https://alice.bsky.social");
     const request = new Request("https://example.com/.well-known/site.standard.publication");
     await handler(request);
-    expect(mockResolvePublicationUri).toHaveBeenCalledWith("alice.bsky.social", "my-blog", request.signal);
+    expect(mockResolvePublicationUri).toHaveBeenCalledWith("alice.bsky.social", "https://alice.bsky.social", request.signal);
   });
 });

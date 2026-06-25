@@ -18,11 +18,11 @@ const mockSite = {
   ungroupedArticles: [],
 };
 
-function makeWrapper(author: string, slug: string) {
+function makeWrapper(author: string, publicationUrl: string) {
   let result: ReturnType<typeof useScribeSite>;
   const Component = defineComponent({
     setup() {
-      result = useScribeSite(author, slug);
+      result = useScribeSite(author, publicationUrl);
       return result;
     },
     template: "<div/>",
@@ -38,7 +38,7 @@ beforeEach(() => {
 describe("useScribeSite", () => {
   it("starts with loading true and site null", () => {
     mockFetchSite.mockReturnValue(new Promise(() => {}));
-    const { getResult } = makeWrapper("alice.bsky.social", "alice-bsky-social");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     expect(getResult().loading.value).toBe(true);
     expect(getResult().site.value).toBeNull();
     expect(getResult().error.value).toBeNull();
@@ -46,7 +46,7 @@ describe("useScribeSite", () => {
 
   it("sets site and clears loading on resolve", async () => {
     mockFetchSite.mockResolvedValueOnce(mockSite);
-    const { getResult } = makeWrapper("alice.bsky.social", "alice-bsky-social");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     await nextTick();
     await nextTick();
     expect(getResult().site.value).toEqual(mockSite);
@@ -56,7 +56,7 @@ describe("useScribeSite", () => {
 
   it("sets error and clears loading on reject", async () => {
     mockFetchSite.mockRejectedValueOnce(new Error("fetch failed"));
-    const { getResult } = makeWrapper("alice.bsky.social", "alice-bsky-social");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     await nextTick();
     await nextTick();
     expect(getResult().error.value?.message).toBe("fetch failed");
@@ -70,7 +70,7 @@ describe("useScribeSite", () => {
       capturedSignal = signal;
       return new Promise(() => {});
     });
-    const { wrapper } = makeWrapper("alice.bsky.social", "alice-bsky-social");
+    const { wrapper } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     await wrapper.unmount();
     expect(capturedSignal?.aborted).toBe(true);
   });
@@ -79,18 +79,18 @@ describe("useScribeSite", () => {
     const abortError = new Error("aborted");
     abortError.name = "AbortError";
     mockFetchSite.mockRejectedValueOnce(abortError);
-    const { getResult } = makeWrapper("alice.bsky.social", "alice-bsky-social");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     await nextTick();
     await nextTick();
     expect(getResult().error.value).toBeNull();
   });
 
-  it("calls fetchSite with author and siteSlug", () => {
+  it("calls fetchSite with author and publicationUrl", () => {
     mockFetchSite.mockReturnValue(new Promise(() => {}));
-    makeWrapper("alice.bsky.social", "alice-bsky-social");
+    makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     expect(mockFetchSite).toHaveBeenCalledWith(
       "alice.bsky.social",
-      "alice-bsky-social",
+      "https://alice.bsky.social",
       expect.any(AbortSignal)
     );
   });

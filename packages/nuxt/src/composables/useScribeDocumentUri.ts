@@ -4,13 +4,13 @@ import { fetchArticleBySlug } from "@scribe-atp/core";
 
 export function useScribeDocumentUri(
   author: string,
-  siteSlug: string,
+  publicationUrl: string,
   articleSlug: string,
   options?: AsyncDataOptions<string>
 ) {
   return useAsyncData<string>(
-    `scribe:document-uri:${author}:${siteSlug}:${articleSlug}`,
-    () => fetchArticleBySlug(author, siteSlug, articleSlug).then(({ uri }) => uri),
+    `scribe:document-uri:${author}:${publicationUrl}:${articleSlug}`,
+    () => fetchArticleBySlug(author, publicationUrl, articleSlug).then(({ uri }) => uri),
     options
   );
 }

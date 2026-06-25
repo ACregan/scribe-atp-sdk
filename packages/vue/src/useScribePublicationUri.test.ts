@@ -10,13 +10,13 @@ vi.mock("@scribe-atp/core", () => ({
 import { resolvePublicationUri } from "@scribe-atp/core";
 const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
 
-const PUBLICATION_URI = "at://did:plc:abc/site.standard.publication/my-blog";
+const PUBLICATION_URI = "at://did:plc:abc/site.standard.publication/3jxtctq7kqm2y";
 
-function makeWrapper(author: string, siteSlug: string) {
+function makeWrapper(author: string, publicationUrl: string) {
   let result: ReturnType<typeof useScribePublicationUri>;
   const Component = defineComponent({
     setup() {
-      result = useScribePublicationUri(author, siteSlug);
+      result = useScribePublicationUri(author, publicationUrl);
       return result;
     },
     template: "<div/>",
@@ -32,7 +32,7 @@ beforeEach(() => {
 describe("useScribePublicationUri", () => {
   it("starts with loading true and uri null", () => {
     mockResolvePublicationUri.mockReturnValue(new Promise(() => {}));
-    const { getResult } = makeWrapper("alice.bsky.social", "my-blog");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     expect(getResult().loading.value).toBe(true);
     expect(getResult().uri.value).toBeNull();
     expect(getResult().error.value).toBeNull();
@@ -40,7 +40,7 @@ describe("useScribePublicationUri", () => {
 
   it("sets uri and clears loading on resolve", async () => {
     mockResolvePublicationUri.mockResolvedValueOnce(PUBLICATION_URI);
-    const { getResult } = makeWrapper("alice.bsky.social", "my-blog");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     await nextTick();
     await nextTick();
     expect(getResult().uri.value).toBe(PUBLICATION_URI);
@@ -49,7 +49,7 @@ describe("useScribePublicationUri", () => {
 
   it("sets error and clears loading on reject", async () => {
     mockResolvePublicationUri.mockRejectedValueOnce(new Error("failed"));
-    const { getResult } = makeWrapper("alice.bsky.social", "my-blog");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     await nextTick();
     await nextTick();
     expect(getResult().error.value?.message).toBe("failed");
@@ -62,7 +62,7 @@ describe("useScribePublicationUri", () => {
       capturedSignal = signal;
       return new Promise(() => {});
     });
-    const { wrapper } = makeWrapper("alice.bsky.social", "my-blog");
+    const { wrapper } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     await wrapper.unmount();
     expect(capturedSignal?.aborted).toBe(true);
   });
@@ -71,7 +71,7 @@ describe("useScribePublicationUri", () => {
     const abortError = new Error("aborted");
     abortError.name = "AbortError";
     mockResolvePublicationUri.mockRejectedValueOnce(abortError);
-    const { getResult } = makeWrapper("alice.bsky.social", "my-blog");
+    const { getResult } = makeWrapper("alice.bsky.social", "https://alice.bsky.social");
     await nextTick();
     await nextTick();
     expect(getResult().error.value).toBeNull();

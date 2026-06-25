@@ -8,7 +8,7 @@ interface UseSiteResult {
   error: Error | null;
 }
 
-export function useSite(author: string, siteSlug: string): UseSiteResult {
+export function useSite(author: string, publicationUrl: string): UseSiteResult {
   const [site, setSite] = useState<Site | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -19,7 +19,7 @@ export function useSite(author: string, siteSlug: string): UseSiteResult {
     setSite(null);
     setError(null);
 
-    fetchSite(author, siteSlug, controller.signal)
+    fetchSite(author, publicationUrl, controller.signal)
       .then((data) => {
         setSite(data);
         setLoading(false);
@@ -31,7 +31,7 @@ export function useSite(author: string, siteSlug: string): UseSiteResult {
       });
 
     return () => controller.abort();
-  }, [author, siteSlug]);
+  }, [author, publicationUrl]);
 
   return { site, loading, error };
 }

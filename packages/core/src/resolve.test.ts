@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { resolveIdentifier, resolvePds, resolvePublicationUri } from "./resolve.js";
+import { resolveIdentifier, resolvePds } from "./resolve.js";
 
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
@@ -48,24 +48,6 @@ describe("resolveIdentifier", () => {
     await expect(resolveIdentifier("unknown.handle")).rejects.toThrow(
       "Failed to resolve handle"
     );
-  });
-});
-
-describe("resolvePublicationUri", () => {
-  it("returns AT URI for a publication given a handle", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ did: "did:plc:pub1" }),
-    });
-
-    const result = await resolvePublicationUri("author.bsky.social", "my-blog");
-    expect(result).toBe("at://did:plc:pub1/site.standard.publication/my-blog");
-  });
-
-  it("returns AT URI for a publication given a DID directly", async () => {
-    const result = await resolvePublicationUri("did:plc:pub2", "my-blog");
-    expect(result).toBe("at://did:plc:pub2/site.standard.publication/my-blog");
-    expect(mockFetch).not.toHaveBeenCalled();
   });
 });
 

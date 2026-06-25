@@ -10,7 +10,7 @@ export interface UseScribeDocumentUriResult {
 
 export function useScribeDocumentUri(
   author: string,
-  siteSlug: string,
+  publicationUrl: string,
   articleSlug: string
 ): UseScribeDocumentUriResult {
   const uri = ref<string | null>(null);
@@ -19,7 +19,7 @@ export function useScribeDocumentUri(
 
   const controller = new AbortController();
 
-  fetchArticleBySlug(author, siteSlug, articleSlug, controller.signal)
+  fetchArticleBySlug(author, publicationUrl, articleSlug, controller.signal)
     .then(({ uri: documentUri }) => {
       uri.value = documentUri;
       loading.value = false;

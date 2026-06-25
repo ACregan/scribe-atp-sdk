@@ -5,12 +5,12 @@ import type { Site } from "@scribe-atp/core";
 
 export function useScribeSite(
   author: string,
-  siteSlug: string,
+  publicationUrl: string,
   options?: AsyncDataOptions<Site>
 ) {
   return useAsyncData<Site>(
-    `scribe:site:${author}:${siteSlug}`,
-    () => fetchSite(author, siteSlug),
+    `scribe:site:${author}:${publicationUrl}`,
+    () => fetchSite(author, publicationUrl),
     options
   );
 }
