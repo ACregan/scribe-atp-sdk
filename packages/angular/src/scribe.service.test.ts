@@ -4,11 +4,15 @@ import { ScribeService } from "./scribe.service.js";
 vi.mock("@scribe-atp/core", () => ({
   fetchSite: vi.fn(),
   fetchArticle: vi.fn(),
+  resolvePublicationUri: vi.fn(),
+  resolveDocumentUri: vi.fn(),
 }));
 
-import { fetchSite, fetchArticle } from "@scribe-atp/core";
+import { fetchSite, fetchArticle, resolvePublicationUri, resolveDocumentUri } from "@scribe-atp/core";
 const mockFetchSite = vi.mocked(fetchSite);
 const mockFetchArticle = vi.mocked(fetchArticle);
+const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
+const mockResolveDocumentUri = vi.mocked(resolveDocumentUri);
 
 const site = {
   title: "Test Site",
@@ -31,6 +35,8 @@ const article = {
 beforeEach(() => {
   mockFetchSite.mockReset();
   mockFetchArticle.mockReset();
+  mockResolvePublicationUri.mockReset();
+  mockResolveDocumentUri.mockReset();
 });
 
 describe("ScribeService", () => {
@@ -116,6 +122,78 @@ describe("ScribeService", () => {
       const sub = service
         .getArticle("did:plc:test", "test-article")
         .subscribe();
+      sub.unsubscribe();
+      expect(abortSpy).toHaveBeenCalled();
+      reject(Object.assign(new Error("aborted"), { name: "AbortError" }));
+      abortSpy.mockRestore();
+    });
+  });
+
+  describe("getPublicationUri", () => {
+    it("emits uri and completes on success", () =>
+      new Promise<void>((resolve) => {
+        mockResolvePublicationUri.mockResolvedValueOnce("at://did:plc:test/site.standard.publication/my-blog");
+        const service = new ScribeService();
+        service.getPublicationUri("did:plc:test", "my-blog").subscribe({
+          next: (value) => expect(value).toBe("at://did:plc:test/site.standard.publication/my-blog"),
+          complete: resolve,
+        });
+      }));
+
+    it("errors on failure", () =>
+      new Promise<void>((resolve) => {
+        mockResolvePublicationUri.mockRejectedValueOnce(new Error("failed"));
+        const service = new ScribeService();
+        service.getPublicationUri("did:plc:test", "my-blog").subscribe({
+          error: (err: Error) => {
+            expect(err.message).toBe("failed");
+            resolve();
+          },
+        });
+      }));
+
+    it("aborts on unsubscribe", () => {
+      const abortSpy = vi.spyOn(AbortController.prototype, "abort");
+      const { promise, reject } = Promise.withResolvers<string>();
+      mockResolvePublicationUri.mockReturnValueOnce(promise);
+      const service = new ScribeService();
+      const sub = service.getPublicationUri("did:plc:test", "my-blog").subscribe();
+      sub.unsubscribe();
+      expect(abortSpy).toHaveBeenCalled();
+      reject(Object.assign(new Error("aborted"), { name: "AbortError" }));
+      abortSpy.mockRestore();
+    });
+  });
+
+  describe("getDocumentUri", () => {
+    it("emits uri and completes on success", () =>
+      new Promise<void>((resolve) => {
+        mockResolveDocumentUri.mockResolvedValueOnce("at://did:plc:test/site.standard.document/hello");
+        const service = new ScribeService();
+        service.getDocumentUri("did:plc:test", "hello").subscribe({
+          next: (value) => expect(value).toBe("at://did:plc:test/site.standard.document/hello"),
+          complete: resolve,
+        });
+      }));
+
+    it("errors on failure", () =>
+      new Promise<void>((resolve) => {
+        mockResolveDocumentUri.mockRejectedValueOnce(new Error("failed"));
+        const service = new ScribeService();
+        service.getDocumentUri("did:plc:test", "hello").subscribe({
+          error: (err: Error) => {
+            expect(err.message).toBe("failed");
+            resolve();
+          },
+        });
+      }));
+
+    it("aborts on unsubscribe", () => {
+      const abortSpy = vi.spyOn(AbortController.prototype, "abort");
+      const { promise, reject } = Promise.withResolvers<string>();
+      mockResolveDocumentUri.mockReturnValueOnce(promise);
+      const service = new ScribeService();
+      const sub = service.getDocumentUri("did:plc:test", "hello").subscribe();
       sub.unsubscribe();
       expect(abortSpy).toHaveBeenCalled();
       reject(Object.assign(new Error("aborted"), { name: "AbortError" }));
