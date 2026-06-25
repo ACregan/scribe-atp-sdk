@@ -1,6 +1,6 @@
 {
   "name": "@scribe-atp/react-router-framework",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Loader factories for reading Scribe CMS content in React Router v7 framework mode.",
   "license": "MIT",
   "engines": {
