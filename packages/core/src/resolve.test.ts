@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { resolveIdentifier, resolvePds } from "./resolve.js";
+import { resolveIdentifier, resolvePds, resolvePublicationUri, resolveDocumentUri } from "./resolve.js";
 
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
@@ -31,11 +31,59 @@ describe("resolveIdentifier", () => {
     );
   });
 
+  it("caches handle resolution — only one fetch for the same handle", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ did: "did:plc:cached-handle" }),
+    });
+
+    await resolveIdentifier("cached.handle.bsky.social");
+    await resolveIdentifier("cached.handle.bsky.social");
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
   it("throws when handle resolution fails", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, statusText: "Not Found" });
     await expect(resolveIdentifier("unknown.handle")).rejects.toThrow(
       "Failed to resolve handle"
     );
+  });
+});
+
+describe("resolvePublicationUri", () => {
+  it("returns AT URI for a publication given a handle", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ did: "did:plc:pub1" }),
+    });
+
+    const result = await resolvePublicationUri("author.bsky.social", "my-blog");
+    expect(result).toBe("at://did:plc:pub1/site.standard.publication/my-blog");
+  });
+
+  it("returns AT URI for a publication given a DID directly", async () => {
+    const result = await resolvePublicationUri("did:plc:pub2", "my-blog");
+    expect(result).toBe("at://did:plc:pub2/site.standard.publication/my-blog");
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("resolveDocumentUri", () => {
+  it("returns AT URI for a document given a handle", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ did: "did:plc:doc1" }),
+    });
+
+    const result = await resolveDocumentUri("author2.bsky.social", "my-article");
+    expect(result).toBe("at://did:plc:doc1/site.standard.document/my-article");
+  });
+
+  it("returns AT URI for a document given a DID directly", async () => {
+    const result = await resolveDocumentUri("did:plc:doc2", "my-article");
+    expect(result).toBe("at://did:plc:doc2/site.standard.document/my-article");
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });
 

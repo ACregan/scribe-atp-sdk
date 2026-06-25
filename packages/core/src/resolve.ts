@@ -1,3 +1,4 @@
+const handleCache = new Map<string, string>();
 const pdsCache = new Map<string, string>();
 
 export async function resolveIdentifier(
@@ -5,12 +6,33 @@ export async function resolveIdentifier(
   signal?: AbortSignal
 ): Promise<string> {
   if (handleOrDid.startsWith("did:")) return handleOrDid;
+  const cached = handleCache.get(handleOrDid);
+  if (cached) return cached;
 
   const url = `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handleOrDid)}`;
   const res = await fetch(url, { signal });
   if (!res.ok) throw new Error(`Failed to resolve handle: ${res.statusText}`);
   const data = (await res.json()) as { did: string };
+  handleCache.set(handleOrDid, data.did);
   return data.did;
+}
+
+export async function resolvePublicationUri(
+  author: string,
+  siteSlug: string,
+  signal?: AbortSignal
+): Promise<string> {
+  const did = await resolveIdentifier(author, signal);
+  return `at://${did}/site.standard.publication/${siteSlug}`;
+}
+
+export async function resolveDocumentUri(
+  author: string,
+  documentSlug: string,
+  signal?: AbortSignal
+): Promise<string> {
+  const did = await resolveIdentifier(author, signal);
+  return `at://${did}/site.standard.document/${documentSlug}`;
 }
 
 export async function resolvePds(

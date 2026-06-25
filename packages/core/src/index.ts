@@ -6,3 +6,4 @@ export { generateFeed } from "./feed.js";
 export type { FeedOptions } from "./feed.js";
 export { getSitemapEntries } from "./sitemap.js";
 export type { SitemapEntry, GetSitemapEntriesOptions } from "./sitemap.js";
+export { resolvePublicationUri, resolveDocumentUri } from "./resolve.js";
