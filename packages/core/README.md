@@ -20,9 +20,9 @@ npm install @scribe-atp/core
 A *site* is an author's publication — it contains their article groups, metadata, and splash image.
 
 ```ts
-import { fetchSite, toSlug } from "@scribe-atp/core";
+import { fetchSite } from "@scribe-atp/core";
 
-const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
 
 console.log(site.title);
 console.log(site.groups);            // published article groups
@@ -52,7 +52,7 @@ import { listSites, slugFromUri } from "@scribe-atp/core";
 const sites = await listSites("alice.bsky.social");
 
 for (const site of sites) {
-  const siteRkey = slugFromUri(site.uri); // the record key, e.g. "alice-bsky-social"
+  const siteRkey = slugFromUri(site.uri); // the record key (a TID), e.g. "3mp4nd46xwr2h"
   console.log(site.title, site.groups);
 }
 ```
@@ -87,16 +87,13 @@ Both functions handle cursor-based pagination automatically and accept an option
 All fetch functions accept an optional `AbortSignal` as their final argument:
 
 ```ts
-const site = await fetchSite("alice.bsky.social", "alice-bsky-social", request.signal);
+const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social", request.signal);
 ```
 
 ### Utilities
 
 ```ts
-import { toSlug, slugFromUri, flattenArticles } from "@scribe-atp/core";
-
-toSlug("norobots.blog");      // → "norobots-blog"
-toSlug("alice.bsky.social");  // → "alice-bsky-social"
+import { slugFromUri, flattenArticles } from "@scribe-atp/core";
 
 slugFromUri("at://did:plc:abc/app.scribe.article/my-post"); // → "my-post"
 
@@ -110,9 +107,9 @@ Generate an RSS 2.0 feed or an XML sitemap from a fetched `Site` object. Both fu
 #### RSS feed
 
 ```ts
-import { fetchSite, toSlug, generateFeed } from "@scribe-atp/core";
+import { fetchSite, generateFeed } from "@scribe-atp/core";
 
-const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
 
 const xml = generateFeed(site, {
   baseUrl: "https://alice.bsky.social",
@@ -134,9 +131,9 @@ Only published articles (from `site.groups`) are included. Draft articles in `si
 `getSitemapEntries` returns structured data — not XML — so you can merge Scribe URLs into your own framework's sitemap generator alongside non-Scribe pages (portfolio, contact, etc.).
 
 ```ts
-import { fetchSite, toSlug, getSitemapEntries } from "@scribe-atp/core";
+import { fetchSite, getSitemapEntries } from "@scribe-atp/core";
 
-const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
 
 const entries = getSitemapEntries(site, {
   baseUrl: "https://alice.bsky.social",

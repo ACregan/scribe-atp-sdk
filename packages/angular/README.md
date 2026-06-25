@@ -37,7 +37,7 @@ import { ScribeService } from "@scribe-atp/angular";
   `,
 })
 export class BlogComponent {
-  site$ = inject(ScribeService).getSite("alice.bsky.social", "alice-bsky-social");
+  site$ = inject(ScribeService).getSite("alice.bsky.social", "https://alice.bsky.social");
 }
 ```
 
@@ -54,7 +54,7 @@ export class BlogComponent implements OnInit, OnDestroy {
   constructor(private scribe: ScribeService) {}
 
   ngOnInit() {
-    this.sub = this.scribe.getSite("alice.bsky.social", "alice-bsky-social").subscribe({
+    this.sub = this.scribe.getSite("alice.bsky.social", "https://alice.bsky.social").subscribe({
       next:  (site) => { this.site = site; this.loading = false; },
       error: (err)  => { this.error = err; this.loading = false; },
     });
@@ -101,7 +101,7 @@ export class ArticleComponent {
 `injectSite` returns `{ site, loading, error }` as readonly signals:
 
 ```ts
-vm = injectSite("alice.bsky.social", "alice-bsky-social");
+vm = injectSite("alice.bsky.social", "https://alice.bsky.social");
 // vm.site(), vm.loading(), vm.error()
 ```
 

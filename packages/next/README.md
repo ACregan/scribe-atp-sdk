@@ -23,7 +23,7 @@ Create a factory once and export its functions from your route files:
 // lib/scribe.ts
 import { createScribeSite } from "@scribe-atp/next";
 
-export const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+export const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
 ```
 
 ### Group index route — `/blog/[groupSlug]`
@@ -98,7 +98,7 @@ import { fetchSite } from "@scribe-atp/core";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = await fetchSite("alice.bsky.social", "alice-bsky-social");
+  const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
   return {
     title: `${site.title} | My Platform`,
     // custom fields...
@@ -122,10 +122,10 @@ export const revalidate = 3600; // revalidate every hour
 ```ts
 // pages/blog/[slug].tsx
 import type { GetStaticPaths, GetStaticProps } from "next";
-import { fetchSite, fetchArticle, toSlug } from "@scribe-atp/core";
+import { fetchSite, fetchArticle } from "@scribe-atp/core";
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+  const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
   const paths = site.groups.flatMap((group) =>
     group.articles.map((article) => ({ params: { slug: article.url ?? "" } }))
   );

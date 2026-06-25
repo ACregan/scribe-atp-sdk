@@ -1,5 +1,13 @@
 # @scribe-atp/react-router-framework
 
+## 2.0.1
+
+### Patch Changes
+
+- 7b9ec3e: Update package READMEs to reflect the `publicationUrl` API introduced in the v3/v2/v1 major releases — replaces all `siteSlug` parameter references and `toSlug()` usage examples with full HTTPS URL strings.
+- Updated dependencies [7b9ec3e]
+  - @scribe-atp/core@3.0.1
+
 ## 1.3.0
 
 ### Minor Changes
