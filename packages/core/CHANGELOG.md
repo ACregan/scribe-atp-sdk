@@ -1,5 +1,15 @@
 # @scribe-atp/core
 
+## 2.3.0
+
+### Minor Changes
+
+- Add `fetchArticleBySlug(author, siteSlug, slug)` to core, which resolves a human-readable slug to its TID rkey via the site manifest before fetching the article record. Returns `{ article, uri }` as `ArticleResult`.
+
+  Remove `resolveDocumentUri` (assumed rkey === slug, which breaks after TID migration).
+
+  Update `createArticleRouteLoader` signature to `(author, siteSlug, slugParam?)` — `siteSlug` is now required so the loader can use `fetchArticleBySlug`. Remove `createArticleLoader` (use `createArticleRouteLoader` or `fetchArticleBySlug` directly).
+
 ## 2.2.0
 
 ### Minor Changes

@@ -1,5 +1,6 @@
-import type { Site, Article } from "./types.js";
+import type { Site, Article, ArticleResult } from "./types.js";
 import { resolveIdentifier, resolvePds } from "./resolve.js";
+import { slugFromUri } from "./utils.js";
 
 interface ScribeManifest {
   domain: string;
@@ -102,4 +103,28 @@ export async function fetchArticle(
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
   };
+}
+
+export async function fetchArticleBySlug(
+  author: string,
+  siteSlug: string,
+  articleSlug: string,
+  signal?: AbortSignal
+): Promise<ArticleResult> {
+  const site = await fetchSite(author, siteSlug, signal);
+
+  const allRefs = [
+    ...site.ungroupedArticles,
+    ...site.groups.flatMap((g) => g.articles),
+  ];
+
+  const ref = allRefs.find(
+    (r) => r.slug === articleSlug || slugFromUri(r.uri) === articleSlug
+  );
+
+  if (!ref) throw new Error(`Article not found: ${articleSlug}`);
+
+  const rkey = slugFromUri(ref.uri);
+  const article = await fetchArticle(author, rkey, signal);
+  return { article, uri: ref.uri };
 }

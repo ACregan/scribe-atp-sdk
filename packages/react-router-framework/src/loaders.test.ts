@@ -1,19 +1,17 @@
 import { describe, it, expect, vi } from "vitest";
 import type { LoaderFunctionArgs } from "react-router";
-import { createSiteLoader, createArticleLoader, createArticleRouteLoader, createWellKnownLoader } from "./loaders.js";
+import { createSiteLoader, createArticleRouteLoader, createWellKnownLoader } from "./loaders.js";
 
 vi.mock("@scribe-atp/core", () => ({
   fetchSite: vi.fn(),
-  fetchArticle: vi.fn(),
+  fetchArticleBySlug: vi.fn(),
   resolvePublicationUri: vi.fn(),
-  resolveDocumentUri: vi.fn(),
 }));
 
-import { fetchSite, fetchArticle, resolvePublicationUri, resolveDocumentUri } from "@scribe-atp/core";
+import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
 const mockFetchSite = vi.mocked(fetchSite);
-const mockFetchArticle = vi.mocked(fetchArticle);
+const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
-const mockResolveDocumentUri = vi.mocked(resolveDocumentUri);
 
 const makeArgs = (): LoaderFunctionArgs =>
   ({ request: new Request("https://example.com"), params: {}, context: {} }) as unknown as LoaderFunctionArgs;
@@ -29,12 +27,15 @@ const site = {
 const article = {
   title: "Hello",
   content: "<p>Hello</p>",
-  path: "/hello",
-  site: "https://example.com",
+  path: "/essays/hello",
+  site: "at://did:plc:test/site.standard.publication/example-com",
+  canonicalUrl: "https://example.com/blog/essays/hello",
   publishedAt: "2024-01-01T00:00:00Z",
   createdAt: "2024-01-01T00:00:00Z",
   updatedAt: "2024-01-01T00:00:00Z",
 };
+
+const documentUri = "at://did:plc:test/site.standard.document/3jxtctq7kqm2y";
 
 describe("createSiteLoader", () => {
   it("returns a loader that fetches the site", async () => {
@@ -62,54 +63,45 @@ describe("createSiteLoader", () => {
   });
 });
 
-describe("createArticleLoader", () => {
-  it("returns a loader that fetches the article", async () => {
-    mockFetchArticle.mockResolvedValueOnce(article);
-    const loader = createArticleLoader("did:plc:test", "hello");
-    const result = await loader(makeArgs());
-    expect(result).toEqual(article);
-    expect(mockFetchArticle).toHaveBeenCalledWith(
+describe("createArticleRouteLoader", () => {
+  it("reads the slug from route params and returns article with documentUri", async () => {
+    mockFetchArticleBySlug.mockResolvedValueOnce({ article, uri: documentUri });
+    const loader = createArticleRouteLoader("did:plc:test", "example-com");
+    const args = { ...makeArgs(), params: { articleSlug: "hello" } } as unknown as LoaderFunctionArgs;
+    const result = await loader(args);
+    expect(result).toEqual({ ...article, documentUri });
+    expect(mockFetchArticleBySlug).toHaveBeenCalledWith(
       "did:plc:test",
+      "example-com",
       "hello",
       expect.any(AbortSignal)
     );
   });
 
-  it("passes the request signal to fetchArticle", async () => {
-    mockFetchArticle.mockResolvedValueOnce(article);
-    const loader = createArticleLoader("did:plc:test", "hello");
-    const args = makeArgs();
+  it("uses a custom param name when provided", async () => {
+    mockFetchArticleBySlug.mockResolvedValueOnce({ article, uri: documentUri });
+    const loader = createArticleRouteLoader("did:plc:test", "example-com", "slug");
+    const args = { ...makeArgs(), params: { slug: "hello" } } as unknown as LoaderFunctionArgs;
     await loader(args);
-    expect(mockFetchArticle).toHaveBeenCalledWith(
+    expect(mockFetchArticleBySlug).toHaveBeenCalledWith("did:plc:test", "example-com", "hello", expect.any(AbortSignal));
+  });
+
+  it("throws when the slug param is missing", async () => {
+    const loader = createArticleRouteLoader("did:plc:test", "example-com");
+    await expect(loader(makeArgs())).rejects.toThrow("Missing route param: articleSlug");
+  });
+
+  it("passes the request signal to fetchArticleBySlug", async () => {
+    mockFetchArticleBySlug.mockResolvedValueOnce({ article, uri: documentUri });
+    const loader = createArticleRouteLoader("did:plc:test", "example-com");
+    const args = { ...makeArgs(), params: { articleSlug: "hello" } } as unknown as LoaderFunctionArgs;
+    await loader(args);
+    expect(mockFetchArticleBySlug).toHaveBeenCalledWith(
+      expect.any(String),
       expect.any(String),
       expect.any(String),
       args.request.signal
     );
-  });
-});
-
-describe("createArticleRouteLoader", () => {
-  it("reads the slug from route params and returns article with documentUri", async () => {
-    mockFetchArticle.mockResolvedValueOnce(article);
-    mockResolveDocumentUri.mockResolvedValueOnce("at://did:plc:test/site.standard.document/hello");
-    const loader = createArticleRouteLoader("did:plc:test");
-    const args = { ...makeArgs(), params: { articleSlug: "hello" } } as unknown as LoaderFunctionArgs;
-    const result = await loader(args);
-    expect(result).toEqual({ ...article, documentUri: "at://did:plc:test/site.standard.document/hello" });
-  });
-
-  it("uses a custom param name when provided", async () => {
-    mockFetchArticle.mockResolvedValueOnce(article);
-    mockResolveDocumentUri.mockResolvedValueOnce("at://did:plc:test/site.standard.document/hello");
-    const loader = createArticleRouteLoader("did:plc:test", "slug");
-    const args = { ...makeArgs(), params: { slug: "hello" } } as unknown as LoaderFunctionArgs;
-    await loader(args);
-    expect(mockFetchArticle).toHaveBeenCalledWith("did:plc:test", "hello", expect.any(AbortSignal));
-  });
-
-  it("throws when the slug param is missing", async () => {
-    const loader = createArticleRouteLoader("did:plc:test");
-    await expect(loader(makeArgs())).rejects.toThrow("Missing route param: articleSlug");
   });
 });
 
