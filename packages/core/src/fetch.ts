@@ -1,10 +1,26 @@
 import type { Site, Article } from "./types.js";
 import { resolveIdentifier, resolvePds } from "./resolve.js";
 
+interface ScribeManifest {
+  domain: string;
+  basePath: string;
+  title: string;
+  description?: string;
+  splashImageUrl?: string;
+  logoImageUrl?: string;
+  groups?: Site["groups"];
+  ungroupedArticles?: Site["ungroupedArticles"];
+}
+
+interface RawPublication {
+  scribe: ScribeManifest;
+}
+
 interface RawDocument {
   title: string;
   path: string;
   site: string;
+  canonicalUrl?: string;
   publishedAt: string;
   description?: string;
   content?: { $type: string; html?: string } | unknown;
@@ -35,17 +51,23 @@ export async function fetchSite(
 
   const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
   url.searchParams.set("repo", did);
-  url.searchParams.set("collection", "app.scribe.site");
+  url.searchParams.set("collection", "site.standard.publication");
   url.searchParams.set("rkey", siteSlug);
 
   const res = await fetch(url, { signal });
   if (!res.ok) throw new Error(`Failed to fetch site: ${res.statusText}`);
 
-  const data = (await res.json()) as { value: Site };
+  const data = (await res.json()) as { value: RawPublication };
+  const scribe = data.value.scribe;
   return {
-    ...data.value,
-    groups: data.value.groups ?? [],
-    ungroupedArticles: data.value.ungroupedArticles ?? [],
+    title: scribe.title,
+    url: scribe.domain,
+    urlPrefix: scribe.basePath,
+    description: scribe.description,
+    splashImageUrl: scribe.splashImageUrl,
+    logoImageUrl: scribe.logoImageUrl,
+    groups: scribe.groups ?? [],
+    ungroupedArticles: scribe.ungroupedArticles ?? [],
   };
 }
 
@@ -72,6 +94,7 @@ export async function fetchArticle(
     content: extractHtml(raw.content),
     path: raw.path,
     site: raw.site,
+    canonicalUrl: raw.canonicalUrl,
     publishedAt: raw.publishedAt,
     description: raw.description,
     splashImageUrl: raw.splashImageUrl,

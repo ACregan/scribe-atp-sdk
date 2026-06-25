@@ -1,5 +1,15 @@
 # @scribe-atp/core
 
+## 2.1.0
+
+### Minor Changes
+
+- feat: read from site.standard.publication
+
+  Fetch and list sites from site.standard.publication instead of app.scribe.site. Site records now store the Scribe manifest in a nested scribe extension field; scribe.domain maps to url and scribe.basePath maps to urlPrefix in the output — no breaking change for consumer sites.
+
+  Adds optional canonicalUrl field to the Article type, passed through from site.standard.document records.
+
 ## 2.0.0
 
 ### Major Changes

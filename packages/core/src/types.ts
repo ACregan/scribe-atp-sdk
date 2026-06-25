@@ -32,6 +32,7 @@ export interface Article {
   content: string;
   path: string;
   site: string;
+  canonicalUrl?: string;
   splashImageUrl?: string;
   description?: string;
   tags?: string[];

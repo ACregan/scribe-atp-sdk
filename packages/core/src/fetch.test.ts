@@ -13,26 +13,73 @@ beforeEach(() => mockFetch.mockReset());
 
 describe("fetchSite", () => {
   it("fetches a site record from the correct PDS URL", async () => {
-    const site = {
-      title: "Test Site",
-      url: "example.com",
-      urlPrefix: "blog",
-      groups: [],
-      ungroupedArticles: [],
-    };
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ value: site }),
+      json: async () => ({
+        value: {
+          scribe: {
+            domain: "example.com",
+            basePath: "blog",
+            title: "Test Site",
+            groups: [],
+            ungroupedArticles: [],
+          },
+        },
+      }),
     });
 
     const result = await fetchSite("did:plc:testuser", "example-com");
-    expect(result).toEqual(site);
+    expect(result.title).toBe("Test Site");
+    expect(result.url).toBe("example.com");
+    expect(result.urlPrefix).toBe("blog");
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
         href: expect.stringContaining("pds.example.com"),
       }),
       expect.any(Object)
     );
+  });
+
+  it("fetches from site.standard.publication collection", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          scribe: {
+            domain: "example.com",
+            basePath: "",
+            title: "Test Site",
+          },
+        },
+      }),
+    });
+
+    await fetchSite("did:plc:testuser", "example-com");
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        href: expect.stringContaining("site.standard.publication"),
+      }),
+      expect.any(Object)
+    );
+  });
+
+  it("maps scribe.domain to url and scribe.basePath to urlPrefix", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          scribe: {
+            domain: "norobots.blog",
+            basePath: "posts",
+            title: "NoRobots",
+          },
+        },
+      }),
+    });
+
+    const result = await fetchSite("did:plc:testuser", "norobots-blog");
+    expect(result.url).toBe("norobots.blog");
+    expect(result.urlPrefix).toBe("posts");
   });
 
   it("throws when the fetch fails", async () => {
@@ -46,7 +93,9 @@ describe("fetchSite", () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        value: { title: "Test", url: "example.com", urlPrefix: "" },
+        value: {
+          scribe: { domain: "example.com", basePath: "", title: "Test" },
+        },
       }),
     });
     const result = await fetchSite("did:plc:testuser", "example-com");
@@ -61,7 +110,8 @@ describe("fetchArticle", () => {
       title: "Hello World",
       content: { $type: "app.scribe.content.html", html: "<p>Hi</p>" },
       path: "/essays/hello-world",
-      site: "https://example.com/blog",
+      site: "at://did:plc:testuser/site.standard.publication/example-com",
+      canonicalUrl: "https://example.com/blog/essays/hello-world",
       publishedAt: "2024-01-02T00:00:00Z",
       createdAt: "2024-01-01T00:00:00Z",
       updatedAt: "2024-01-01T00:00:00Z",
@@ -75,7 +125,8 @@ describe("fetchArticle", () => {
     expect(result.title).toBe("Hello World");
     expect(result.content).toBe("<p>Hi</p>");
     expect(result.path).toBe("/essays/hello-world");
-    expect(result.site).toBe("https://example.com/blog");
+    expect(result.site).toBe("at://did:plc:testuser/site.standard.publication/example-com");
+    expect(result.canonicalUrl).toBe("https://example.com/blog/essays/hello-world");
     expect(result.publishedAt).toBe("2024-01-02T00:00:00Z");
   });
 
@@ -87,7 +138,7 @@ describe("fetchArticle", () => {
           title: "Test",
           content: { $type: "app.scribe.content.html", html: "" },
           path: "/hello-world",
-          site: "https://example.com",
+          site: "at://did:plc:testuser/site.standard.publication/example-com",
           publishedAt: "2024-01-01T00:00:00Z",
           createdAt: "2024-01-01T00:00:00Z",
           updatedAt: "2024-01-01T00:00:00Z",
@@ -104,6 +155,47 @@ describe("fetchArticle", () => {
     );
   });
 
+  it("passes through canonicalUrl when present", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          title: "Test",
+          content: { $type: "app.scribe.content.html", html: "" },
+          path: "/test",
+          site: "at://did:plc:testuser/site.standard.publication/example-com",
+          canonicalUrl: "https://example.com/test",
+          publishedAt: "2024-01-01T00:00:00Z",
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+        },
+      }),
+    });
+
+    const result = await fetchArticle("did:plc:testuser", "test");
+    expect(result.canonicalUrl).toBe("https://example.com/test");
+  });
+
+  it("leaves canonicalUrl undefined when absent", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          title: "Test",
+          content: { $type: "app.scribe.content.html", html: "" },
+          path: "/test",
+          site: "at://did:plc:testuser/site.standard.publication/example-com",
+          publishedAt: "2024-01-01T00:00:00Z",
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+        },
+      }),
+    });
+
+    const result = await fetchArticle("did:plc:testuser", "test");
+    expect(result.canonicalUrl).toBeUndefined();
+  });
+
   it("extracts html from app.scribe.content.html union", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -112,7 +204,7 @@ describe("fetchArticle", () => {
           title: "Test",
           content: { $type: "app.scribe.content.html", html: "<p>Body</p>" },
           path: "/test",
-          site: "https://example.com",
+          site: "at://did:plc:testuser/site.standard.publication/example-com",
           publishedAt: "2024-01-01T00:00:00Z",
           createdAt: "2024-01-01T00:00:00Z",
           updatedAt: "2024-01-01T00:00:00Z",
@@ -132,7 +224,7 @@ describe("fetchArticle", () => {
           title: "Test",
           content: { $type: "some.other.type", data: "..." },
           path: "/test",
-          site: "https://example.com",
+          site: "at://did:plc:testuser/site.standard.publication/example-com",
           publishedAt: "2024-01-01T00:00:00Z",
           createdAt: "2024-01-01T00:00:00Z",
           updatedAt: "2024-01-01T00:00:00Z",
