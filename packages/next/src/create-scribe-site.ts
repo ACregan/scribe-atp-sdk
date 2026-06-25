@@ -1,4 +1,4 @@
-import { fetchSite } from "@scribe-atp/core";
+import { fetchSite, resolveDocumentUri, resolvePublicationUri } from "@scribe-atp/core";
 import type { Metadata } from "next";
 
 export function createScribeSite(author: string, siteSlug: string) {
@@ -70,5 +70,18 @@ export function createScribeSite(author: string, siteSlug: string) {
         },
       };
     },
+
+    getDocumentUri: (articleSlug: string): Promise<string> =>
+      resolveDocumentUri(author, articleSlug),
+  };
+}
+
+export function createWellKnownHandler(
+  author: string,
+  siteSlug: string
+): (request: Request) => Promise<Response> {
+  return async (request: Request) => {
+    const uri = await resolvePublicationUri(author, siteSlug, request.signal);
+    return new Response(uri, { headers: { "Content-Type": "text/plain" } });
   };
 }

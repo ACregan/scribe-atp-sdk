@@ -1,12 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createScribeSite } from "./create-scribe-site.js";
+import { createScribeSite, createWellKnownHandler } from "./create-scribe-site.js";
 
 vi.mock("@scribe-atp/core", () => ({
   fetchSite: vi.fn(),
+  resolveDocumentUri: vi.fn(),
+  resolvePublicationUri: vi.fn(),
 }));
 
-import { fetchSite } from "@scribe-atp/core";
+import { fetchSite, resolveDocumentUri, resolvePublicationUri } from "@scribe-atp/core";
 const mockFetchSite = vi.mocked(fetchSite);
+const mockResolveDocumentUri = vi.mocked(resolveDocumentUri);
+const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
 
 const mockSite = {
   title: "Alice's Blog",
@@ -173,5 +177,34 @@ describe("createScribeSite", () => {
       const meta = await scribe.generateArticleMetadata("nonexistent");
       expect(meta.title).toBe("Alice's Blog");
     });
+  });
+
+  describe("getDocumentUri", () => {
+    it("returns the AT URI for a document", async () => {
+      mockResolveDocumentUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.document/hello");
+      const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
+      const uri = await scribe.getDocumentUri("hello");
+      expect(uri).toBe("at://did:plc:abc/site.standard.document/hello");
+      expect(mockResolveDocumentUri).toHaveBeenCalledWith("alice.bsky.social", "hello");
+    });
+  });
+});
+
+describe("createWellKnownHandler", () => {
+  it("returns a handler that responds with the publication AT URI", async () => {
+    mockResolvePublicationUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.publication/my-blog");
+    const handler = createWellKnownHandler("alice.bsky.social", "my-blog");
+    const response = await handler(new Request("https://example.com/.well-known/site.standard.publication"));
+    expect(response).toBeInstanceOf(Response);
+    expect(await response.text()).toBe("at://did:plc:abc/site.standard.publication/my-blog");
+    expect(response.headers.get("Content-Type")).toBe("text/plain");
+  });
+
+  it("passes the request signal to resolvePublicationUri", async () => {
+    mockResolvePublicationUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.publication/my-blog");
+    const handler = createWellKnownHandler("alice.bsky.social", "my-blog");
+    const request = new Request("https://example.com/.well-known/site.standard.publication");
+    await handler(request);
+    expect(mockResolvePublicationUri).toHaveBeenCalledWith("alice.bsky.social", "my-blog", request.signal);
   });
 });

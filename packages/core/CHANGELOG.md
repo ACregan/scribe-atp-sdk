@@ -1,5 +1,18 @@
 # @scribe-atp/core
 
+## 2.2.0
+
+### Minor Changes
+
+- Add `resolvePublicationUri` and `resolveDocumentUri` to support Standard.site discovery features.
+
+  Both functions resolve an author handle (or DID) to a DID and return the AT URI for the publication or document record. Handle resolution is now cached at the module level to avoid redundant network calls on repeated requests (e.g. `.well-known` endpoint, article pages).
+
+  Consumer sites can use these to implement:
+
+  - A `/.well-known/site.standard.publication` resource route returning the publication AT URI
+  - A `<link rel="site.standard.document">` tag on article pages pointing to the document record
+
 ## 2.1.0
 
 ### Minor Changes
