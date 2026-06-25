@@ -24,7 +24,7 @@ npm install @scribe-atp/react-router-framework
 import { createSiteLoader } from "@scribe-atp/react-router-framework";
 import { useLoaderData } from "react-router";
 
-export const loader = createSiteLoader("alice.bsky.social", "alice-bsky-social");
+export const loader = createSiteLoader("alice.bsky.social", "https://alice.bsky.social");
 
 export default function Blog() {
   const site = useLoaderData<typeof loader>();

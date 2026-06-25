@@ -42,13 +42,12 @@ npm install @scribe-atp/core
 
 ### Fetch a site
 
-A *site* is an author's publication — it contains their article groups, metadata, and splash image. You identify it by the author's handle (or DID) and their site slug.
+A *site* is an author's publication — it contains their article groups, metadata, and splash image. You identify it by the author's handle (or DID) and the site's canonical HTTPS URL.
 
 ```ts
-import { fetchSite, toSlug } from "@scribe-atp/core";
+import { fetchSite } from "@scribe-atp/core";
 
-// toSlug derives the site slug from the author's domain
-const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
 
 console.log(site.title);
 console.log(site.groups);           // published article groups
@@ -88,7 +87,7 @@ const [sites, articles] = await Promise.all([
 
 // Each SiteRecord includes a `uri` field alongside the usual Site fields
 for (const site of sites) {
-  const siteRkey = slugFromUri(site.uri); // e.g. "alice-bsky-social"
+  const siteRkey = slugFromUri(site.uri); // e.g. "https://alice.bsky.social"
   console.log(site.title, siteRkey);
 }
 
@@ -109,17 +108,14 @@ Both functions handle cursor-based pagination automatically.
 All fetch functions accept an optional `AbortSignal` as their final argument. Pass `request.signal` in server contexts to cancel the fetch if the user navigates away:
 
 ```ts
-const site = await fetchSite("alice.bsky.social", "alice-bsky-social", request.signal);
+const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social", request.signal);
 const sites = await listSites("alice.bsky.social", request.signal);
 ```
 
 ### Utilities
 
 ```ts
-import { toSlug, slugFromUri, flattenArticles } from "@scribe-atp/core";
-
-toSlug("norobots.blog");      // → "norobots-blog"
-toSlug("alice.bsky.social");  // → "alice-bsky-social"
+import { slugFromUri, flattenArticles } from "@scribe-atp/core";
 
 slugFromUri("at://did:plc:abc/app.scribe.article/my-post"); // → "my-post"
 
@@ -139,10 +135,10 @@ npm install @scribe-atp/react
 ### `useSite`
 
 ```tsx
-import { useSite, toSlug } from "@scribe-atp/react";
+import { useSite } from "@scribe-atp/react";
 
 function BlogIndex() {
-  const { site, loading, error } = useSite("alice.bsky.social", toSlug("alice.bsky.social"));
+  const { site, loading, error } = useSite("alice.bsky.social", "https://alice.bsky.social");
 
   if (loading) return <p>Loading…</p>;
   if (error)   return <p>Something went wrong: {error.message}</p>;
@@ -198,7 +194,7 @@ npm install @scribe-atp/react-router-framework
 import { createSiteLoader } from "@scribe-atp/react-router-framework";
 import { useLoaderData } from "react-router";
 
-export const loader = createSiteLoader("alice.bsky.social", "alice-bsky-social");
+export const loader = createSiteLoader("alice.bsky.social", "https://alice.bsky.social");
 
 export default function Blog() {
   const site = useLoaderData<typeof loader>();
@@ -275,7 +271,7 @@ import { ScribeService } from "@scribe-atp/angular";
   `,
 })
 export class BlogComponent {
-  site$ = inject(ScribeService).getSite("alice.bsky.social", "alice-bsky-social");
+  site$ = inject(ScribeService).getSite("alice.bsky.social", "https://alice.bsky.social");
 }
 ```
 
@@ -298,7 +294,7 @@ export class BlogComponent implements OnInit, OnDestroy {
   constructor(private scribe: ScribeService) {}
 
   ngOnInit() {
-    this.sub = this.scribe.getSite("alice.bsky.social", "alice-bsky-social").subscribe({
+    this.sub = this.scribe.getSite("alice.bsky.social", "https://alice.bsky.social").subscribe({
       next:  (site) => { this.site = site; this.loading = false; },
       error: (err)  => { this.error = err; this.loading = false; },
     });
@@ -350,10 +346,10 @@ For **Next.js**, **Nuxt**, **SvelteKit**, **Astro**, or any framework with serve
 
 ```ts
 // app/blog/page.tsx
-import { fetchSite, toSlug } from "@scribe-atp/core";
+import { fetchSite } from "@scribe-atp/core";
 
 export default async function BlogPage() {
-  const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+  const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
 
   return (
     <ul>
@@ -371,10 +367,10 @@ export default async function BlogPage() {
 
 ```ts
 // src/routes/blog/+page.server.ts
-import { fetchSite, toSlug } from "@scribe-atp/core";
+import { fetchSite } from "@scribe-atp/core";
 
 export const load = async ({ fetch: _ }) => {
-  const site = await fetchSite("alice.bsky.social", toSlug("alice.bsky.social"));
+  const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
   return { site };
 };
 ```

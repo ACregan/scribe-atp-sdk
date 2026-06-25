@@ -18,10 +18,10 @@ npm install @scribe-atp/react
 ### `useSite`
 
 ```tsx
-import { useSite, toSlug } from "@scribe-atp/react";
+import { useSite } from "@scribe-atp/react";
 
 function BlogIndex() {
-  const { site, loading, error } = useSite("alice.bsky.social", toSlug("alice.bsky.social"));
+  const { site, loading, error } = useSite("alice.bsky.social", "https://alice.bsky.social");
 
   if (loading) return <p>Loading…</p>;
   if (error)   return <p>Something went wrong: {error.message}</p>;

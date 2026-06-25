@@ -32,7 +32,7 @@ The composables are auto-imported globally — no import statement needed:
 <script setup lang="ts">
 const { data: site, pending, error } = await useScribeSite(
   "alice.bsky.social",
-  "alice-bsky-social"
+  "https://alice.bsky.social"
 );
 </script>
 
@@ -76,7 +76,7 @@ Pass `useAsyncData` options as an optional third argument:
 ```ts
 const { data: site, pending } = useScribeSite(
   "alice.bsky.social",
-  "alice-bsky-social",
+  "https://alice.bsky.social",
   { lazy: true }
 );
 ```

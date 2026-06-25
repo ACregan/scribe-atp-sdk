@@ -21,11 +21,11 @@ npm install @scribe-atp/vue
 
 ```vue
 <script setup lang="ts">
-import { useScribeSite, toSlug } from "@scribe-atp/vue";
+import { useScribeSite } from "@scribe-atp/vue";
 
 const { site, loading, error } = useScribeSite(
   "alice.bsky.social",
-  toSlug("alice.bsky.social")
+  "https://alice.bsky.social"
 );
 </script>
 
