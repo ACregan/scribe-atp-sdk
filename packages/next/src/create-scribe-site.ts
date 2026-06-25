@@ -1,4 +1,4 @@
-import { fetchSite, resolveDocumentUri, resolvePublicationUri } from "@scribe-atp/core";
+import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
 import type { Metadata } from "next";
 
 export function createScribeSite(author: string, siteSlug: string) {
@@ -72,7 +72,7 @@ export function createScribeSite(author: string, siteSlug: string) {
     },
 
     getDocumentUri: (articleSlug: string): Promise<string> =>
-      resolveDocumentUri(author, articleSlug),
+      fetchArticleBySlug(author, siteSlug, articleSlug).then(({ uri }) => uri),
   };
 }
 

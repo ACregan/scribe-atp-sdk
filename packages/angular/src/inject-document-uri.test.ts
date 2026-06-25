@@ -3,24 +3,24 @@ import { TestBed } from "@angular/core/testing";
 import { injectDocumentUri } from "./inject-document-uri.js";
 
 vi.mock("@scribe-atp/core", () => ({
-  resolveDocumentUri: vi.fn(),
+  fetchArticleBySlug: vi.fn(),
 }));
 
-import { resolveDocumentUri } from "@scribe-atp/core";
-const mockResolveDocumentUri = vi.mocked(resolveDocumentUri);
+import { fetchArticleBySlug } from "@scribe-atp/core";
+const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 
-const DOCUMENT_URI = "at://did:plc:test/site.standard.document/hello";
+const DOCUMENT_URI = "at://did:plc:test/site.standard.document/3jxtctq7kqm2y";
 
-beforeEach(() => mockResolveDocumentUri.mockReset());
+beforeEach(() => mockFetchArticleBySlug.mockReset());
 afterEach(() => TestBed.resetTestingModule());
 
 describe("injectDocumentUri", () => {
   it("starts in loading state", () => {
-    const { promise } = Promise.withResolvers<string>();
-    mockResolveDocumentUri.mockReturnValueOnce(promise);
+    const { promise } = Promise.withResolvers<never>();
+    mockFetchArticleBySlug.mockReturnValueOnce(promise);
 
     const result = TestBed.runInInjectionContext(() =>
-      injectDocumentUri("did:plc:test", "hello")
+      injectDocumentUri("did:plc:test", "example-com", "hello")
     );
 
     expect(result.loading()).toBe(true);
@@ -29,10 +29,10 @@ describe("injectDocumentUri", () => {
   });
 
   it("sets uri on success", async () => {
-    mockResolveDocumentUri.mockResolvedValueOnce(DOCUMENT_URI);
+    mockFetchArticleBySlug.mockResolvedValueOnce({ article: {} as never, uri: DOCUMENT_URI });
 
     const result = TestBed.runInInjectionContext(() =>
-      injectDocumentUri("did:plc:test", "hello")
+      injectDocumentUri("did:plc:test", "example-com", "hello")
     );
 
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -43,10 +43,10 @@ describe("injectDocumentUri", () => {
   });
 
   it("sets error on failure", async () => {
-    mockResolveDocumentUri.mockRejectedValueOnce(new Error("Network error"));
+    mockFetchArticleBySlug.mockRejectedValueOnce(new Error("Network error"));
 
     const result = TestBed.runInInjectionContext(() =>
-      injectDocumentUri("did:plc:test", "hello")
+      injectDocumentUri("did:plc:test", "example-com", "hello")
     );
 
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -58,11 +58,11 @@ describe("injectDocumentUri", () => {
 
   it("aborts on destroy", () => {
     const abortSpy = vi.spyOn(AbortController.prototype, "abort");
-    const { promise, reject } = Promise.withResolvers<string>();
-    mockResolveDocumentUri.mockReturnValueOnce(promise);
+    const { promise, reject } = Promise.withResolvers<never>();
+    mockFetchArticleBySlug.mockReturnValueOnce(promise);
 
     TestBed.runInInjectionContext(() =>
-      injectDocumentUri("did:plc:test", "hello")
+      injectDocumentUri("did:plc:test", "example-com", "hello")
     );
     TestBed.resetTestingModule();
 

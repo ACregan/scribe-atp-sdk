@@ -3,13 +3,13 @@ import { createScribeSite, createWellKnownHandler } from "./create-scribe-site.j
 
 vi.mock("@scribe-atp/core", () => ({
   fetchSite: vi.fn(),
-  resolveDocumentUri: vi.fn(),
+  fetchArticleBySlug: vi.fn(),
   resolvePublicationUri: vi.fn(),
 }));
 
-import { fetchSite, resolveDocumentUri, resolvePublicationUri } from "@scribe-atp/core";
+import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
 const mockFetchSite = vi.mocked(fetchSite);
-const mockResolveDocumentUri = vi.mocked(resolveDocumentUri);
+const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
 
 const mockSite = {
@@ -181,11 +181,12 @@ describe("createScribeSite", () => {
 
   describe("getDocumentUri", () => {
     it("returns the AT URI for a document", async () => {
-      mockResolveDocumentUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.document/hello");
+      const documentUri = "at://did:plc:abc/site.standard.document/3jxtctq7kqm2y";
+      mockFetchArticleBySlug.mockResolvedValueOnce({ article: {} as never, uri: documentUri });
       const scribe = createScribeSite("alice.bsky.social", "alice-bsky-social");
       const uri = await scribe.getDocumentUri("hello");
-      expect(uri).toBe("at://did:plc:abc/site.standard.document/hello");
-      expect(mockResolveDocumentUri).toHaveBeenCalledWith("alice.bsky.social", "hello");
+      expect(uri).toBe(documentUri);
+      expect(mockFetchArticleBySlug).toHaveBeenCalledWith("alice.bsky.social", "alice-bsky-social", "hello");
     });
   });
 });

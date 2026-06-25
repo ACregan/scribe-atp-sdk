@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchSite, fetchArticle } from "./fetch.js";
+import { fetchSite, fetchArticle, fetchArticleBySlug } from "./fetch.js";
 
 vi.mock("./resolve.js", () => ({
   resolveIdentifier: vi.fn(async () => "did:plc:testuser"),
@@ -241,5 +241,125 @@ describe("fetchArticle", () => {
     await expect(
       fetchArticle("did:plc:testuser", "missing-article")
     ).rejects.toThrow("Failed to fetch article");
+  });
+});
+
+const makeSiteResponse = (articleRefs: object[]) => ({
+  ok: true,
+  json: async () => ({
+    value: {
+      scribe: {
+        domain: "example.com",
+        basePath: "blog",
+        title: "Test Site",
+        groups: [{ slug: "essays", title: "Essays", articles: articleRefs }],
+        ungroupedArticles: [],
+      },
+    },
+  }),
+});
+
+const makeArticleResponse = () => ({
+  ok: true,
+  json: async () => ({
+    value: {
+      title: "My Article",
+      content: { $type: "app.scribe.content.html", html: "<p>Hi</p>" },
+      path: "/essays/my-article",
+      site: "at://did:plc:testuser/site.standard.publication/example-com",
+      canonicalUrl: "https://example.com/blog/essays/my-article",
+      publishedAt: "2024-01-01T00:00:00Z",
+      createdAt: "2024-01-01T00:00:00Z",
+      updatedAt: "2024-01-01T00:00:00Z",
+    },
+  }),
+});
+
+describe("fetchArticleBySlug", () => {
+  it("fetches site then article by TID rkey from ArticleRef.uri", async () => {
+    mockFetch
+      .mockResolvedValueOnce(makeSiteResponse([{
+        uri: "at://did:plc:testuser/site.standard.document/3jxtctq7kqm2y",
+        title: "My Article",
+        slug: "my-article",
+        splashImageUrl: null,
+        createdAt: "2024-01-01T00:00:00Z",
+      }]))
+      .mockResolvedValueOnce(makeArticleResponse());
+
+    const result = await fetchArticleBySlug("did:plc:testuser", "example-com", "my-article");
+
+    expect(result.article.title).toBe("My Article");
+    expect(result.uri).toBe("at://did:plc:testuser/site.standard.document/3jxtctq7kqm2y");
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.objectContaining({ href: expect.stringContaining("rkey=3jxtctq7kqm2y") }),
+      expect.any(Object)
+    );
+  });
+
+  it("returns the AT URI from the ArticleRef, not a reconstructed one", async () => {
+    const articleUri = "at://did:plc:testuser/site.standard.document/3jxtctq7kqm2y";
+    mockFetch
+      .mockResolvedValueOnce(makeSiteResponse([{
+        uri: articleUri,
+        title: "My Article",
+        slug: "my-article",
+        splashImageUrl: null,
+        createdAt: "2024-01-01T00:00:00Z",
+      }]))
+      .mockResolvedValueOnce(makeArticleResponse());
+
+    const result = await fetchArticleBySlug("did:plc:testuser", "example-com", "my-article");
+    expect(result.uri).toBe(articleUri);
+  });
+
+  it("falls back to rkey matching for legacy ArticleRefs without a slug field", async () => {
+    mockFetch
+      .mockResolvedValueOnce(makeSiteResponse([{
+        uri: "at://did:plc:testuser/site.standard.document/my-article",
+        title: "My Article",
+        splashImageUrl: null,
+        createdAt: "2024-01-01T00:00:00Z",
+      }]))
+      .mockResolvedValueOnce(makeArticleResponse());
+
+    const result = await fetchArticleBySlug("did:plc:testuser", "example-com", "my-article");
+    expect(result.article.title).toBe("My Article");
+  });
+
+  it("searches ungroupedArticles as well as groups", async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          value: {
+            scribe: {
+              domain: "example.com",
+              basePath: "",
+              title: "Test Site",
+              groups: [],
+              ungroupedArticles: [{
+                uri: "at://did:plc:testuser/site.standard.document/3jxtctq7kqm2y",
+                title: "My Article",
+                slug: "my-article",
+                splashImageUrl: null,
+                createdAt: "2024-01-01T00:00:00Z",
+              }],
+            },
+          },
+        }),
+      })
+      .mockResolvedValueOnce(makeArticleResponse());
+
+    const result = await fetchArticleBySlug("did:plc:testuser", "example-com", "my-article");
+    expect(result.article.title).toBe("My Article");
+  });
+
+  it("throws when no article matches the slug", async () => {
+    mockFetch.mockResolvedValueOnce(makeSiteResponse([]));
+
+    await expect(
+      fetchArticleBySlug("did:plc:testuser", "example-com", "nonexistent")
+    ).rejects.toThrow("Article not found: nonexistent");
   });
 });

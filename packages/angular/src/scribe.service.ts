@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { fetchSite, fetchArticle, resolvePublicationUri, resolveDocumentUri } from "@scribe-atp/core";
+import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
 import type { Site, Article } from "@scribe-atp/core";
 
 @Injectable({ providedIn: "root" })
@@ -53,11 +53,11 @@ export class ScribeService {
     });
   }
 
-  getDocumentUri(author: string, articleSlug: string): Observable<string> {
+  getDocumentUri(author: string, siteSlug: string, articleSlug: string): Observable<string> {
     return new Observable((subscriber) => {
       const controller = new AbortController();
-      resolveDocumentUri(author, articleSlug, controller.signal)
-        .then((uri) => {
+      fetchArticleBySlug(author, siteSlug, articleSlug, controller.signal)
+        .then(({ uri }) => {
           subscriber.next(uri);
           subscriber.complete();
         })

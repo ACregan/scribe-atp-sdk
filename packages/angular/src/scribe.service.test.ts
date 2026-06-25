@@ -4,15 +4,15 @@ import { ScribeService } from "./scribe.service.js";
 vi.mock("@scribe-atp/core", () => ({
   fetchSite: vi.fn(),
   fetchArticle: vi.fn(),
+  fetchArticleBySlug: vi.fn(),
   resolvePublicationUri: vi.fn(),
-  resolveDocumentUri: vi.fn(),
 }));
 
-import { fetchSite, fetchArticle, resolvePublicationUri, resolveDocumentUri } from "@scribe-atp/core";
+import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
 const mockFetchSite = vi.mocked(fetchSite);
 const mockFetchArticle = vi.mocked(fetchArticle);
+const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
-const mockResolveDocumentUri = vi.mocked(resolveDocumentUri);
 
 const site = {
   title: "Test Site",
@@ -35,8 +35,8 @@ const article = {
 beforeEach(() => {
   mockFetchSite.mockReset();
   mockFetchArticle.mockReset();
+  mockFetchArticleBySlug.mockReset();
   mockResolvePublicationUri.mockReset();
-  mockResolveDocumentUri.mockReset();
 });
 
 describe("ScribeService", () => {
@@ -166,21 +166,23 @@ describe("ScribeService", () => {
   });
 
   describe("getDocumentUri", () => {
+    const DOCUMENT_URI = "at://did:plc:test/site.standard.document/3jxtctq7kqm2y";
+
     it("emits uri and completes on success", () =>
       new Promise<void>((resolve) => {
-        mockResolveDocumentUri.mockResolvedValueOnce("at://did:plc:test/site.standard.document/hello");
+        mockFetchArticleBySlug.mockResolvedValueOnce({ article: {} as never, uri: DOCUMENT_URI });
         const service = new ScribeService();
-        service.getDocumentUri("did:plc:test", "hello").subscribe({
-          next: (value) => expect(value).toBe("at://did:plc:test/site.standard.document/hello"),
+        service.getDocumentUri("did:plc:test", "example-com", "hello").subscribe({
+          next: (value) => expect(value).toBe(DOCUMENT_URI),
           complete: resolve,
         });
       }));
 
     it("errors on failure", () =>
       new Promise<void>((resolve) => {
-        mockResolveDocumentUri.mockRejectedValueOnce(new Error("failed"));
+        mockFetchArticleBySlug.mockRejectedValueOnce(new Error("failed"));
         const service = new ScribeService();
-        service.getDocumentUri("did:plc:test", "hello").subscribe({
+        service.getDocumentUri("did:plc:test", "example-com", "hello").subscribe({
           error: (err: Error) => {
             expect(err.message).toBe("failed");
             resolve();
@@ -190,10 +192,10 @@ describe("ScribeService", () => {
 
     it("aborts on unsubscribe", () => {
       const abortSpy = vi.spyOn(AbortController.prototype, "abort");
-      const { promise, reject } = Promise.withResolvers<string>();
-      mockResolveDocumentUri.mockReturnValueOnce(promise);
+      const { promise, reject } = Promise.withResolvers<never>();
+      mockFetchArticleBySlug.mockReturnValueOnce(promise);
       const service = new ScribeService();
-      const sub = service.getDocumentUri("did:plc:test", "hello").subscribe();
+      const sub = service.getDocumentUri("did:plc:test", "example-com", "hello").subscribe();
       sub.unsubscribe();
       expect(abortSpy).toHaveBeenCalled();
       reject(Object.assign(new Error("aborted"), { name: "AbortError" }));

@@ -44,3 +44,8 @@ export interface Article {
 export interface SiteRecord extends Site {
   uri: string;
 }
+
+export interface ArticleResult {
+  article: Article;
+  uri: string;
+}
