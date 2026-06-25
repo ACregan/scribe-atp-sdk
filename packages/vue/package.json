@@ -1,6 +1,6 @@
 {
   "name": "@scribe-atp/vue",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Vue 3 composables for reading Scribe CMS content from the AT Protocol.",
   "license": "MIT",
   "engines": {
