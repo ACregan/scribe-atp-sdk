@@ -13,27 +13,83 @@ beforeEach(() => mockFetch.mockReset());
 
 describe("listSites", () => {
   it("fetches all sites from a single page response", async () => {
-    const site = {
-      title: "My Blog",
-      url: "example.com",
-      urlPrefix: "blog",
-      groups: [],
-      ungroupedArticles: [],
-    };
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        records: [{ uri: "at://did:plc:testuser/app.scribe.site/example-com", cid: "bafy", value: site }],
+        records: [
+          {
+            uri: "at://did:plc:testuser/site.standard.publication/example-com",
+            cid: "bafy",
+            value: {
+              scribe: {
+                domain: "example.com",
+                basePath: "blog",
+                title: "My Blog",
+                groups: [],
+                ungroupedArticles: [],
+              },
+            },
+          },
+        ],
       }),
     });
 
     const result = await listSites("alice.bsky.social");
     expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({ uri: "at://did:plc:testuser/app.scribe.site/example-com", ...site });
+    expect(result[0].uri).toBe("at://did:plc:testuser/site.standard.publication/example-com");
+    expect(result[0].title).toBe("My Blog");
+    expect(result[0].url).toBe("example.com");
+    expect(result[0].urlPrefix).toBe("blog");
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({ href: expect.stringContaining("com.atproto.repo.listRecords") }),
       expect.any(Object)
     );
+  });
+
+  it("fetches from site.standard.publication collection", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        records: [
+          {
+            uri: "at://did:plc:testuser/site.standard.publication/example-com",
+            cid: "bafy",
+            value: {
+              scribe: { domain: "example.com", basePath: "", title: "My Blog" },
+            },
+          },
+        ],
+      }),
+    });
+
+    await listSites("alice.bsky.social");
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        href: expect.stringContaining("site.standard.publication"),
+      }),
+      expect.any(Object)
+    );
+  });
+
+  it("maps scribe.domain to url and scribe.basePath to urlPrefix", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        records: [
+          {
+            uri: "at://did:plc:testuser/site.standard.publication/norobots-blog",
+            cid: "bafy",
+            value: {
+              scribe: { domain: "norobots.blog", basePath: "posts", title: "NoRobots" },
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await listSites("did:plc:testuser");
+    expect(result[0].url).toBe("norobots.blog");
+    expect(result[0].urlPrefix).toBe("posts");
   });
 
   it("follows cursor across multiple pages", async () => {
@@ -43,9 +99,11 @@ describe("listSites", () => {
         json: async () => ({
           records: [
             {
-              uri: "at://did:plc:testuser/app.scribe.site/site-one",
+              uri: "at://did:plc:testuser/site.standard.publication/site-one",
               cid: "bafy1",
-              value: { title: "Site One", url: "one.example.com", urlPrefix: "" },
+              value: {
+                scribe: { domain: "one.example.com", basePath: "", title: "Site One" },
+              },
             },
           ],
           cursor: "page2token",
@@ -56,9 +114,11 @@ describe("listSites", () => {
         json: async () => ({
           records: [
             {
-              uri: "at://did:plc:testuser/app.scribe.site/site-two",
+              uri: "at://did:plc:testuser/site.standard.publication/site-two",
               cid: "bafy2",
-              value: { title: "Site Two", url: "two.example.com", urlPrefix: "" },
+              value: {
+                scribe: { domain: "two.example.com", basePath: "", title: "Site Two" },
+              },
             },
           ],
         }),
@@ -79,9 +139,11 @@ describe("listSites", () => {
       json: async () => ({
         records: [
           {
-            uri: "at://did:plc:testuser/app.scribe.site/example-com",
+            uri: "at://did:plc:testuser/site.standard.publication/example-com",
             cid: "bafy",
-            value: { title: "Test", url: "example.com", urlPrefix: "" },
+            value: {
+              scribe: { domain: "example.com", basePath: "", title: "Test" },
+            },
           },
         ],
       }),
@@ -104,7 +166,7 @@ describe("listSites", () => {
 
   it("throws when the fetch fails", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, statusText: "Forbidden" });
-    await expect(listSites("did:plc:testuser")).rejects.toThrow("Failed to list app.scribe.site");
+    await expect(listSites("did:plc:testuser")).rejects.toThrow("Failed to list site.standard.publication");
   });
 });
 
@@ -113,7 +175,7 @@ describe("listArticles", () => {
     const rawDocument = {
       title: "Hello World",
       path: "/essays/hello-world",
-      site: "https://example.com/blog",
+      site: "at://did:plc:testuser/site.standard.publication/example-com",
       publishedAt: "2024-01-02T00:00:00Z",
       splashImageUrl: null,
       description: "A test article",
@@ -158,7 +220,7 @@ describe("listArticles", () => {
             value: {
               title: "Test",
               path: "/essays/my-article-slug",
-              site: "https://example.com",
+              site: "at://did:plc:testuser/site.standard.publication/example-com",
               publishedAt: "2024-01-01T00:00:00Z",
               createdAt: "2024-01-01T00:00:00Z",
             },
@@ -183,7 +245,7 @@ describe("listArticles", () => {
               value: {
                 title: "First",
                 path: "/first",
-                site: "https://example.com",
+                site: "at://did:plc:testuser/site.standard.publication/example-com",
                 publishedAt: "2024-01-01T00:00:00Z",
                 createdAt: "2024-01-01T00:00:00Z",
               },
@@ -202,7 +264,7 @@ describe("listArticles", () => {
               value: {
                 title: "Second",
                 path: "/second",
-                site: "https://example.com",
+                site: "at://did:plc:testuser/site.standard.publication/example-com",
                 publishedAt: "2024-01-02T00:00:00Z",
                 createdAt: "2024-01-02T00:00:00Z",
               },
@@ -228,7 +290,7 @@ describe("listArticles", () => {
             value: {
               title: "No Splash",
               path: "/no-splash",
-              site: "https://example.com",
+              site: "at://did:plc:testuser/site.standard.publication/example-com",
               publishedAt: "2024-01-01T00:00:00Z",
               createdAt: "2024-01-01T00:00:00Z",
             },

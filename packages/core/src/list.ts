@@ -2,9 +2,19 @@ import type { Site, SiteRecord, ArticleRef } from "./types.js";
 import { resolveIdentifier, resolvePds } from "./resolve.js";
 import { slugFromUri } from "./utils.js";
 
-interface RawSite extends Omit<Site, "groups" | "ungroupedArticles"> {
+interface ScribeManifest {
+  domain: string;
+  basePath: string;
+  title: string;
+  description?: string;
+  splashImageUrl?: string;
+  logoImageUrl?: string;
   groups?: Site["groups"];
   ungroupedArticles?: Site["ungroupedArticles"];
+}
+
+interface RawPublication {
+  scribe: ScribeManifest;
 }
 
 interface RawDocument {
@@ -59,13 +69,18 @@ export async function listSites(
 ): Promise<SiteRecord[]> {
   const did = await resolveIdentifier(author, signal);
   const pdsUrl = await resolvePds(did, signal);
-  const records = await listAllRecords<RawSite>(pdsUrl, did, "app.scribe.site", signal);
+  const records = await listAllRecords<RawPublication>(pdsUrl, did, "site.standard.publication", signal);
 
   return records.map(({ uri, value }) => ({
     uri,
-    ...value,
-    groups: value.groups ?? [],
-    ungroupedArticles: value.ungroupedArticles ?? [],
+    title: value.scribe.title,
+    url: value.scribe.domain,
+    urlPrefix: value.scribe.basePath,
+    description: value.scribe.description,
+    splashImageUrl: value.scribe.splashImageUrl,
+    logoImageUrl: value.scribe.logoImageUrl,
+    groups: value.scribe.groups ?? [],
+    ungroupedArticles: value.scribe.ungroupedArticles ?? [],
   }));
 }
 
