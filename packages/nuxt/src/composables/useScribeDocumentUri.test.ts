@@ -1,18 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@scribe-atp/core", () => ({
-  resolveDocumentUri: vi.fn(),
+  fetchArticleBySlug: vi.fn(),
 }));
 
 vi.mock("#app", () => ({
   useAsyncData: vi.fn(),
 }));
 
-import { resolveDocumentUri } from "@scribe-atp/core";
+import { fetchArticleBySlug } from "@scribe-atp/core";
 import { useAsyncData } from "#app";
 import { useScribeDocumentUri } from "./useScribeDocumentUri.js";
 
-const mockResolveDocumentUri = vi.mocked(resolveDocumentUri);
+const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 const mockUseAsyncData = vi.mocked(useAsyncData);
 
 beforeEach(() => {
@@ -22,26 +22,27 @@ beforeEach(() => {
 
 describe("useScribeDocumentUri", () => {
   it("generates the correct useAsyncData key", () => {
-    useScribeDocumentUri("alice.bsky.social", "hello");
+    useScribeDocumentUri("alice.bsky.social", "alice-blog", "hello");
     expect(mockUseAsyncData).toHaveBeenCalledWith(
-      "scribe:document-uri:alice.bsky.social:hello",
+      "scribe:document-uri:alice.bsky.social:alice-blog:hello",
       expect.any(Function),
       undefined
     );
   });
 
-  it("handler calls resolveDocumentUri with correct args", async () => {
-    mockResolveDocumentUri.mockResolvedValueOnce("at://did:plc:abc/site.standard.document/hello");
+  it("handler calls fetchArticleBySlug and returns the uri", async () => {
+    const documentUri = "at://did:plc:abc/site.standard.document/3jxtctq7kqm2y";
+    mockFetchArticleBySlug.mockResolvedValueOnce({ article: {} as never, uri: documentUri });
     (mockUseAsyncData as any).mockImplementation((_key: any, handler: any) => {
       handler();
       return {};
     });
-    useScribeDocumentUri("alice.bsky.social", "hello");
-    expect(mockResolveDocumentUri).toHaveBeenCalledWith("alice.bsky.social", "hello");
+    useScribeDocumentUri("alice.bsky.social", "alice-blog", "hello");
+    expect(mockFetchArticleBySlug).toHaveBeenCalledWith("alice.bsky.social", "alice-blog", "hello");
   });
 
   it("passes options through to useAsyncData", () => {
-    useScribeDocumentUri("alice.bsky.social", "hello", { lazy: true });
+    useScribeDocumentUri("alice.bsky.social", "alice-blog", "hello", { lazy: true });
     expect(mockUseAsyncData).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(Function),
@@ -50,9 +51,9 @@ describe("useScribeDocumentUri", () => {
   });
 
   it("returns the result of useAsyncData", () => {
-    const mockReturn = { data: "at://did:plc:abc/site.standard.document/hello", pending: false, error: null } as unknown as any;
+    const mockReturn = { data: "at://did:plc:abc/site.standard.document/3jxtctq7kqm2y", pending: false, error: null } as unknown as any;
     mockUseAsyncData.mockReturnValueOnce(mockReturn);
-    const result = useScribeDocumentUri("alice.bsky.social", "hello");
+    const result = useScribeDocumentUri("alice.bsky.social", "alice-blog", "hello");
     expect(result).toBe(mockReturn);
   });
 });

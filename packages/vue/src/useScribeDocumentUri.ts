@@ -1,6 +1,6 @@
 import { ref, onUnmounted } from "vue";
 import type { Ref } from "vue";
-import { resolveDocumentUri } from "@scribe-atp/core";
+import { fetchArticleBySlug } from "@scribe-atp/core";
 
 export interface UseScribeDocumentUriResult {
   uri: Ref<string | null>;
@@ -10,6 +10,7 @@ export interface UseScribeDocumentUriResult {
 
 export function useScribeDocumentUri(
   author: string,
+  siteSlug: string,
   articleSlug: string
 ): UseScribeDocumentUriResult {
   const uri = ref<string | null>(null);
@@ -18,9 +19,9 @@ export function useScribeDocumentUri(
 
   const controller = new AbortController();
 
-  resolveDocumentUri(author, articleSlug, controller.signal)
-    .then((data) => {
-      uri.value = data;
+  fetchArticleBySlug(author, siteSlug, articleSlug, controller.signal)
+    .then(({ uri: documentUri }) => {
+      uri.value = documentUri;
       loading.value = false;
     })
     .catch((err: unknown) => {

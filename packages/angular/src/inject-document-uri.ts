@@ -1,6 +1,6 @@
 import { inject, DestroyRef, signal } from "@angular/core";
 import type { Signal } from "@angular/core";
-import { resolveDocumentUri } from "@scribe-atp/core";
+import { fetchArticleBySlug } from "@scribe-atp/core";
 
 interface InjectDocumentUriResult {
   uri: Signal<string | null>;
@@ -10,6 +10,7 @@ interface InjectDocumentUriResult {
 
 export function injectDocumentUri(
   author: string,
+  siteSlug: string,
   articleSlug: string
 ): InjectDocumentUriResult {
   const uri = signal<string | null>(null);
@@ -19,9 +20,9 @@ export function injectDocumentUri(
   const destroyRef = inject(DestroyRef);
   const controller = new AbortController();
 
-  resolveDocumentUri(author, articleSlug, controller.signal)
-    .then((data) => {
-      uri.set(data);
+  fetchArticleBySlug(author, siteSlug, articleSlug, controller.signal)
+    .then(({ uri: documentUri }) => {
+      uri.set(documentUri);
       loading.set(false);
     })
     .catch((err: unknown) => {
