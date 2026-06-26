@@ -13,6 +13,7 @@ const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
 
 const mockSite = {
+  uri: "at://did:plc:abc/site.standard.publication/alicepubkey",
   title: "Alice's Blog",
   url: "alice.bsky.social",
   urlPrefix: "blog",

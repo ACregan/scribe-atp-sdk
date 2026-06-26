@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.2.0
+
+### Minor Changes
+
+- Add `uri` field to `Site` type — `fetchSite` now returns the publication's own AT URI alongside its other fields. Needed by consumer sites to pass the publication AT URI to social action popups (subscribe button).
+
 ## 3.1.0
 
 ### Minor Changes

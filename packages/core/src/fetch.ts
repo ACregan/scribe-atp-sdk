@@ -98,8 +98,10 @@ export async function fetchSite(
 
   let scribe: ScribeManifest;
   let description: string | undefined;
+  let siteUri: string;
 
   if (cachedUri) {
+    siteUri = cachedUri;
     const rkey = cachedUri.split("/").pop()!;
     const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
     url.searchParams.set("repo", did);
@@ -125,11 +127,13 @@ export async function fetchSite(
     );
     if (!record) throw new Error(`Site not found: ${publicationUrl}`);
     publicationUriCache.set(cacheKey, record.uri);
+    siteUri = record.uri;
     scribe = record.value.scribe;
     description = record.value.description;
   }
 
   return {
+    uri: siteUri,
     title: scribe.title,
     url: scribe.domain,
     urlPrefix: scribe.basePath,
