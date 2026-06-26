@@ -22,6 +22,7 @@ interface ScribeManifest {
 interface RawPublication {
   url?: string;
   name?: string;
+  description?: string;
   scribe: ScribeManifest;
 }
 
@@ -95,6 +96,7 @@ export async function fetchSite(
   const cachedUri = publicationUriCache.get(cacheKey);
 
   let scribe: ScribeManifest;
+  let description: string | undefined;
 
   if (cachedUri) {
     const rkey = cachedUri.split("/").pop()!;
@@ -106,6 +108,7 @@ export async function fetchSite(
     if (!res.ok) throw new Error(`Failed to fetch site: ${res.statusText}`);
     const data = (await res.json()) as { value: RawPublication };
     scribe = data.value.scribe;
+    description = data.value.description;
   } else {
     const listUrl = new URL(`${pdsUrl}/xrpc/com.atproto.repo.listRecords`);
     listUrl.searchParams.set("repo", did);
@@ -122,13 +125,14 @@ export async function fetchSite(
     if (!record) throw new Error(`Site not found: ${publicationUrl}`);
     publicationUriCache.set(cacheKey, record.uri);
     scribe = record.value.scribe;
+    description = record.value.description;
   }
 
   return {
     title: scribe.title,
     url: scribe.domain,
     urlPrefix: scribe.basePath,
-    description: scribe.description,
+    description,
     splashImageUrl: scribe.splashImageUrl,
     logoImageUrl: scribe.logoImageUrl,
     groups: scribe.groups ?? [],
