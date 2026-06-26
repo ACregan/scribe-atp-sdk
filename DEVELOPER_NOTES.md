@@ -35,10 +35,28 @@ The CLI will ask you three things:
   - `major` — breaking change (e.g. `1.0.0` → `2.0.0`)
 - **Summary** — one line describing the change. This goes into the changelog.
 
-This creates a small markdown file in `.changeset/`. Commit it alongside your code changes.
+This creates a small markdown file in `.changeset/`. Before committing it, work through the checklist below.
+
+### Changeset checklist
+
+Every changeset should be accompanied by matching documentation updates. The npm package page shows the README from the published tarball — if the README is out of sync, developers see the wrong API.
+
+**For every changeset, check:**
+
+- [ ] **Package READMEs** (`packages/*/README.md`) — do any function signatures, parameter names, or usage examples need updating?
+- [ ] **Root README** (`README.md`) — does the top-level overview or any code snippet need updating?
+- [ ] **Docs site** (`scribe-atp-docs/`) — are there API reference pages, framework guides, or concept pages that reference the changed API? Update them in the same branch or a companion branch on that repo.
+
+**For `minor` or `major` bumps, also check:**
+
+- [ ] **New exports** — is the new function/hook/composable documented in the relevant API reference page and framework guide?
+- [ ] **Removed or renamed exports** — is the old name removed from all docs and READMEs? Search for it: `grep -r "oldName" packages/*/README.md src/` in the docs repo.
+- [ ] **Migration note** — for breaking changes, is there a clear before/after migration example in the changeset summary and in the docs?
+
+Commit the changeset and any doc updates together:
 
 ```bash
-git add .changeset/
+git add .changeset/ packages/*/README.md README.md
 git commit -m "feat: add useSite hook"
 ```
 

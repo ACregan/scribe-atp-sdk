@@ -63,6 +63,30 @@ describe("fetchSite", () => {
     );
   });
 
+  it("reads description from top-level publication field", async () => {
+    mockFetch.mockResolvedValueOnce(
+      makeListResponse([{
+        uri: "at://did:plc:testuser/site.standard.publication/3abc",
+        value: {
+          url: "https://example.com",
+          name: "Test Site",
+          description: "Top-level description",
+          scribe: { domain: "example.com", basePath: "", title: "Test Site" },
+        },
+      }])
+    );
+
+    const result = await fetchSite("did:plc:testuser", "https://example.com");
+    expect(result.description).toBe("Top-level description");
+  });
+
+  it("returns undefined description when top-level field is absent", async () => {
+    mockFetch.mockResolvedValueOnce(makeListResponse([makeScribeRecord()]));
+
+    const result = await fetchSite("did:plc:testuser", "https://example.com");
+    expect(result.description).toBeUndefined();
+  });
+
   it("maps scribe.domain to url and scribe.basePath to urlPrefix", async () => {
     mockFetch.mockResolvedValueOnce(
       makeListResponse([{
