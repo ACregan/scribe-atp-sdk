@@ -17,6 +17,7 @@ export interface SiteGroup {
 }
 
 export interface Site {
+  uri: string;
   title: string;
   url: string;
   urlPrefix: string;
@@ -48,9 +49,7 @@ export interface Article {
   updatedAt: string;
 }
 
-export interface SiteRecord extends Site {
-  uri: string;
-}
+export interface SiteRecord extends Site {}
 
 export interface ArticleResult {
   article: Article;

@@ -3,6 +3,7 @@ import { generateFeed } from "./feed.js";
 import type { Site } from "./types.js";
 
 const mockSite: Site = {
+  uri: "at://did:plc:abc/site.standard.publication/norobotspubkey",
   title: "Test Blog",
   url: "norobots.blog",
   urlPrefix: "blog",

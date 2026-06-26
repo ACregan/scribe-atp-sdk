@@ -17,6 +17,7 @@ const makeArgs = (): LoaderFunctionArgs =>
   ({ request: new Request("https://example.com"), params: {}, context: {} }) as unknown as LoaderFunctionArgs;
 
 const site = {
+  uri: "at://did:plc:test/site.standard.publication/testpubkey",
   title: "Test Site",
   url: "example.com",
   urlPrefix: "blog",

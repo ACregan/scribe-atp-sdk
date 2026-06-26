@@ -31,7 +31,7 @@ describe("useScribeSite", () => {
   });
 
   it("handler calls fetchSite with correct args", async () => {
-    const mockSite = { title: "Test", url: "test.com", urlPrefix: "", groups: [], ungroupedArticles: [] };
+    const mockSite = { uri: "at://did:plc:test/site.standard.publication/testpubkey", title: "Test", url: "test.com", urlPrefix: "", groups: [], ungroupedArticles: [] };
     mockFetchSite.mockResolvedValueOnce(mockSite);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mockUseAsyncData as any).mockImplementation((_key: any, handler: any) => {

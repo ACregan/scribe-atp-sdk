@@ -10,6 +10,7 @@ import { fetchSite } from "@scribe-atp/core";
 const mockFetchSite = vi.mocked(fetchSite);
 
 const site = {
+  uri: "at://did:plc:test/site.standard.publication/testpubkey",
   title: "Test Site",
   url: "example.com",
   urlPrefix: "blog",
