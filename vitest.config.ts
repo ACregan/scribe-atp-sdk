@@ -9,6 +9,7 @@ export default defineConfig({
       "@scribe-atp/angular": resolve(__dirname, "packages/angular/src/index.ts"),
       "@scribe-atp/next": resolve(__dirname, "packages/next/src/index.ts"),
       "@scribe-atp/vue": resolve(__dirname, "packages/vue/src/index.ts"),
+      "@scribe-atp/social": resolve(__dirname, "packages/social/src/index.ts"),
     },
   },
   test: {
@@ -60,6 +61,15 @@ export default defineConfig({
           name: "vue",
           include: ["packages/vue/src/**/*.test.ts"],
           environment: "jsdom",
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "social",
+          include: ["packages/social/src/**/*.test.{ts,tsx}"],
+          environment: "jsdom",
+          setupFiles: ["packages/social/src/test-setup.ts"],
         },
       },
       {
