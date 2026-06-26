@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.0.2
+
+### Patch Changes
+
+- 93dcd2a: fetchSite reads description from top-level site.standard.publication field instead of scribe.description
+
 ## 3.0.1
 
 ### Patch Changes
