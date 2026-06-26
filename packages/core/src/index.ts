@@ -1,4 +1,4 @@
-export type { ArticleRef, SiteGroup, Site, Article, SiteRecord, ArticleResult } from "./types.js";
+export type { ArticleRef, SiteGroup, Site, Article, ArticleContributor, SiteRecord, ArticleResult } from "./types.js";
 export { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri } from "./fetch.js";
 export { listSites, listArticles } from "./list.js";
 export { toSlug, slugFromUri, flattenArticles } from "./utils.js";
