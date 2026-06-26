@@ -1,5 +1,14 @@
 # @scribe-atp/core
 
+## 3.1.0
+
+### Minor Changes
+
+- Add `ArticleContributor` interface and `contributors`/`tags` fields to `Article`.
+
+  New `ArticleContributor` type: `{ did: string; role?: string; displayName?: string }`.
+  Both fields are optional and backwards-compatible with existing consumers.
+
 ## 3.0.2
 
 ### Patch Changes

@@ -36,6 +36,7 @@ interface RawDocument {
   content?: { $type: string; html?: string } | unknown;
   splashImageUrl?: string;
   tags?: string[];
+  contributors?: { did: string; role?: string; displayName?: string }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -168,6 +169,7 @@ export async function fetchArticle(
     description: raw.description,
     splashImageUrl: raw.splashImageUrl,
     tags: raw.tags,
+    contributors: raw.contributors,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
   };

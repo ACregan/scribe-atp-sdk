@@ -27,6 +27,12 @@ export interface Site {
   ungroupedArticles: ArticleRef[];
 }
 
+export interface ArticleContributor {
+  did: string;
+  role?: string;
+  displayName?: string;
+}
+
 export interface Article {
   title: string;
   content: string;
@@ -36,6 +42,7 @@ export interface Article {
   splashImageUrl?: string;
   description?: string;
   tags?: string[];
+  contributors?: ArticleContributor[];
   createdAt: string;
   publishedAt: string;
   updatedAt: string;
