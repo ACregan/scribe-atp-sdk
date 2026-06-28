@@ -1,5 +1,17 @@
 # @scribe-atp/core
 
+## 3.3.1
+
+### Patch Changes
+
+- Export `buildCanonicalUrl` from `@scribe-atp/core`. Add `articleMetadata` and `siteMetadata` to `@scribe-atp/next`, returning Next.js `Metadata` objects for use in `generateMetadata`. Add `articleSeoMeta` and `siteSeoMeta` to `@scribe-atp/nuxt`, returning objects shaped for Nuxt's `useSeoMeta` composable.
+
+## 3.3.0
+
+### Minor Changes
+
+- Add `generateArticleMeta` and `generateSiteMeta` helpers to `@scribe-atp/core` for generating Open Graph and Twitter Card meta tags from `site.standard` data. Add `articleMeta` and `siteMeta` wrappers to `@scribe-atp/react-router-framework` typed as `MetaDescriptor[]` for direct use in React Router v7 `meta` exports.
+
 ## 3.2.0
 
 ### Minor Changes
