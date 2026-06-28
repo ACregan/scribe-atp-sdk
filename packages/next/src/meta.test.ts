@@ -40,7 +40,7 @@ describe("articleMetadata", () => {
 
   it("sets og:type to article", () => {
     const meta = articleMetadata(article, site);
-    expect(meta.openGraph?.type).toBe("article");
+    expect(meta.openGraph).toMatchObject({ type: "article" });
   });
 
   it("composes og:url from article.site + urlPrefix + path", () => {
@@ -63,12 +63,12 @@ describe("articleMetadata", () => {
     expect(meta.openGraph?.images).toContain(
       "https://norobots.blog/images/llms.webp",
     );
-    expect(meta.twitter?.card).toBe("summary_large_image");
+    expect(meta.twitter).toMatchObject({ card: "summary_large_image" });
   });
 
   it("falls back to summary card when no splashImageUrl", () => {
     const meta = articleMetadata({ ...article, splashImageUrl: undefined }, site);
-    expect(meta.twitter?.card).toBe("summary");
+    expect(meta.twitter).toMatchObject({ card: "summary" });
     expect(meta.openGraph?.images).toBeUndefined();
   });
 
@@ -87,7 +87,7 @@ describe("siteMetadata", () => {
 
   it("sets og:type to website", () => {
     const meta = siteMetadata(site);
-    expect(meta.openGraph?.type).toBe("website");
+    expect(meta.openGraph).toMatchObject({ type: "website" });
   });
 
   it("composes og:url from url + urlPrefix", () => {
