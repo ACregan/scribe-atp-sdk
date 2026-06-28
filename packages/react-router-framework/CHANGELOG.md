@@ -1,5 +1,16 @@
 # @scribe-atp/react-router-framework
 
+## 2.1.0
+
+### Minor Changes
+
+- Add `generateArticleMeta` and `generateSiteMeta` helpers to `@scribe-atp/core` for generating Open Graph and Twitter Card meta tags from `site.standard` data. Add `articleMeta` and `siteMeta` wrappers to `@scribe-atp/react-router-framework` typed as `MetaDescriptor[]` for direct use in React Router v7 `meta` exports.
+
+### Patch Changes
+
+- Updated dependencies
+  - @scribe-atp/core@3.3.0
+
 ## 2.0.1
 
 ### Patch Changes
