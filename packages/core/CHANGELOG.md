@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.3.1
+
+### Patch Changes
+
+- Export `buildCanonicalUrl` from `@scribe-atp/core`. Add `articleMetadata` and `siteMetadata` to `@scribe-atp/next`, returning Next.js `Metadata` objects for use in `generateMetadata`. Add `articleSeoMeta` and `siteSeoMeta` to `@scribe-atp/nuxt`, returning objects shaped for Nuxt's `useSeoMeta` composable.
+
 ## 3.3.0
 
 ### Minor Changes

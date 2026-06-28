@@ -5,7 +5,7 @@ export type ScribeMetaTag =
   | { name: string; content: string }
   | { property: string; content: string };
 
-function buildCanonicalUrl(article: Article, site: Site): string {
+export function buildCanonicalUrl(article: Article, site: Site): string {
   if (article.canonicalUrl) return article.canonicalUrl;
   const base = article.site.replace(/\/$/, "");
   const prefix = site.urlPrefix ? `/${site.urlPrefix}` : "";

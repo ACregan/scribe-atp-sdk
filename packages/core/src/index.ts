@@ -6,5 +6,5 @@ export { generateFeed } from "./feed.js";
 export type { FeedOptions } from "./feed.js";
 export { getSitemapEntries } from "./sitemap.js";
 export type { SitemapEntry, GetSitemapEntriesOptions } from "./sitemap.js";
-export { generateArticleMeta, generateSiteMeta } from "./meta.js";
+export { generateArticleMeta, generateSiteMeta, buildCanonicalUrl } from "./meta.js";
 export type { ScribeMetaTag } from "./meta.js";
