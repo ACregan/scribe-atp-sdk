@@ -11,6 +11,8 @@ stages:
 typecheck:
   stage: typecheck
   interruptible: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   script:
     - npm ci
     - npm run typecheck
@@ -18,6 +20,8 @@ typecheck:
 test:
   stage: test
   interruptible: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   script:
     - npm ci
     - npm run test
