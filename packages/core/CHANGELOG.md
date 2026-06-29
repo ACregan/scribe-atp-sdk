@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.4.1
+
+### Patch Changes
+
+- Fix `listSites` crash when a `site.standard.publication` record has no `scribe` extension field (e.g. records created by other AT Protocol tools). Records without `scribe` are now silently skipped.
+
 ## 3.4.0
 
 ### Minor Changes

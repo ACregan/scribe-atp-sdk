@@ -71,17 +71,19 @@ export async function listSites(
   const pdsUrl = await resolvePds(did, signal);
   const records = await listAllRecords<RawPublication>(pdsUrl, did, "site.standard.publication", signal);
 
-  return records.map(({ uri, value }) => ({
-    uri,
-    title: value.scribe.title,
-    url: value.scribe.domain,
-    urlPrefix: value.scribe.basePath,
-    description: value.scribe.description,
-    splashImageUrl: value.scribe.splashImageUrl,
-    logoImageUrl: value.scribe.logoImageUrl,
-    groups: value.scribe.groups ?? [],
-    ungroupedArticles: value.scribe.ungroupedArticles ?? [],
-  }));
+  return records
+    .filter(({ value }) => value.scribe != null)
+    .map(({ uri, value }) => ({
+      uri,
+      title: value.scribe.title,
+      url: value.scribe.domain,
+      urlPrefix: value.scribe.basePath,
+      description: value.scribe.description,
+      splashImageUrl: value.scribe.splashImageUrl,
+      logoImageUrl: value.scribe.logoImageUrl,
+      groups: value.scribe.groups ?? [],
+      ungroupedArticles: value.scribe.ungroupedArticles ?? [],
+    }));
 }
 
 export async function listArticles(
