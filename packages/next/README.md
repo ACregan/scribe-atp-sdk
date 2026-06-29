@@ -91,6 +91,23 @@ The metadata generators are opinionated by design. They produce complete, ready-
 
 Article metadata uses the cached `ArticleRef` snapshot already present in the site record — no extra network request per article at build time.
 
+### Standalone metadata helpers
+
+Outside the factory pattern, `articleMetadata` and `siteMetadata` are exported as standalone functions that accept an `Article`/`Site` object directly. These are useful when you're already fetching content yourself and just need the `Metadata` object:
+
+```ts
+import { articleMetadata, siteMetadata } from "@scribe-atp/next";
+import { fetchArticleBySlug, fetchSite } from "@scribe-atp/core";
+
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const [{ article }, site] = await Promise.all([
+    fetchArticleBySlug("alice.bsky.social", "https://alice.bsky.social", params.slug),
+    fetchSite("alice.bsky.social", "https://alice.bsky.social"),
+  ]);
+  return articleMetadata(article, site);
+}
+```
+
 **Need custom metadata?** Call `fetchSite` or `fetchArticle` from `@scribe-atp/core` directly and compose your own `Metadata` object:
 
 ```ts

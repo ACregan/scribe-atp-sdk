@@ -8,3 +8,5 @@ export { getSitemapEntries } from "./sitemap.js";
 export type { SitemapEntry, GetSitemapEntriesOptions } from "./sitemap.js";
 export { generateArticleMeta, generateSiteMeta, buildCanonicalUrl } from "./meta.js";
 export type { ScribeMetaTag } from "./meta.js";
+export { crossPostToBluesky } from "./crosspost.js";
+export type { CrossPostParams, StrongRef } from "./crosspost.js";
