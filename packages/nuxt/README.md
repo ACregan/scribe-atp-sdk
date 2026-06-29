@@ -94,14 +94,45 @@ export default defineNuxtConfig({
 });
 ```
 
+## Open Graph and Twitter Card meta tags
+
+`articleSeoMeta` and `siteSeoMeta` return a camelCase object shaped for Nuxt's `useSeoMeta()` composable. They produce Open Graph and Twitter Card tags for rich link previews when sharing article URLs on Bluesky and other platforms.
+
+```vue
+<!-- pages/blog/[slug].vue -->
+<script setup lang="ts">
+import { articleSeoMeta } from "@scribe-atp/nuxt";
+import { fetchArticleBySlug, fetchSite } from "@scribe-atp/core";
+
+const route = useRoute();
+const [{ article }, site] = await Promise.all([
+  fetchArticleBySlug("alice.bsky.social", "https://alice.bsky.social", route.params.slug as string),
+  fetchSite("alice.bsky.social", "https://alice.bsky.social"),
+]);
+
+useSeoMeta(articleSeoMeta(article, site));
+</script>
+```
+
+`siteSeoMeta` covers index and group pages:
+
+```ts
+import { siteSeoMeta } from "@scribe-atp/nuxt";
+
+useSeoMeta(siteSeoMeta(site));
+```
+
+These functions are **not** auto-imported — use an explicit import from `@scribe-atp/nuxt`.
+
 ## Auto-imports
 
-Only the composables are auto-imported: `useScribeSite` and `useScribeArticle`.
+Only the data composables are auto-imported: `useScribeSite` and `useScribeArticle`.
 
-Utility functions require an explicit import:
+Utility functions and meta helpers require an explicit import:
 
 ```ts
 import { toSlug, flattenArticles } from "@scribe-atp/core";
+import { articleSeoMeta, siteSeoMeta } from "@scribe-atp/nuxt";
 ```
 
 ## TypeScript types

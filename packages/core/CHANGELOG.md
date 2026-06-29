@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.4.0
+
+### Minor Changes
+
+- Add `crossPostToBluesky` function for creating a Bluesky post with an `app.bsky.embed.external` embed containing `associatedRefs` pointing to `site.standard.document` and `site.standard.publication` records. Returns a `StrongRef` (`{ uri, cid }`) suitable for writing as `bskyPostRef` on the document record. Also exports `CrossPostParams` and `StrongRef` types.
+
 ## 3.3.1
 
 ### Patch Changes
