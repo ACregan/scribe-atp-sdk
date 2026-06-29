@@ -1,0 +1,230 @@
+/* @scribe-atp/styles
+ * Base styles for rendering Scribe CMS article content.
+ * All rules are scoped to .scribe-content — wrap your article HTML in an element
+ * with that class. Override any --scribe-* custom property to theme.
+ */
+
+/* ── Custom properties ──────────────────────────────────────────────────────── */
+
+.scribe-content {
+  /* Code blocks & inline code */
+  --scribe-code-bg: #f5f5f5;
+  --scribe-code-border: #e0e0e0;
+  --scribe-code-font: "Courier New", Courier, monospace;
+  --scribe-code-font-size: 0.875em;
+  --scribe-inline-code-bg: rgba(0, 0, 0, 0.06);
+
+  /* Blockquotes */
+  --scribe-blockquote-border: #ccc;
+  --scribe-blockquote-color: #666;
+
+  /* Checklists */
+  --scribe-checkbox-size: 1em;
+  --scribe-checkbox-border: #aaa;
+  --scribe-checkbox-checked-bg: #333;
+  --scribe-checkbox-checked-border: #333;
+
+  /* Token colors (Prism-light palette — match what Scribe CMS emits) */
+  --scribe-token-comment: #708090;
+  --scribe-token-punctuation: #555;
+  --scribe-token-property: #905;
+  --scribe-token-string: #690;
+  --scribe-token-operator: #9a6e3a;
+  --scribe-token-keyword: #07a;
+  --scribe-token-function: #dd4a68;
+  --scribe-token-variable: #e90;
+}
+
+/* ── Code blocks ────────────────────────────────────────────────────────────── */
+
+.scribe-content pre {
+  font-family: var(--scribe-code-font);
+  font-size: var(--scribe-code-font-size);
+  background: var(--scribe-code-bg);
+  border: 1px solid var(--scribe-code-border);
+  border-radius: 4px;
+  padding: 1em 1.2em;
+  margin: 0.75em 0;
+  overflow-x: auto;
+  tab-size: 2;
+  white-space: pre;
+  line-height: 1.6;
+}
+
+.scribe-content pre code {
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  white-space: inherit;
+}
+
+/* ── Inline code ────────────────────────────────────────────────────────────── */
+
+.scribe-content :not(pre) > code {
+  font-family: var(--scribe-code-font);
+  font-size: var(--scribe-code-font-size);
+  background: var(--scribe-inline-code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+
+/* ── Syntax highlighting (token classes emitted by Scribe CMS) ──────────────── */
+
+.scribe-content .token.comment,
+.scribe-content .token.prolog,
+.scribe-content .token.doctype,
+.scribe-content .token.cdata {
+  color: var(--scribe-token-comment);
+}
+
+.scribe-content .token.punctuation {
+  color: var(--scribe-token-punctuation);
+}
+
+.scribe-content .token.namespace {
+  opacity: 0.7;
+}
+
+.scribe-content .token.property,
+.scribe-content .token.tag,
+.scribe-content .token.boolean,
+.scribe-content .token.number,
+.scribe-content .token.constant,
+.scribe-content .token.symbol,
+.scribe-content .token.deleted {
+  color: var(--scribe-token-property);
+}
+
+.scribe-content .token.selector,
+.scribe-content .token.attr,
+.scribe-content .token.string,
+.scribe-content .token.char,
+.scribe-content .token.builtin,
+.scribe-content .token.inserted {
+  color: var(--scribe-token-string);
+}
+
+.scribe-content .token.operator,
+.scribe-content .token.entity,
+.scribe-content .token.url {
+  color: var(--scribe-token-operator);
+}
+
+.scribe-content .token.entity {
+  cursor: help;
+}
+
+.scribe-content .token.atrule,
+.scribe-content .token.keyword {
+  color: var(--scribe-token-keyword);
+}
+
+.scribe-content .token.function,
+.scribe-content .token.class-name,
+.scribe-content .token.class {
+  color: var(--scribe-token-function);
+}
+
+.scribe-content .token.variable,
+.scribe-content .token.regex,
+.scribe-content .token.important {
+  color: var(--scribe-token-variable);
+}
+
+.scribe-content .token.important {
+  font-weight: bold;
+}
+
+/* ── Images ─────────────────────────────────────────────────────────────────── */
+
+.scribe-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Blockquotes ────────────────────────────────────────────────────────────── */
+
+.scribe-content blockquote {
+  border-left: 4px solid var(--scribe-blockquote-border);
+  margin: 0.75em 0;
+  padding: 0.5em 1.2em;
+  color: var(--scribe-blockquote-color);
+  font-style: italic;
+}
+
+/* ── Lists ──────────────────────────────────────────────────────────────────── */
+
+.scribe-content ul {
+  list-style-type: disc;
+  padding-left: 2em;
+  margin: 0.5em 0;
+}
+
+.scribe-content ol {
+  list-style-type: decimal;
+  padding-left: 2em;
+  margin: 0.5em 0;
+}
+
+.scribe-content li {
+  margin: 0.25em 0;
+}
+
+.scribe-content ul ul,
+.scribe-content ul ol,
+.scribe-content ol ul,
+.scribe-content ol ol {
+  margin: 0;
+}
+
+/* ── Checklists ─────────────────────────────────────────────────────────────── */
+/* Lexical exports checklist items with role="checkbox" and aria-checked */
+
+.scribe-content li[role="checkbox"] {
+  list-style: none;
+  padding-left: 2em;
+  position: relative;
+  cursor: default;
+  margin-left: -2em;
+}
+
+.scribe-content li[role="checkbox"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  width: var(--scribe-checkbox-size);
+  height: var(--scribe-checkbox-size);
+  border: 2px solid var(--scribe-checkbox-border);
+  border-radius: 2px;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.scribe-content li[aria-checked="true"]::before {
+  background: var(--scribe-checkbox-checked-bg);
+  border-color: var(--scribe-checkbox-checked-border);
+}
+
+.scribe-content li[aria-checked="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0.33em;
+  top: 0.38em;
+  width: 0.33em;
+  height: 0.55em;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+  box-sizing: border-box;
+}
+
+.scribe-content li[aria-checked="true"] > span {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
