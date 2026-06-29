@@ -1,5 +1,11 @@
 # @scribe-atp/styles
 
+## 1.1.1
+
+### Patch Changes
+
+- Add README documenting installation, usage, theming, and the full custom property reference.
+
 ## 1.1.0
 
 ### Minor Changes
