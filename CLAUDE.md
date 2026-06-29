@@ -48,63 +48,62 @@ Each package has its own `package.json`, `tsconfig.json`, and `tsup.config.ts`. 
 
 ## AT Protocol background
 
-Scribe stores content in three collections on the author's Personal Data Server (PDS):
+Scribe stores content in two collections on the author's Personal Data Server (PDS):
 
-**`app.scribe.site`** — site manifest (rkey = site slug):
+**`site.standard.publication`** — site manifest (rkey = TID):
 ```ts
 {
-  title: string,
-  url: string,           // domain name e.g. "norobots.blog"
-  urlPrefix: string,     // path prefix e.g. "blog"
+  url?: string,          // canonical site HTTPS URL e.g. "https://norobots.blog"
   description?: string,
-  splashImageUrl?: string,
-  logoImageUrl?: string,
-  groups: Array<{
-    slug: string,
+  scribe: {
+    domain: string,      // domain name e.g. "norobots.blog"
+    basePath: string,    // path prefix e.g. "blog" — empty string if none
     title: string,
-    articles: ArticleRef[],  // cached snapshots — no N+1 fetches needed
-  }>,
-  ungroupedArticles: ArticleRef[],  // unpublished articles (assigned to site, not yet in a group)
+    description?: string,
+    splashImageUrl?: string,
+    logoImageUrl?: string,
+    groups: Array<{
+      slug: string,
+      title: string,
+      articles: ArticleRef[],  // cached snapshots — no N+1 fetches needed
+    }>,
+    ungroupedArticles: ArticleRef[],  // articles not yet in any named group (unpublished)
+  },
 }
 ```
 
-**`site.standard.document`** — published article (rkey = slug):
+**`site.standard.document`** — all articles (rkey = TID):
 ```ts
 {
   title: string,
-  slug: string,          // same as rkey
-  path: string,          // full URL path e.g. "/blog/2024/my-first-post"
-  site: string,          // canonical site URL
+  slug: string,          // human-readable slug e.g. "my-article" — NOT the rkey
+  path: string,          // full URL path e.g. "/blog/my-article"
+  site: string,          // canonical site HTTPS URL
   content: { $type: "app.scribe.content.html", html: string },
+  textContent: string,   // HTML stripped to plaintext
   splashImageUrl?: string,
   description?: string,
   tags?: string[],
+  contributors?: { did: string; role?: string; displayName?: string }[],
+  bskyPostRef?: { $type: "com.atproto.repo.strongRef", uri: string, cid: string },
   createdAt: string,
-  publishedAt: string,
+  publishedAt: string,   // set when article is moved into a named group
   updatedAt: string,
 }
 ```
 
-**`app.scribe.article`** — draft article (rkey = slug), not yet published:
-```ts
-{
-  title: string,
-  slug: string,          // same as rkey
-  content: { $type: "app.scribe.content.html", html: string },
-  splashImageUrl?: string,
-  description?: string,
-  tags?: string[],
-  createdAt: string,
-  updatedAt: string,
-}
-```
+Article state is determined by position in the publication record:
+- **Unpublished** — referenced in `scribe.ungroupedArticles` (in the PDS but not grouped)
+- **Published** — referenced in a `scribe.groups[].articles` entry
 
-**`ArticleRef`** — cached snapshot stored inside a site record:
+`app.scribe.article` and `app.scribe.site` are **legacy collections — no longer used**. All content is in `site.standard.document` and `site.standard.publication`.
+
+**`ArticleRef`** — cached snapshot stored inside a publication record:
 ```ts
 {
-  uri: string,           // full AT URI e.g. at://did/site.standard.document/slug
+  uri: string,           // full AT URI e.g. at://did/site.standard.document/3mp4hfovqib2h
   title: string,
-  slug?: string,         // article slug / rkey
+  slug?: string,         // human-readable slug stored inside the document record
   splashImageUrl: string | null,
   description?: string | null,
   tags?: string[],

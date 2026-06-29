@@ -1,11 +1,5 @@
 # @scribe-atp/core
 
-## 3.5.0
-
-### Minor Changes
-
-- Add `fetchDraftArticle(author, draftSlug, signal?)` — fetches an unpublished draft article from the `app.scribe.article` collection.
-
 ## 3.4.0
 
 ### Minor Changes

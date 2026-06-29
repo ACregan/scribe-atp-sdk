@@ -179,49 +179,6 @@ export async function fetchArticle(
   };
 }
 
-interface RawDraft {
-  title: string;
-  slug: string;
-  content?: { $type: string; html?: string } | unknown;
-  splashImageUrl?: string | null;
-  description?: string | null;
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export async function fetchDraftArticle(
-  author: string,
-  draftSlug: string,
-  signal?: AbortSignal
-): Promise<Article> {
-  const did = await resolveIdentifier(author, signal);
-  const pdsUrl = await resolvePds(did, signal);
-
-  const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
-  url.searchParams.set("repo", did);
-  url.searchParams.set("collection", "app.scribe.article");
-  url.searchParams.set("rkey", draftSlug);
-
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`Failed to fetch draft article: ${res.statusText}`);
-
-  const data = (await res.json()) as { value: RawDraft };
-  const raw = data.value;
-  return {
-    title: raw.title,
-    content: extractHtml(raw.content as RawDocument["content"]),
-    path: "",
-    site: "",
-    publishedAt: "",
-    description: raw.description ?? undefined,
-    splashImageUrl: raw.splashImageUrl ?? undefined,
-    tags: raw.tags,
-    createdAt: raw.createdAt,
-    updatedAt: raw.updatedAt,
-  };
-}
-
 export async function fetchArticleBySlug(
   author: string,
   publicationUrl: string,
