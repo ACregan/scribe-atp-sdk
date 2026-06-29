@@ -1,6 +1,6 @@
 {
   "name": "@scribe-atp/react",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "React hooks for reading Scribe CMS content from the AT Protocol.",
   "license": "MIT",
   "engines": {

@@ -1,0 +1,32 @@
+{
+  "name": "@scribe-atp/styles",
+  "version": "1.1.0",
+  "description": "Base CSS for rendering Scribe CMS content in consumer sites.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.css"
+  },
+  "style": "./src/index.css",
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "at-protocol",
+    "atproto",
+    "bluesky",
+    "scribe",
+    "scribe-cms",
+    "blog",
+    "cms",
+    "css",
+    "styles"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
