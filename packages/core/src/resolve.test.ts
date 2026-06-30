@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { resolveIdentifier, resolvePds } from "./resolve.js";
+import { resolveIdentifier, resolvePds, _clearCaches } from "./resolve.js";
 
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
 
 beforeEach(() => {
   mockFetch.mockReset();
-  // Clear PDS cache between tests by re-importing would require module reset;
-  // instead we rely on unique DIDs per test to avoid cache collisions.
+  _clearCaches();
 });
 
 describe("resolveIdentifier", () => {
@@ -34,11 +33,11 @@ describe("resolveIdentifier", () => {
   it("caches handle resolution — only one fetch for the same handle", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ did: "did:plc:cached-handle" }),
+      json: async () => ({ did: "did:plc:abc123" }),
     });
 
-    await resolveIdentifier("cached.handle.bsky.social");
-    await resolveIdentifier("cached.handle.bsky.social");
+    await resolveIdentifier("alice.bsky.social");
+    await resolveIdentifier("alice.bsky.social");
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
@@ -62,10 +61,10 @@ describe("resolvePds", () => {
       }),
     });
 
-    const result = await resolvePds("did:plc:unique1");
+    const result = await resolvePds("did:plc:abc123");
     expect(result).toBe("https://bsky.social");
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://plc.directory/did%3Aplc%3Aunique1",
+      "https://plc.directory/did%3Aplc%3Aabc123",
       expect.any(Object)
     );
   });
@@ -96,9 +95,8 @@ describe("resolvePds", () => {
       }),
     });
 
-    const did = "did:plc:cached1";
-    await resolvePds(did);
-    await resolvePds(did);
+    await resolvePds("did:plc:abc123");
+    await resolvePds("did:plc:abc123");
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
@@ -109,7 +107,7 @@ describe("resolvePds", () => {
       json: async () => ({ service: [] }),
     });
 
-    await expect(resolvePds("did:plc:nopds1")).rejects.toThrow(
+    await expect(resolvePds("did:plc:abc123")).rejects.toThrow(
       "No PDS service found"
     );
   });
