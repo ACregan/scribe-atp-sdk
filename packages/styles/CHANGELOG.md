@@ -1,5 +1,11 @@
 # @scribe-atp/styles
 
+## 1.1.2
+
+### Patch Changes
+
+- Add empty type declaration so TypeScript consumers with `verbatimModuleSyntax` can import the package as a side effect without a type error.
+
 ## 1.1.1
 
 ### Patch Changes
