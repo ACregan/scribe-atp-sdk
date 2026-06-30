@@ -12,6 +12,7 @@
   - **`defaultLiked` / `defaultSubscribed`** — pass initial state from an SSR loader to avoid a flash of unconfirmed state on first render
   - **`className`** — all three buttons now accept an optional class to append alongside the base `scribe-atp-*` class
   - **Accessibility** — `LikeButton` and `SubscribeButton` now use `aria-pressed` instead of `disabled`, keeping the button in the tab order after activation
+  - **`publicationUri`** (breaking) — `LikeButton` now requires a `publicationUri` prop so the social service can record which publication a like belongs to; pass `site.uri` from the SDK
 
 ## 1.2.0
 
