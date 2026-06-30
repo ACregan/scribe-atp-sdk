@@ -1,5 +1,15 @@
 # @scribe-atp/social
 
+## 1.3.1
+
+### Patch Changes
+
+- Internal refactoring — no public API changes.
+
+  `@scribe-atp/social`: extract shared popup/polling/postMessage machinery into a `useSocialAction` hook. `LikeButton`, `ShareButton`, and `SubscribeButton` are now thin adapters; all behaviour is identical.
+
+  `@scribe-atp/core`: expose `_clearAllCaches()` (consolidates `publicationUriCache`, `handleCache`, and `pdsCache` into a single test seam). Replaces the previous `_clearPublicationUriCache()`.
+
 ## 1.3.0
 
 ### Minor Changes
