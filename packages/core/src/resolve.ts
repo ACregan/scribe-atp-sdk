@@ -1,6 +1,11 @@
 const handleCache = new Map<string, string>();
 const pdsCache = new Map<string, string>();
 
+export function _clearCaches(): void {
+  handleCache.clear();
+  pdsCache.clear();
+}
+
 export async function resolveIdentifier(
   handleOrDid: string,
   signal?: AbortSignal

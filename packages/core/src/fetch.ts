@@ -1,11 +1,12 @@
 import type { Site, Article, ArticleResult } from "./types.js";
-import { resolveIdentifier, resolvePds } from "./resolve.js";
+import { resolveIdentifier, resolvePds, _clearCaches as _clearResolveCaches } from "./resolve.js";
 import { slugFromUri } from "./utils.js";
 
 const publicationUriCache = new Map<string, string>();
 
-export function _clearPublicationUriCache(): void {
+export function _clearAllCaches(): void {
   publicationUriCache.clear();
+  _clearResolveCaches();
 }
 
 interface ScribeManifest {

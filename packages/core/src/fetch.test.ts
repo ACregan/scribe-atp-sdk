@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri, _clearPublicationUriCache } from "./fetch.js";
+import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri, _clearAllCaches } from "./fetch.js";
 
 vi.mock("./resolve.js", () => ({
   resolveIdentifier: vi.fn(async () => "did:plc:testuser"),
   resolvePds: vi.fn(async () => "https://pds.example.com"),
+  _clearCaches: vi.fn(),
 }));
 
 const mockFetch = vi.fn();
@@ -11,7 +12,7 @@ vi.stubGlobal("fetch", mockFetch);
 
 beforeEach(() => {
   mockFetch.mockReset();
-  _clearPublicationUriCache();
+  _clearAllCaches();
 });
 
 const makeListResponse = (
