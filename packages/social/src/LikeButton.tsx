@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { isRecommended, markRecommended } from "./storage.js";
 
 const DEFAULT_SERVICE_URL = "https://social.scribe-atp.app";
@@ -7,24 +7,36 @@ const POLL_MAX_ATTEMPTS = 20; // 30 seconds
 
 export interface LikeButtonProps {
   documentUri: string;
+  publicationUri: string;
   title: string;
   serviceUrl?: string;
+  className?: string;
+  children?: ReactNode | ((isLiked: boolean) => ReactNode);
+  onSuccess?: () => void;
+  defaultLiked?: boolean;
 }
 
 export function LikeButton({
   documentUri,
+  publicationUri,
   title,
   serviceUrl = DEFAULT_SERVICE_URL,
+  className,
+  children,
+  onSuccess,
+  defaultLiked,
 }: LikeButtonProps) {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(defaultLiked ?? false);
   const popupRef = useRef<Window | null>(null);
   const tokenRef = useRef<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollAttemptsRef = useRef(0);
 
   useEffect(() => {
-    setLiked(isRecommended(documentUri));
-  }, [documentUri]);
+    if (defaultLiked === undefined) {
+      setLiked(isRecommended(documentUri));
+    }
+  }, [documentUri, defaultLiked]);
 
   const stopPolling = useCallback(() => {
     if (pollRef.current !== null) {
@@ -53,6 +65,7 @@ export function LikeButton({
           stopPolling();
           markRecommended(documentUri);
           setLiked(true);
+          onSuccess?.();
           popupRef.current = null;
           tokenRef.current = null;
         }
@@ -60,7 +73,7 @@ export function LikeButton({
         // network blip, try again next tick
       }
     }, POLL_INTERVAL_MS);
-  }, [documentUri, serviceUrl, stopPolling]);
+  }, [documentUri, serviceUrl, stopPolling, onSuccess]);
 
   useEffect(() => {
     const allowedOrigin = new URL(serviceUrl).origin;
@@ -72,6 +85,7 @@ export function LikeButton({
         stopPolling();
         markRecommended(documentUri);
         setLiked(true);
+        onSuccess?.();
         popupRef.current = null;
         tokenRef.current = null;
       }
@@ -79,7 +93,7 @@ export function LikeButton({
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [documentUri, serviceUrl, stopPolling]);
+  }, [documentUri, serviceUrl, stopPolling, onSuccess]);
 
   // When popup closes, start polling as postMessage fallback
   useEffect(() => {
@@ -101,6 +115,7 @@ export function LikeButton({
     tokenRef.current = token;
     const params = new URLSearchParams({
       document: documentUri,
+      publication: publicationUri,
       origin: window.location.origin,
       title,
       token,
@@ -108,18 +123,24 @@ export function LikeButton({
     popupRef.current = window.open(
       `${serviceUrl}/recommend?${params}`,
       "scribe-social",
-      "width=480,height=640,resizable=yes"
+      "width=480,height=640,resizable=yes",
     );
   }
+
+  const label =
+    typeof children === "function"
+      ? children(liked)
+      : (children ?? (liked ? "Liked ✓" : "Like"));
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      disabled={liked}
-      aria-label={liked ? "Liked" : "Like this article"}
+      aria-pressed={liked}
+      aria-label="Like this article"
+      className={`scribe-atp-like-button${className ? ` ${className}` : ""}`}
     >
-      {liked ? "Liked ✓" : "Like"}
+      {label}
     </button>
   );
 }

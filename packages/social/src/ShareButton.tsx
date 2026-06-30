@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 
 const DEFAULT_SERVICE_URL = "https://social.scribe-atp.app";
 const POLL_INTERVAL_MS = 1500;
@@ -11,6 +11,9 @@ export interface ShareButtonProps {
   title: string;
   canonicalUrl?: string;
   serviceUrl?: string;
+  className?: string;
+  children?: ReactNode | ((isShared: boolean) => ReactNode);
+  onSuccess?: () => void;
 }
 
 export function ShareButton({
@@ -19,6 +22,9 @@ export function ShareButton({
   title,
   canonicalUrl,
   serviceUrl = DEFAULT_SERVICE_URL,
+  className,
+  children,
+  onSuccess,
 }: ShareButtonProps) {
   const [shared, setShared] = useState(false);
   const popupRef = useRef<Window | null>(null);
@@ -38,11 +44,15 @@ export function ShareButton({
   const handleSuccess = useCallback(() => {
     stopPolling();
     setShared(true);
+    onSuccess?.();
     popupRef.current = null;
     tokenRef.current = null;
     // Reset after a short delay so the user can share again if desired
-    resetTimerRef.current = setTimeout(() => setShared(false), SUCCESS_RESET_MS);
-  }, [stopPolling]);
+    resetTimerRef.current = setTimeout(
+      () => setShared(false),
+      SUCCESS_RESET_MS,
+    );
+  }, [stopPolling, onSuccess]);
 
   const startPolling = useCallback(() => {
     if (!tokenRef.current) return;
@@ -127,14 +137,20 @@ export function ShareButton({
     );
   }
 
+  const label =
+    typeof children === "function"
+      ? children(shared)
+      : (children ?? (shared ? "Shared ✓" : "Share"));
+
   return (
     <button
       type="button"
       onClick={handleClick}
       disabled={shared}
       aria-label={shared ? "Shared" : "Share this article"}
+      className={`scribe-atp-share-button${className ? ` ${className}` : ""}`}
     >
-      {shared ? "Shared ✓" : "Share"}
+      {label}
     </button>
   );
 }
