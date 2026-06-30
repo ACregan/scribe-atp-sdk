@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { isSubscribed, markSubscribed } from "./storage.js";
 
 const DEFAULT_SERVICE_URL = "https://social.scribe-atp.app";
@@ -9,22 +9,32 @@ export interface SubscribeButtonProps {
   publicationUri: string;
   title: string;
   serviceUrl?: string;
+  className?: string;
+  children?: ReactNode | ((isSubscribed: boolean) => ReactNode);
+  onSuccess?: () => void;
+  defaultSubscribed?: boolean;
 }
 
 export function SubscribeButton({
   publicationUri,
   title,
   serviceUrl = DEFAULT_SERVICE_URL,
+  className,
+  children,
+  onSuccess,
+  defaultSubscribed,
 }: SubscribeButtonProps) {
-  const [subscribed, setSubscribed] = useState(false);
+  const [subscribed, setSubscribed] = useState(defaultSubscribed ?? false);
   const popupRef = useRef<Window | null>(null);
   const tokenRef = useRef<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollAttemptsRef = useRef(0);
 
   useEffect(() => {
-    setSubscribed(isSubscribed(publicationUri));
-  }, [publicationUri]);
+    if (defaultSubscribed === undefined) {
+      setSubscribed(isSubscribed(publicationUri));
+    }
+  }, [publicationUri, defaultSubscribed]);
 
   const stopPolling = useCallback(() => {
     if (pollRef.current !== null) {
@@ -53,6 +63,7 @@ export function SubscribeButton({
           stopPolling();
           markSubscribed(publicationUri);
           setSubscribed(true);
+          onSuccess?.();
           popupRef.current = null;
           tokenRef.current = null;
         }
@@ -60,7 +71,7 @@ export function SubscribeButton({
         // network blip, try again next tick
       }
     }, POLL_INTERVAL_MS);
-  }, [publicationUri, serviceUrl, stopPolling]);
+  }, [publicationUri, serviceUrl, stopPolling, onSuccess]);
 
   useEffect(() => {
     const allowedOrigin = new URL(serviceUrl).origin;
@@ -72,6 +83,7 @@ export function SubscribeButton({
         stopPolling();
         markSubscribed(publicationUri);
         setSubscribed(true);
+        onSuccess?.();
         popupRef.current = null;
         tokenRef.current = null;
       }
@@ -79,7 +91,7 @@ export function SubscribeButton({
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [publicationUri, serviceUrl, stopPolling]);
+  }, [publicationUri, serviceUrl, stopPolling, onSuccess]);
 
   // When popup closes, start polling as postMessage fallback
   useEffect(() => {
@@ -108,18 +120,24 @@ export function SubscribeButton({
     popupRef.current = window.open(
       `${serviceUrl}/subscribe?${params}`,
       "scribe-social",
-      "width=480,height=640,resizable=yes"
+      "width=480,height=640,resizable=yes",
     );
   }
+
+  const label =
+    typeof children === "function"
+      ? children(subscribed)
+      : (children ?? (subscribed ? "Subscribed ✓" : "Subscribe"));
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      disabled={subscribed}
-      aria-label={subscribed ? "Subscribed" : "Subscribe"}
+      aria-pressed={subscribed}
+      aria-label="Subscribe"
+      className={`scribe-atp-subscribe-button${className ? ` ${className}` : ""}`}
     >
-      {subscribed ? "Subscribed ✓" : "Subscribe"}
+      {label}
     </button>
   );
 }
