@@ -1,5 +1,11 @@
 # @scribe-atp/social
 
+## 1.4.0
+
+### Minor Changes
+
+- Add unsubscribe support to SubscribeButton. When already subscribed, clicking the button now opens an unsubscribe confirmation popup instead of doing nothing. New `onUnsubscribe` callback prop mirrors the existing `onSuccess` prop.
+
 ## 1.3.1
 
 ### Patch Changes
