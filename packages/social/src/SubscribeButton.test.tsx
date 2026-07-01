@@ -26,7 +26,7 @@ describe("SubscribeButton", () => {
   it("renders 'Subscribed ✓' and is pressed when localStorage indicates already subscribed", () => {
     localStorage.setItem(`scribe:subscribed:${PUB_URI}`, "1");
     render(<SubscribeButton publicationUri={PUB_URI} title="My Site" />);
-    const btn = screen.getByRole("button", { name: "Subscribe" });
+    const btn = screen.getByRole("button", { name: "Unsubscribe" });
     expect(btn).toHaveAttribute("aria-pressed", "true");
     expect(btn).not.toBeDisabled();
     expect(screen.getByText("Subscribed ✓")).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe("SubscribeButton", () => {
 
   it("renders in pressed state immediately when defaultSubscribed is true", () => {
     render(<SubscribeButton publicationUri={PUB_URI} title="My Site" defaultSubscribed={true} />);
-    const btn = screen.getByRole("button", { name: "Subscribe" });
+    const btn = screen.getByRole("button", { name: "Unsubscribe" });
     expect(btn).toHaveAttribute("aria-pressed", "true");
     expect(btn).not.toBeDisabled();
   });
@@ -59,11 +59,15 @@ describe("SubscribeButton", () => {
     expect(params.get("origin")).toBe(window.location.origin);
   });
 
-  it("does not open a popup when already subscribed", () => {
+  it("opens the unsubscribe popup when already subscribed", () => {
     localStorage.setItem(`scribe:subscribed:${PUB_URI}`, "1");
-    render(<SubscribeButton publicationUri={PUB_URI} title="My Site" />);
+    render(<SubscribeButton publicationUri={PUB_URI} title="My Site" serviceUrl={SERVICE_URL} />);
     fireEvent.click(screen.getByRole("button"));
-    expect(window.open).not.toHaveBeenCalled();
+    expect(window.open).toHaveBeenCalledWith(
+      expect.stringContaining("/unsubscribe?"),
+      "scribe-social",
+      expect.any(String),
+    );
   });
 
   it("sets subscribed state and updates localStorage on valid postMessage", async () => {
@@ -78,7 +82,7 @@ describe("SubscribeButton", () => {
       );
     });
 
-    const btn = screen.getByRole("button", { name: "Subscribe" });
+    const btn = screen.getByRole("button", { name: "Unsubscribe" });
     expect(btn).toHaveAttribute("aria-pressed", "true");
     expect(btn).not.toBeDisabled();
     expect(localStorage.getItem(`scribe:subscribed:${PUB_URI}`)).toBe("1");
