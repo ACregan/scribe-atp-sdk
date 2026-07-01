@@ -29,3 +29,11 @@ export function isSubscribed(publicationUri: string): boolean {
 export function markSubscribed(publicationUri: string) {
   safeSet(`scribe:subscribed:${publicationUri}`, "1");
 }
+
+export function clearSubscribed(publicationUri: string) {
+  try {
+    localStorage.removeItem(`scribe:subscribed:${publicationUri}`);
+  } catch {
+    // localStorage unavailable
+  }
+}
