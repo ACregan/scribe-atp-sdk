@@ -1,5 +1,5 @@
 import { useState, useEffect, type ReactNode } from "react";
-import { isSubscribed, markSubscribed } from "./storage.js";
+import { isSubscribed, markSubscribed, clearSubscribed } from "./storage.js";
 import { useSocialAction } from "./useSocialAction.js";
 
 const DEFAULT_SERVICE_URL = "https://social.scribe-atp.app";
@@ -11,6 +11,7 @@ export interface SubscribeButtonProps {
   className?: string;
   children?: ReactNode | ((isSubscribed: boolean) => ReactNode);
   onSuccess?: () => void;
+  onUnsubscribe?: () => void;
   defaultSubscribed?: boolean;
 }
 
@@ -21,6 +22,7 @@ export function SubscribeButton({
   className,
   children,
   onSuccess,
+  onUnsubscribe,
   defaultSubscribed,
 }: SubscribeButtonProps) {
   const [subscribed, setSubscribed] = useState(defaultSubscribed ?? false);
@@ -29,7 +31,7 @@ export function SubscribeButton({
     if (defaultSubscribed === undefined) setSubscribed(isSubscribed(publicationUri));
   }, [publicationUri, defaultSubscribed]);
 
-  const { handleClick } = useSocialAction({
+  const { handleClick: handleSubscribeClick } = useSocialAction({
     isActive: subscribed,
     action: "subscribe",
     endpoint: "/subscribe",
@@ -48,6 +50,25 @@ export function SubscribeButton({
       }),
   });
 
+  const { handleClick: handleUnsubscribeClick } = useSocialAction({
+    isActive: !subscribed,
+    action: "unsubscribe",
+    endpoint: "/unsubscribe",
+    serviceUrl,
+    onActivated: () => {
+      clearSubscribed(publicationUri);
+      setSubscribed(false);
+      onUnsubscribe?.();
+    },
+    buildParams: (token) =>
+      new URLSearchParams({
+        publication: publicationUri,
+        origin: window.location.origin,
+        title,
+        token,
+      }),
+  });
+
   const label =
     typeof children === "function"
       ? children(subscribed)
@@ -56,9 +77,9 @@ export function SubscribeButton({
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={subscribed ? handleUnsubscribeClick : handleSubscribeClick}
       aria-pressed={subscribed}
-      aria-label="Subscribe"
+      aria-label={subscribed ? "Unsubscribe" : "Subscribe"}
       className={`scribe-atp-subscribe-button${className ? ` ${className}` : ""}`}
     >
       {label}
