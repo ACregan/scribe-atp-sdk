@@ -1,5 +1,15 @@
 # @scribe-atp/nuxt
 
+## 1.1.1
+
+### Patch Changes
+
+- Fix missing type declarations in framework adapters and styles package.
+
+  `react-router-framework`, `next`, and `nuxt` all had stale dist d.ts files that omitted meta helper functions added after the initial build (`articleMeta`/`siteMeta`, `articleMetadata`/`siteMetadata`, `articleSeoMeta`/`siteSeoMeta`). Rebuilding the packages regenerates correct declarations.
+
+  `styles` had an empty `src/index.d.ts` (0 bytes), which TypeScript treats as a global script rather than an ES module, causing a type error on side-effect imports (`import '@scribe-atp/styles'`). Added `export {}` to mark it as a module.
+
 ## 1.1.0
 
 ### Minor Changes
