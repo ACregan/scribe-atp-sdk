@@ -1,6 +1,6 @@
 {
   "name": "@scribe-atp/core",
-  "version": "3.4.2",
+  "version": "3.5.0",
   "description": "Pure TypeScript fetch functions, PDS resolution, and types for reading Scribe CMS content from the AT Protocol.",
   "license": "MIT",
   "engines": {

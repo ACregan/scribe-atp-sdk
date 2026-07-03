@@ -27,19 +27,25 @@ interface RawPublication {
   scribe: ScribeManifest;
 }
 
+interface RawDocumentScribe {
+  splashImageUrl?: string;
+  createdAt?: string;
+  canonicalUrl?: string;
+}
+
 interface RawDocument {
   title: string;
   path: string;
   site: string;
-  canonicalUrl?: string;
   publishedAt: string;
   description?: string;
   content?: { $type: string; html?: string } | unknown;
-  splashImageUrl?: string;
+  textContent?: string;
+  bskyPostRef?: { uri: string; cid: string };
   tags?: string[];
   contributors?: { did: string; role?: string; displayName?: string }[];
-  createdAt: string;
   updatedAt: string;
+  scribe?: RawDocumentScribe;
 }
 
 function normalizeUrl(url: string): string {
@@ -169,13 +175,15 @@ export async function fetchArticle(
     content: extractHtml(raw.content),
     path: raw.path,
     site: raw.site,
-    canonicalUrl: raw.canonicalUrl,
+    canonicalUrl: raw.scribe?.canonicalUrl,
+    textContent: raw.textContent,
     publishedAt: raw.publishedAt,
     description: raw.description,
-    splashImageUrl: raw.splashImageUrl,
+    splashImageUrl: raw.scribe?.splashImageUrl,
     tags: raw.tags,
     contributors: raw.contributors,
-    createdAt: raw.createdAt,
+    bskyPostRef: raw.bskyPostRef,
+    createdAt: raw.scribe?.createdAt,
     updatedAt: raw.updatedAt,
   };
 }

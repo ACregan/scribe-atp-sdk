@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.5.0
+
+### Minor Changes
+
+- Align field mapping with site.standard spec: splashImageUrl, createdAt, and canonicalUrl are now read from the scribe extension object inside document records. Add textContent and bskyPostRef to the Article type. site.standard.document records now store site as an https:// URL rather than an AT URI.
+
 ## 3.4.2
 
 ### Patch Changes
