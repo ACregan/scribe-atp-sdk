@@ -1,5 +1,11 @@
 # @scribe-atp/next
 
+## 1.1.2
+
+### Patch Changes
+
+- Rename `splashImageUrl` to `coverImageUrl` in article metadata helpers to match `Article` type rename in `@scribe-atp/core@3.6.0`.
+
 ## 1.1.1
 
 ### Patch Changes
