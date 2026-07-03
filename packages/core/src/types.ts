@@ -40,11 +40,13 @@ export interface Article {
   path: string;
   site: string;
   canonicalUrl?: string;
+  textContent?: string;
   splashImageUrl?: string;
   description?: string;
   tags?: string[];
   contributors?: ArticleContributor[];
-  createdAt: string;
+  bskyPostRef?: { uri: string; cid: string };
+  createdAt?: string;
   publishedAt: string;
   updatedAt: string;
 }

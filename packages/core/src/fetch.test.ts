@@ -151,11 +151,13 @@ describe("fetchArticle", () => {
       title: "Hello World",
       content: { $type: "app.scribe.content.html", html: "<p>Hi</p>" },
       path: "/essays/hello-world",
-      site: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
-      canonicalUrl: "https://example.com/blog/essays/hello-world",
+      site: "https://example.com",
       publishedAt: "2024-01-02T00:00:00Z",
-      createdAt: "2024-01-01T00:00:00Z",
       updatedAt: "2024-01-01T00:00:00Z",
+      scribe: {
+        canonicalUrl: "https://example.com/blog/essays/hello-world",
+        createdAt: "2024-01-01T00:00:00Z",
+      },
     };
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -166,7 +168,7 @@ describe("fetchArticle", () => {
     expect(result.title).toBe("Hello World");
     expect(result.content).toBe("<p>Hi</p>");
     expect(result.path).toBe("/essays/hello-world");
-    expect(result.site).toBe("at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y");
+    expect(result.site).toBe("https://example.com");
     expect(result.canonicalUrl).toBe("https://example.com/blog/essays/hello-world");
     expect(result.publishedAt).toBe("2024-01-02T00:00:00Z");
   });
@@ -179,9 +181,8 @@ describe("fetchArticle", () => {
           title: "Test",
           content: { $type: "app.scribe.content.html", html: "" },
           path: "/hello-world",
-          site: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
+          site: "https://example.com",
           publishedAt: "2024-01-01T00:00:00Z",
-          createdAt: "2024-01-01T00:00:00Z",
           updatedAt: "2024-01-01T00:00:00Z",
         },
       }),
@@ -196,7 +197,7 @@ describe("fetchArticle", () => {
     );
   });
 
-  it("passes through canonicalUrl when present", async () => {
+  it("passes through canonicalUrl when present in scribe", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -204,11 +205,10 @@ describe("fetchArticle", () => {
           title: "Test",
           content: { $type: "app.scribe.content.html", html: "" },
           path: "/test",
-          site: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
-          canonicalUrl: "https://example.com/test",
+          site: "https://example.com",
           publishedAt: "2024-01-01T00:00:00Z",
-          createdAt: "2024-01-01T00:00:00Z",
           updatedAt: "2024-01-01T00:00:00Z",
+          scribe: { canonicalUrl: "https://example.com/test" },
         },
       }),
     });
@@ -217,7 +217,7 @@ describe("fetchArticle", () => {
     expect(result.canonicalUrl).toBe("https://example.com/test");
   });
 
-  it("leaves canonicalUrl undefined when absent", async () => {
+  it("leaves canonicalUrl undefined when absent from scribe", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -225,9 +225,8 @@ describe("fetchArticle", () => {
           title: "Test",
           content: { $type: "app.scribe.content.html", html: "" },
           path: "/test",
-          site: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
+          site: "https://example.com",
           publishedAt: "2024-01-01T00:00:00Z",
-          createdAt: "2024-01-01T00:00:00Z",
           updatedAt: "2024-01-01T00:00:00Z",
         },
       }),
@@ -245,9 +244,8 @@ describe("fetchArticle", () => {
           title: "Test",
           content: { $type: "app.scribe.content.html", html: "<p>Body</p>" },
           path: "/test",
-          site: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
+          site: "https://example.com",
           publishedAt: "2024-01-01T00:00:00Z",
-          createdAt: "2024-01-01T00:00:00Z",
           updatedAt: "2024-01-01T00:00:00Z",
         },
       }),
@@ -265,9 +263,8 @@ describe("fetchArticle", () => {
           title: "Test",
           content: { $type: "some.other.type", data: "..." },
           path: "/test",
-          site: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
+          site: "https://example.com",
           publishedAt: "2024-01-01T00:00:00Z",
-          createdAt: "2024-01-01T00:00:00Z",
           updatedAt: "2024-01-01T00:00:00Z",
         },
       }),
@@ -308,11 +305,13 @@ const makeArticleResponse = () => ({
       title: "My Article",
       content: { $type: "app.scribe.content.html", html: "<p>Hi</p>" },
       path: "/essays/my-article",
-      site: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
-      canonicalUrl: "https://example.com/blog/essays/my-article",
+      site: "https://example.com",
       publishedAt: "2024-01-01T00:00:00Z",
-      createdAt: "2024-01-01T00:00:00Z",
       updatedAt: "2024-01-01T00:00:00Z",
+      scribe: {
+        canonicalUrl: "https://example.com/blog/essays/my-article",
+        createdAt: "2024-01-01T00:00:00Z",
+      },
     },
   }),
 });
