@@ -151,7 +151,7 @@ describe("fetchArticle", () => {
       title: "Hello World",
       content: { $type: "app.scribe.content.html", html: "<p>Hi</p>" },
       path: "/essays/hello-world",
-      site: "https://example.com",
+      site: "at://did:plc:testuser/site.standard.publication/3abc",
       publishedAt: "2024-01-02T00:00:00Z",
       updatedAt: "2024-01-01T00:00:00Z",
       scribe: {
@@ -168,7 +168,7 @@ describe("fetchArticle", () => {
     expect(result.title).toBe("Hello World");
     expect(result.content).toBe("<p>Hi</p>");
     expect(result.path).toBe("/essays/hello-world");
-    expect(result.site).toBe("https://example.com");
+    expect(result.site).toBe("at://did:plc:testuser/site.standard.publication/3abc");
     expect(result.canonicalUrl).toBe("https://example.com/blog/essays/hello-world");
     expect(result.publishedAt).toBe("2024-01-02T00:00:00Z");
   });
@@ -272,6 +272,45 @@ describe("fetchArticle", () => {
 
     const result = await fetchArticle("did:plc:testuser", "3jxtctq7kqm2y");
     expect(result.content).toBe("");
+  });
+
+  it("maps scribe.coverImageUrl to article.coverImageUrl", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          title: "Test",
+          content: { $type: "app.scribe.content.html", html: "" },
+          path: "/test",
+          site: "at://did:plc:testuser/site.standard.publication/3abc",
+          publishedAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+          scribe: { coverImageUrl: "https://images.example.com/cover.jpg" },
+        },
+      }),
+    });
+
+    const result = await fetchArticle("did:plc:testuser", "3jxtctq7kqm2y");
+    expect(result.coverImageUrl).toBe("https://images.example.com/cover.jpg");
+  });
+
+  it("leaves coverImageUrl undefined when absent from scribe", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          title: "Test",
+          content: { $type: "app.scribe.content.html", html: "" },
+          path: "/test",
+          site: "at://did:plc:testuser/site.standard.publication/3abc",
+          publishedAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
+        },
+      }),
+    });
+
+    const result = await fetchArticle("did:plc:testuser", "3jxtctq7kqm2y");
+    expect(result.coverImageUrl).toBeUndefined();
   });
 
   it("throws when the fetch fails", async () => {

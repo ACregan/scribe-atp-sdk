@@ -18,8 +18,8 @@ const article: Article = {
   title: "LLMs Are Full of Shit",
   content: "<p>Content</p>",
   path: "/engineering/llms-are-full-of-shit",
-  site: "https://norobots.blog",
-  splashImageUrl: "https://norobots.blog/images/llms.webp",
+  site: "at://did:plc:abc/site.standard.publication/tid123",
+  coverImageUrl: "https://norobots.blog/images/llms.webp",
   description: "A post about LLMs.",
   createdAt: "2025-01-01T00:00:00.000Z",
   publishedAt: "2025-01-01T00:00:00.000Z",
@@ -32,7 +32,7 @@ describe("generateArticleMeta", () => {
     expect(tags).toContainEqual({ title: "LLMs Are Full of Shit — NoRobots" });
   });
 
-  it("composes canonical url from article.site + site.urlPrefix + article.path", () => {
+  it("composes canonical url from site.url + site.urlPrefix + article.path", () => {
     const tags = generateArticleMeta(article, site);
     expect(tags).toContainEqual({
       property: "og:url",
@@ -59,7 +59,7 @@ describe("generateArticleMeta", () => {
     });
   });
 
-  it("includes og:image and twitter:image when splashImageUrl present", () => {
+  it("includes og:image and twitter:image when coverImageUrl present", () => {
     const tags = generateArticleMeta(article, site);
     expect(tags).toContainEqual({
       property: "og:image",
@@ -75,9 +75,9 @@ describe("generateArticleMeta", () => {
     });
   });
 
-  it("falls back to summary card when no splashImageUrl", () => {
+  it("falls back to summary card when no coverImageUrl", () => {
     const tags = generateArticleMeta(
-      { ...article, splashImageUrl: undefined },
+      { ...article, coverImageUrl: undefined },
       site,
     );
     expect(tags).toContainEqual({ name: "twitter:card", content: "summary" });

@@ -41,7 +41,7 @@ export interface Article {
   site: string;
   canonicalUrl?: string;
   textContent?: string;
-  splashImageUrl?: string;
+  coverImageUrl?: string;
   description?: string;
   tags?: string[];
   contributors?: ArticleContributor[];
