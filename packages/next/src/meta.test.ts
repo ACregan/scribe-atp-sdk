@@ -24,8 +24,8 @@ const article: Article = {
   title: "LLMs Are Full of Shit",
   content: "<p>Content</p>",
   path: "/engineering/llms-are-full-of-shit",
-  site: "https://norobots.blog",
-  splashImageUrl: "https://norobots.blog/images/llms.webp",
+  site: "at://did:plc:testuser/site.standard.publication/3abc",
+  coverImageUrl: "https://norobots.blog/images/llms.webp",
   description: "A post about LLMs.",
   createdAt: "2025-01-01T00:00:00.000Z",
   publishedAt: "2025-01-01T00:00:00.000Z",
@@ -43,7 +43,7 @@ describe("articleMetadata", () => {
     expect(meta.openGraph).toMatchObject({ type: "article" });
   });
 
-  it("composes og:url from article.site + urlPrefix + path", () => {
+  it("composes og:url from site.url + urlPrefix + path", () => {
     const meta = articleMetadata(article, site);
     expect(meta.openGraph?.url).toBe(
       "https://norobots.blog/blog/engineering/llms-are-full-of-shit",
@@ -58,7 +58,7 @@ describe("articleMetadata", () => {
     expect(meta.openGraph?.url).toBe("https://norobots.blog/custom");
   });
 
-  it("includes og:image when splashImageUrl present", () => {
+  it("includes og:image when coverImageUrl present", () => {
     const meta = articleMetadata(article, site);
     expect(meta.openGraph?.images).toContain(
       "https://norobots.blog/images/llms.webp",
@@ -66,8 +66,8 @@ describe("articleMetadata", () => {
     expect(meta.twitter).toMatchObject({ card: "summary_large_image" });
   });
 
-  it("falls back to summary card when no splashImageUrl", () => {
-    const meta = articleMetadata({ ...article, splashImageUrl: undefined }, site);
+  it("falls back to summary card when no coverImageUrl", () => {
+    const meta = articleMetadata({ ...article, coverImageUrl: undefined }, site);
     expect(meta.twitter).toMatchObject({ card: "summary" });
     expect(meta.openGraph?.images).toBeUndefined();
   });

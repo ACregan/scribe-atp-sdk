@@ -24,8 +24,8 @@ const article: Article = {
   title: "LLMs Are Full of Shit",
   content: "<p>Content</p>",
   path: "/engineering/llms-are-full-of-shit",
-  site: "https://norobots.blog",
-  splashImageUrl: "https://norobots.blog/images/llms.webp",
+  site: "at://did:plc:testuser/site.standard.publication/3abc",
+  coverImageUrl: "https://norobots.blog/images/llms.webp",
   description: "A post about LLMs.",
   createdAt: "2025-01-01T00:00:00.000Z",
   publishedAt: "2025-01-01T00:00:00.000Z",
@@ -43,7 +43,7 @@ describe("articleSeoMeta", () => {
     expect(meta.ogType).toBe("article");
   });
 
-  it("composes ogUrl from article.site + urlPrefix + path", () => {
+  it("composes ogUrl from site.url + urlPrefix + path", () => {
     const meta = articleSeoMeta(article, site);
     expect(meta.ogUrl).toBe(
       "https://norobots.blog/blog/engineering/llms-are-full-of-shit",
@@ -58,15 +58,15 @@ describe("articleSeoMeta", () => {
     expect(meta.ogUrl).toBe("https://norobots.blog/custom");
   });
 
-  it("sets summary_large_image card when splashImageUrl present", () => {
+  it("sets summary_large_image card when coverImageUrl present", () => {
     const meta = articleSeoMeta(article, site);
     expect(meta.twitterCard).toBe("summary_large_image");
     expect(meta.ogImage).toBe("https://norobots.blog/images/llms.webp");
     expect(meta.twitterImage).toBe("https://norobots.blog/images/llms.webp");
   });
 
-  it("falls back to summary card when no splashImageUrl", () => {
-    const meta = articleSeoMeta({ ...article, splashImageUrl: undefined }, site);
+  it("falls back to summary card when no coverImageUrl", () => {
+    const meta = articleSeoMeta({ ...article, coverImageUrl: undefined }, site);
     expect(meta.twitterCard).toBe("summary");
     expect(meta.ogImage).toBeUndefined();
   });

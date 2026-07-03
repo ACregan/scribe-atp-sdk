@@ -28,7 +28,7 @@ interface RawPublication {
 }
 
 interface RawDocumentScribe {
-  splashImageUrl?: string;
+  coverImageUrl?: string;
   createdAt?: string;
   canonicalUrl?: string;
 }
@@ -179,7 +179,7 @@ export async function fetchArticle(
     textContent: raw.textContent,
     publishedAt: raw.publishedAt,
     description: raw.description,
-    splashImageUrl: raw.scribe?.splashImageUrl,
+    coverImageUrl: raw.scribe?.coverImageUrl,
     tags: raw.tags,
     contributors: raw.contributors,
     bskyPostRef: raw.bskyPostRef,

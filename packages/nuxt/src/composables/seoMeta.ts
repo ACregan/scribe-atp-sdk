@@ -10,13 +10,13 @@ export function articleSeoMeta(article: Article, site: Site) {
     ogDescription: article.description ?? undefined,
     ogUrl: canonicalUrl,
     ogSiteName: site.title,
-    ogImage: article.splashImageUrl ?? undefined,
-    twitterCard: (article.splashImageUrl
+    ogImage: article.coverImageUrl ?? undefined,
+    twitterCard: (article.coverImageUrl
       ? "summary_large_image"
       : "summary") as "summary_large_image" | "summary",
     twitterTitle: article.title,
     twitterDescription: article.description ?? undefined,
-    twitterImage: article.splashImageUrl ?? undefined,
+    twitterImage: article.coverImageUrl ?? undefined,
   };
 }
 

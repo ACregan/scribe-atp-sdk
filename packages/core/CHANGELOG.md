@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.6.0
+
+### Minor Changes
+
+- Rename Article.splashImageUrl → Article.coverImageUrl; fix buildCanonicalUrl to use site.url; article.site is now an AT URI pointing to the publication record
+
 ## 3.5.0
 
 ### Minor Changes

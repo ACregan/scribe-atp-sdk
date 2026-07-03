@@ -7,7 +7,7 @@ export type ScribeMetaTag =
 
 export function buildCanonicalUrl(article: Article, site: Site): string {
   if (article.canonicalUrl) return article.canonicalUrl;
-  const base = article.site.replace(/\/$/, "");
+  const base = `https://${site.url.replace(/\/$/, "")}`;
   const prefix = site.urlPrefix ? `/${site.urlPrefix}` : "";
   const path = article.path.startsWith("/") ? article.path : `/${article.path}`;
   return `${base}${prefix}${path}`;
@@ -27,7 +27,7 @@ export function generateArticleMeta(
     { name: "twitter:title", content: article.title },
     {
       name: "twitter:card",
-      content: article.splashImageUrl ? "summary_large_image" : "summary",
+      content: article.coverImageUrl ? "summary_large_image" : "summary",
     },
   ];
 
@@ -37,9 +37,9 @@ export function generateArticleMeta(
     tags.push({ name: "twitter:description", content: article.description });
   }
 
-  if (article.splashImageUrl) {
-    tags.push({ property: "og:image", content: article.splashImageUrl });
-    tags.push({ name: "twitter:image", content: article.splashImageUrl });
+  if (article.coverImageUrl) {
+    tags.push({ property: "og:image", content: article.coverImageUrl });
+    tags.push({ name: "twitter:image", content: article.coverImageUrl });
   }
 
   return tags;

@@ -13,13 +13,13 @@ export function articleMetadata(article: Article, site: Site): Metadata {
       description: article.description ?? undefined,
       url: canonicalUrl,
       siteName: site.title,
-      ...(article.splashImageUrl ? { images: [article.splashImageUrl] } : {}),
+      ...(article.coverImageUrl ? { images: [article.coverImageUrl] } : {}),
     },
     twitter: {
-      card: article.splashImageUrl ? "summary_large_image" : "summary",
+      card: article.coverImageUrl ? "summary_large_image" : "summary",
       title: article.title,
       description: article.description ?? undefined,
-      ...(article.splashImageUrl ? { images: [article.splashImageUrl] } : {}),
+      ...(article.coverImageUrl ? { images: [article.coverImageUrl] } : {}),
     },
   };
 }
