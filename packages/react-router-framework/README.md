@@ -117,6 +117,39 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 Both functions require the `Site` object from the loader — include it in your loader return if it isn't there already.
 
+## Testing
+
+All three factory functions accept an optional `deps` parameter for dependency injection. Pass mock functions directly — no `vi.mock` needed:
+
+```ts
+import { describe, it, expect, vi } from "vitest";
+import { createSiteLoader, createArticleRouteLoader } from "@scribe-atp/react-router-framework";
+
+const makeArgs = () =>
+  ({ request: new Request("https://example.com"), params: {}, context: {} }) as any;
+
+describe("blog loaders", () => {
+  it("fetches the site", async () => {
+    const fetchSite = vi.fn().mockResolvedValueOnce(mockSite);
+    const loader = createSiteLoader("alice.bsky.social", "https://alice.bsky.social", { fetchSite });
+    const result = await loader(makeArgs());
+    expect(result).toEqual(mockSite);
+  });
+
+  it("fetches an article by slug", async () => {
+    const fetchArticleBySlug = vi.fn().mockResolvedValueOnce({ article: mockArticle, uri: mockUri });
+    const loader = createArticleRouteLoader(
+      "alice.bsky.social",
+      "https://alice.bsky.social",
+      "articleSlug",
+      { fetchArticleBySlug }
+    );
+    const result = await loader({ ...makeArgs(), params: { articleSlug: "hello" } });
+    expect(result).toEqual({ ...mockArticle, documentUri: mockUri });
+  });
+});
+```
+
 ## TypeScript types
 
 All types from `@scribe-atp/core` are re-exported, plus `ArticleWithUri`:
