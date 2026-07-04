@@ -50,14 +50,18 @@ Each package has its own `package.json`, `tsconfig.json`, and `tsup.config.ts`. 
 
 Scribe stores content in two collections on the author's Personal Data Server (PDS):
 
+**Golden rule: top-level fields must comply with the site.standard lexicon spec. Any Scribe-specific data that is not in the spec goes inside the `scribe` extension object — never at the top level.**
+
 **`site.standard.publication`** — site manifest (rkey = TID):
 ```ts
 {
-  url?: string,          // canonical site HTTPS URL e.g. "https://norobots.blog"
-  description?: string,
+  // SPEC — top-level only
+  $type: "site.standard.publication",
+
+  // SCRIBE EXTENSION — all site metadata lives here
   scribe: {
-    domain: string,      // domain name e.g. "norobots.blog"
-    basePath: string,    // path prefix e.g. "blog" — empty string if none
+    domain: string,      // domain name e.g. "norobots.blog" (→ Site.url in SDK)
+    basePath: string,    // path prefix e.g. "blog" — empty string if none (→ Site.urlPrefix)
     title: string,
     description?: string,
     splashImageUrl?: string,
@@ -68,6 +72,8 @@ Scribe stores content in two collections on the author's Personal Data Server (P
       articles: ArticleRef[],  // cached snapshots — no N+1 fetches needed
     }>,
     ungroupedArticles: ArticleRef[],  // articles not yet in any named group (unpublished)
+    createdAt: string,
+    updatedAt: string,
   },
 }
 ```
@@ -75,20 +81,28 @@ Scribe stores content in two collections on the author's Personal Data Server (P
 **`site.standard.document`** — all articles (rkey = TID):
 ```ts
 {
+  // SPEC — top-level only, per site.standard.document lexicon
+  $type: "site.standard.document",
+  site: string,          // AT URI of publication e.g. "at://did:plc:.../site.standard.publication/3abc"
   title: string,
-  slug: string,          // human-readable slug e.g. "my-article" — NOT the rkey
-  path: string,          // full URL path e.g. "/blog/my-article"
-  site: string,          // canonical site HTTPS URL
-  content: { $type: "app.scribe.content.html", html: string },
-  textContent: string,   // HTML stripped to plaintext
-  splashImageUrl?: string,
+  publishedAt?: string,  // ISO 8601 — omitted if blank
+  path?: string,         // full URL path e.g. "/blog/my-article"
   description?: string,
+  coverImage?: blob,     // <1MB thumbnail
+  content?: { $type: "app.scribe.content.html", html: string },
+  textContent?: string,  // HTML stripped to plaintext
+  bskyPostRef?: { uri: string, cid: string },
   tags?: string[],
   contributors?: { did: string; role?: string; displayName?: string }[],
-  bskyPostRef?: { $type: "com.atproto.repo.strongRef", uri: string, cid: string },
-  createdAt: string,
-  publishedAt: string,   // set when article is moved into a named group
-  updatedAt: string,
+  updatedAt?: string,
+
+  // SCRIBE EXTENSION — Scribe-specific fields not in the spec
+  scribe: {
+    domain: string,        // domain name e.g. "norobots.blog"
+    createdAt: string,     // ISO 8601 — article creation date
+    coverImageUrl?: string, // source URL for the cover image (→ Article.coverImageUrl)
+    canonicalUrl?: string,  // fully-qualified article URL (→ Article.canonicalUrl)
+  },
 }
 ```
 
