@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { LoaderFunctionArgs } from "react-router";
 import { createSiteLoader, createArticleRouteLoader, createWellKnownLoader } from "./loaders.js";
 
@@ -122,5 +122,37 @@ describe("createWellKnownLoader", () => {
     const args = makeArgs();
     await loader(args);
     expect(mockResolvePublicationUri).toHaveBeenCalledWith("did:plc:test", "my-blog", args.request.signal);
+  });
+});
+
+describe("dependency injection", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("createSiteLoader uses injected fetchSite instead of the default", async () => {
+    const injected = vi.fn().mockResolvedValueOnce(site);
+    const loader = createSiteLoader("did:plc:test", "example-com", { fetchSite: injected });
+    const result = await loader(makeArgs());
+    expect(result).toEqual(site);
+    expect(injected).toHaveBeenCalledWith("did:plc:test", "example-com", expect.any(AbortSignal));
+    expect(mockFetchSite).not.toHaveBeenCalled();
+  });
+
+  it("createArticleRouteLoader uses injected fetchArticleBySlug instead of the default", async () => {
+    const injected = vi.fn().mockResolvedValueOnce({ article, uri: documentUri });
+    const loader = createArticleRouteLoader("did:plc:test", "example-com", "articleSlug", { fetchArticleBySlug: injected });
+    const args = { ...makeArgs(), params: { articleSlug: "hello" } } as unknown as LoaderFunctionArgs;
+    const result = await loader(args);
+    expect(result).toEqual({ ...article, documentUri });
+    expect(injected).toHaveBeenCalledWith("did:plc:test", "example-com", "hello", expect.any(AbortSignal));
+    expect(mockFetchArticleBySlug).not.toHaveBeenCalled();
+  });
+
+  it("createWellKnownLoader uses injected resolvePublicationUri instead of the default", async () => {
+    const injected = vi.fn().mockResolvedValueOnce("at://did:plc:test/site.standard.publication/my-blog");
+    const loader = createWellKnownLoader("did:plc:test", "my-blog", { resolvePublicationUri: injected });
+    const response = await loader(makeArgs());
+    expect(await response.text()).toBe("at://did:plc:test/site.standard.publication/my-blog");
+    expect(injected).toHaveBeenCalled();
+    expect(mockResolvePublicationUri).not.toHaveBeenCalled();
   });
 });

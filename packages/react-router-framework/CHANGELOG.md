@@ -1,5 +1,11 @@
 # @scribe-atp/react-router-framework
 
+## 2.1.2
+
+### Patch Changes
+
+- Add optional dependency injection to loader factories for testability. All three factory functions (`createSiteLoader`, `createArticleRouteLoader`, `createWellKnownLoader`) now accept an optional `deps` parameter so consumers can pass mock fetch functions in tests without needing `vi.mock`.
+
 ## 2.1.1
 
 ### Patch Changes
