@@ -117,7 +117,7 @@ const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social", r
 ```ts
 import { slugFromUri, flattenArticles } from "@scribe-atp/core";
 
-slugFromUri("at://did:plc:abc/app.scribe.article/my-post"); // → "my-post"
+slugFromUri("at://did:plc:abc/site.standard.document/3mp4hfovqib2h"); // → "3mp4hfovqib2h"
 
 flattenArticles(site.groups); // → ArticleRef[] across all groups
 ```

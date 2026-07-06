@@ -81,7 +81,7 @@ discussion, it should match the definition here.
 **AT URI**
 : A URI that fully addresses a record in the AT Protocol network.
   Format: `at://{did}/{collection}/{rkey}`.
-  Example: `at://did:plc:abc123/app.scribe.article/my-post`.
+  Example: `at://did:plc:abc123/site.standard.document/3mp4hfovqib2h`.
 
 **rkey (Record Key)**
 : The unique key for a record within a collection on a PDS. For Scribe,
@@ -89,7 +89,7 @@ discussion, it should match the definition here.
 
 **Collection**
 : A namespaced bucket of records on a PDS. Scribe uses two:
-  `app.scribe.site` and `app.scribe.article`.
+  `site.standard.publication` and `site.standard.document`.
 
 ---
 
@@ -97,7 +97,7 @@ discussion, it should match the definition here.
 
 **Site**
 : An author's publication — the top-level container for all their
-  articles. Stored as a record in the `app.scribe.site` collection.
+  articles. Stored as a record in the `site.standard.publication` collection.
   Carries metadata (title, description, logo) and the full list of articles
   via `groups` and `ungroupedArticles`.
 
@@ -122,30 +122,27 @@ discussion, it should match the definition here.
   Defined in Scribe CMS as `url.replace(/\./g, "-").replace(/[^a-z0-9-]/g, "")`.
 
 **Article**
-: A single piece of written content. In the Draft state, stored as a
-  record in the `app.scribe.article` collection using the
-  `site.standard.document` field shape (minus `site` and `publishedAt`,
-  which are absent until publish). On publish, moved to the
-  `site.standard.document` collection with `site` and `publishedAt` set.
+: A single piece of written content. Stored as a `site.standard.document`
+  record on the author's PDS. In the Draft state, `publishedAt` is absent
+  and the record is referenced in a Site's `ungroupedArticles`. On publish,
+  `publishedAt` is set and the article ref is moved into a named group.
 
 **Article slug**
-: The `rkey` used to fetch an article record. Appears as the URL path
-  segment for the article. Unchanged across the draft → publish
-  transition — the same slug is used as the rkey in both
-  `app.scribe.article` and `site.standard.document`.
+: The human-readable URL segment for an article (e.g. `my-first-post`).
+  Stored in the `slug` field of the `site.standard.document` record.
+  Distinct from the article's AT Protocol rkey, which is a TID.
 
 **`publishedAt`**
-: The timestamp of the instant an article transitions from Draft to
-  Unpublished — i.e. when it is first moved to `site.standard.document`.
-  Set once at publish time; never updated thereafter. Absent on draft
-  records in `app.scribe.article`.
+: The timestamp of the instant an article is first published — i.e. when
+  its article ref is first moved from `ungroupedArticles` into a named group.
+  Set once at publish time; never updated thereafter. Absent on articles that
+  have not yet been published.
 
 **`createdAt`**
-: A Scribe extension field retained on `site.standard.document` records
-  alongside the standard.site fields. Records the instant the draft was
-  first created in `app.scribe.article`. Set once; never changed.
-  Distinct from `publishedAt` — an article may sit as a draft for days
-  or weeks before being published.
+: A Scribe extension field on `site.standard.document` records. Records
+  the instant the article was first created. Stored in `scribe.createdAt`.
+  Set once; never changed. Distinct from `publishedAt` — an article may
+  remain unpublished for days or weeks before being published.
 
 **ArticleRef**
 : The internal schema type for a lightweight article snapshot cached
@@ -181,15 +178,12 @@ discussion, it should match the definition here.
 **Publication states**
 : The three states an article can be in, from the perspective of
   visibility and site assignment:
-  - **Draft** — the article exists on the author's PDS in the
-    `app.scribe.article` collection but is not referenced in any site
-    record. Not yet associated with any site. No `site` field.
-  - **Unpublished** — the article has been published (moved to
-    `site.standard.document`, `site` field set) but is referenced only
-    in a site's `ungroupedArticles`. It belongs to a site but has not
-    been placed in any named group.
+  - **Draft** — the article exists as a `site.standard.document` record
+    and is referenced in a site's `ungroupedArticles`. `publishedAt` is
+    absent. It belongs to a site but has not been placed in any named group.
   - **Published** — the article is referenced in a named group within a
-    site record. It has a canonical URL on the author's consumer site.
+    site record. `publishedAt` is set. It has a canonical URL on the
+    author's consumer site.
 
 ---
 
