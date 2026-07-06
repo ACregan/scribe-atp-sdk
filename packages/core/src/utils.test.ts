@@ -17,7 +17,7 @@ describe("toSlug", () => {
 
 describe("slugFromUri", () => {
   it("returns the last segment of an AT URI", () => {
-    expect(slugFromUri("at://did:plc:abc/app.scribe.article/my-post")).toBe(
+    expect(slugFromUri("at://did:plc:abc/site.standard.document/my-post")).toBe(
       "my-post"
     );
   });
