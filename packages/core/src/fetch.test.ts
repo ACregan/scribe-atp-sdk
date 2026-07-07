@@ -475,4 +475,42 @@ describe("resolvePublicationUri", () => {
       resolvePublicationUri("did:plc:testuser", "https://notfound.example.com")
     ).rejects.toThrow("Site not found");
   });
+
+  it("caches the resolved AT URI, so a second call for the same author+url doesn't refetch", async () => {
+    mockFetch.mockResolvedValueOnce(
+      makeListResponse([{
+        uri: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
+        value: { url: "https://example.com", scribe: { domain: "example.com", basePath: "", title: "Test" } },
+      }])
+    );
+
+    const first = await resolvePublicationUri("did:plc:testuser", "https://example.com");
+    const callsAfterFirst = mockFetch.mock.calls.length;
+    const second = await resolvePublicationUri("did:plc:testuser", "https://example.com");
+
+    expect(second).toBe(first);
+    expect(mockFetch.mock.calls.length).toBe(callsAfterFirst);
+  });
+
+  it("does not share the cache across different publication urls for the same author", async () => {
+    mockFetch.mockResolvedValueOnce(
+      makeListResponse([{
+        uri: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
+        value: { url: "https://example.com", scribe: { domain: "example.com", basePath: "", title: "Test" } },
+      }])
+    );
+    await resolvePublicationUri("did:plc:testuser", "https://example.com");
+    const callsAfterFirst = mockFetch.mock.calls.length;
+
+    mockFetch.mockResolvedValueOnce(
+      makeListResponse([{
+        uri: "at://did:plc:testuser/site.standard.publication/3other",
+        value: { url: "https://other.example.com", scribe: { domain: "other.example.com", basePath: "", title: "Other" } },
+      }])
+    );
+    const second = await resolvePublicationUri("did:plc:testuser", "https://other.example.com");
+
+    expect(second).toBe("at://did:plc:testuser/site.standard.publication/3other");
+    expect(mockFetch.mock.calls.length).toBeGreaterThan(callsAfterFirst);
+  });
 });
