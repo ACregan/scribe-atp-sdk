@@ -181,3 +181,62 @@ describe("generateFeed", () => {
     expect(feed).toContain("<language>en</language>");
   });
 });
+
+describe("generateFeed XML escaping", () => {
+  it("escapes XML-significant characters in the atom:link feedUrl", () => {
+    const feed = generateFeed(mockSite, {
+      baseUrl: "https://norobots.blog",
+      feedUrl: "https://norobots.blog/feed.xml?tag=news&category=\"top\"",
+    });
+    expect(feed).toContain(
+      '<atom:link href="https://norobots.blog/feed.xml?tag=news&amp;category=&quot;top&quot;" rel="self" type="application/rss+xml"/>',
+    );
+    expect(feed).not.toContain('category="top"');
+  });
+
+  it("escapes XML-significant characters in the language option", () => {
+    const feed = generateFeed(mockSite, {
+      baseUrl: "https://norobots.blog",
+      language: "en & <fr>",
+    });
+    expect(feed).toContain("<language>en &amp; &lt;fr&gt;</language>");
+  });
+
+  it("wraps titles containing markup in CDATA rather than escaping them", () => {
+    const site: Site = { ...mockSite, title: `A "quoted" <Title> & More` };
+    const feed = generateFeed(site, { baseUrl: "https://norobots.blog" });
+    expect(feed).toContain(`<![CDATA[A "quoted" <Title> & More]]>`);
+  });
+
+  it("wraps article descriptions containing markup in CDATA rather than escaping them", () => {
+    const site: Site = {
+      ...mockSite,
+      groups: [
+        {
+          slug: "essays",
+          title: "Essays",
+          articles: [
+            {
+              ...mockSite.groups[0].articles[0],
+              description: `Uses <b>bold</b> & "quotes"`,
+            },
+          ],
+        },
+      ],
+    };
+    const feed = generateFeed(site, { baseUrl: "https://norobots.blog" });
+    expect(feed).toContain(`<description><![CDATA[Uses <b>bold</b> & "quotes"]]></description>`);
+  });
+
+  // Not fixed as part of this test-coverage pass — flagging as a discovered
+  // latent bug. XML's CDATA sections cannot contain the literal sequence
+  // "]]>": if it appears verbatim, it closes the CDATA section early,
+  // producing a malformed feed. An article title/description containing
+  // that exact sequence (unlikely, but not impossible from pasted content)
+  // would corrupt the generated XML. cdata() has no handling for it.
+  it("[known gap] does not escape a literal ']]>' inside CDATA content, which would truncate the CDATA section", () => {
+    const site: Site = { ...mockSite, title: "Weird title ]]> more text" };
+    const feed = generateFeed(site, { baseUrl: "https://norobots.blog" });
+    expect(feed).toContain("<![CDATA[Weird title ]]> more text]]>");
+  });
+});
