@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { generateArticleMeta, generateSiteMeta } from "./meta.js";
+import {
+  generateArticleMeta,
+  generateSiteMeta,
+  generateArticleJsonLd,
+  generateSiteJsonLd,
+} from "./meta.js";
 import type { Article, Site } from "./types.js";
 
 const site: Site = {
@@ -100,6 +105,96 @@ describe("generateArticleMeta", () => {
     const tags = generateArticleMeta(article, site);
     expect(tags).toContainEqual({ property: "og:type", content: "article" });
   });
+
+  it("includes a canonical link tag matching the composed canonical url", () => {
+    const tags = generateArticleMeta(article, site);
+    expect(tags).toContainEqual({
+      tagName: "link",
+      rel: "canonical",
+      href: "https://norobots.blog/blog/engineering/llms-are-full-of-shit",
+    });
+  });
+
+  it("includes a script:ld+json tag matching generateArticleJsonLd's output", () => {
+    const tags = generateArticleMeta(article, site);
+    expect(tags).toContainEqual({
+      "script:ld+json": generateArticleJsonLd(article, site),
+    });
+  });
+});
+
+describe("generateArticleJsonLd", () => {
+  it("produces a BlogPosting schema with the article's core fields", () => {
+    const jsonLd = generateArticleJsonLd(article, site);
+    expect(jsonLd).toMatchObject({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: "LLMs Are Full of Shit",
+      datePublished: "2025-01-01T00:00:00.000Z",
+      dateModified: "2025-01-01T00:00:00.000Z",
+      description: "A post about LLMs.",
+      image: "https://norobots.blog/images/llms.webp",
+    });
+  });
+
+  it("sets mainEntityOfPage to the article's canonical url", () => {
+    const jsonLd = generateArticleJsonLd(article, site);
+    expect(jsonLd.mainEntityOfPage).toEqual({
+      "@type": "WebPage",
+      "@id": "https://norobots.blog/blog/engineering/llms-are-full-of-shit",
+    });
+  });
+
+  it("falls back to the site title as author when no contributor is present", () => {
+    const jsonLd = generateArticleJsonLd(article, site);
+    expect(jsonLd.author).toEqual({ "@type": "Person", name: "NoRobots" });
+  });
+
+  it("uses the first contributor's displayName as author when present", () => {
+    const jsonLd = generateArticleJsonLd(
+      {
+        ...article,
+        contributors: [{ did: "did:plc:xyz", displayName: "Alice Author" }],
+      },
+      site,
+    );
+    expect(jsonLd.author).toEqual({ "@type": "Person", name: "Alice Author" });
+  });
+
+  it("includes publisher logo when the site has one", () => {
+    const jsonLd = generateArticleJsonLd(article, site);
+    expect(jsonLd.publisher).toEqual({
+      "@type": "Organization",
+      name: "NoRobots",
+      logo: { "@type": "ImageObject", url: "https://norobots.blog/images/logo.webp" },
+    });
+  });
+
+  it("omits publisher logo when the site has none", () => {
+    const jsonLd = generateArticleJsonLd(article, { ...site, logoImageUrl: undefined });
+    expect(jsonLd.publisher).toEqual({
+      "@type": "Organization",
+      name: "NoRobots",
+    });
+  });
+
+  it("joins tags into a keywords string when present", () => {
+    const jsonLd = generateArticleJsonLd(
+      { ...article, tags: ["ai", "engineering"] },
+      site,
+    );
+    expect(jsonLd.keywords).toBe("ai, engineering");
+  });
+
+  it("omits keywords, description, and image when absent", () => {
+    const jsonLd = generateArticleJsonLd(
+      { ...article, tags: undefined, description: undefined, coverImageUrl: undefined },
+      site,
+    );
+    expect(jsonLd.keywords).toBeUndefined();
+    expect(jsonLd.description).toBeUndefined();
+    expect(jsonLd.image).toBeUndefined();
+  });
 });
 
 describe("generateSiteMeta", () => {
@@ -135,5 +230,37 @@ describe("generateSiteMeta", () => {
       property: "og:image",
       content: "https://norobots.blog/images/splash.webp",
     });
+  });
+
+  it("includes a canonical link tag matching the composed site url", () => {
+    const tags = generateSiteMeta(site);
+    expect(tags).toContainEqual({
+      tagName: "link",
+      rel: "canonical",
+      href: "https://norobots.blog/blog",
+    });
+  });
+
+  it("includes a script:ld+json tag matching generateSiteJsonLd's output", () => {
+    const tags = generateSiteMeta(site);
+    expect(tags).toContainEqual({ "script:ld+json": generateSiteJsonLd(site) });
+  });
+});
+
+describe("generateSiteJsonLd", () => {
+  it("produces a WebSite schema with the site's core fields", () => {
+    const jsonLd = generateSiteJsonLd(site);
+    expect(jsonLd).toEqual({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "NoRobots",
+      url: "https://norobots.blog/blog",
+      description: "A blog about engineering and design.",
+    });
+  });
+
+  it("omits description when the site has none", () => {
+    const jsonLd = generateSiteJsonLd({ ...site, description: undefined });
+    expect(jsonLd.description).toBeUndefined();
   });
 });

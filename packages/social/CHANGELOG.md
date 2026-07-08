@@ -1,5 +1,11 @@
 # @scribe-atp/social
 
+## 1.4.1
+
+### Patch Changes
+
+- Fix a mangled character in the README's SubscribeButton example (a checkmark rendered as replacement bytes on the published npm page). No code changes — republishing is the only way to fix a broken README on an already-published version.
+
 ## 1.4.0
 
 ### Minor Changes

@@ -6,7 +6,14 @@ export { generateFeed } from "./feed.js";
 export type { FeedOptions } from "./feed.js";
 export { getSitemapEntries } from "./sitemap.js";
 export type { SitemapEntry, GetSitemapEntriesOptions } from "./sitemap.js";
-export { generateArticleMeta, generateSiteMeta, buildCanonicalUrl } from "./meta.js";
-export type { ScribeMetaTag } from "./meta.js";
+export {
+  generateArticleMeta,
+  generateSiteMeta,
+  generateArticleJsonLd,
+  generateSiteJsonLd,
+  buildCanonicalUrl,
+  buildSiteUrl,
+} from "./meta.js";
+export type { ScribeMetaTag, JsonLdObject } from "./meta.js";
 export { crossPostToBluesky } from "./crosspost.js";
 export type { CrossPostParams, StrongRef } from "./crosspost.js";

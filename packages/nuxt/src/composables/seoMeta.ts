@@ -1,5 +1,5 @@
 import type { Article, Site } from "@scribe-atp/core";
-import { buildCanonicalUrl } from "@scribe-atp/core";
+import { buildCanonicalUrl, buildSiteUrl } from "@scribe-atp/core";
 
 export function articleSeoMeta(article: Article, site: Site) {
   const canonicalUrl = buildCanonicalUrl(article, site);
@@ -21,7 +21,7 @@ export function articleSeoMeta(article: Article, site: Site) {
 }
 
 export function siteSeoMeta(site: Site) {
-  const siteUrl = `https://${site.url}${site.urlPrefix ? `/${site.urlPrefix}` : ""}`;
+  const siteUrl = buildSiteUrl(site);
   return {
     title: site.title,
     ogType: "website" as const,

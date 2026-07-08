@@ -1,6 +1,6 @@
 {
   "name": "@scribe-atp/social",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "React components for Scribe social interactions (Like, Subscribe).",
   "license": "MIT",
   "engines": {
