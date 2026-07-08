@@ -124,8 +124,10 @@ discussion, it should match the definition here.
 **Article**
 : A single piece of written content. Stored as a `site.standard.document`
   record on the author's PDS. In the Draft state, `publishedAt` is absent
-  and the record is referenced in a Site's `ungroupedArticles`. On publish,
-  `publishedAt` is set and the article ref is moved into a named group.
+  and the record is not referenced by any Site record at all — assigning
+  an article to a Site and placing it in a named group happen together,
+  in one atomic Publish step (Scribe CMS ADR 0013). There is no
+  intermediate "assigned but ungrouped" state.
 
 **Article slug**
 : The human-readable URL segment for an article (e.g. `my-first-post`).
@@ -157,33 +159,39 @@ discussion, it should match the definition here.
   carries an array of `ArticleRef`s.
 
 **Ungrouped articles**
-: Articles stored in `ungroupedArticles` on the site record — articles
-  the author has assigned to a site but not yet placed in any group.
-  These are in the **Unpublished** state. See *Publication states* below.
+: The `ungroupedArticles` field on the site record. Legacy — under the
+  current (ADR 0013) model no article can ever end up here, since Publish
+  assigns a Site and places the article in a named group in the same
+  step. The field remains in the schema and the `Site` type for backwards
+  compatibility with older content; expect it to always be an empty array.
+  Do not build features that assume it is populated.
 
-**Canonical Site**
-: The single site nominated by the author as the primary publication for
-  an article at the point of publishing. Stored in the `site` field of
-  the `site.standard.document` record as the `https://` root URL of that
-  publication (e.g. `https://norobots.blog`, or `https://norobots.blog/blog`
-  if a `urlPrefix` is set). Used by standard.site-compatible aggregators
-  and Bluesky to identify which publication an article belongs to.
-  When an article is published to only one site, that site is automatically
-  the Canonical Site. When published to multiple sites, the author is
-  prompted to nominate one. An article has exactly one Canonical Site.
-  Distinct from site membership — an article may appear in many site
-  manifests; the Canonical Site is the one that represents it in the
-  broader AT Protocol ecosystem.
+**Article's `site` field**
+: Identifies which Site (if any) a `site.standard.document` record
+  belongs to. Holds one of two shapes (ADR 0013, the sole loose-vs-published
+  signal): a plain `https://` reader URL
+  (`https://reader.scribe-atp.app/{did}/site.standard.document/{rkey}`)
+  when the article is a Draft, or the owning Site's own `at://` record URI
+  (`at://{did}/site.standard.publication/{rkey}`) once published. Never a
+  bare domain string, and never set independently of Group placement.
 
 **Publication states**
-: The three states an article can be in, from the perspective of
-  visibility and site assignment:
+: The two states an article can be in, from the perspective of
+  visibility and site assignment (revised by ADR 0013 — previously
+  described as three states, with a "Draft" that was already assigned to
+  a site via `ungroupedArticles`; that middle state no longer exists):
   - **Draft** — the article exists as a `site.standard.document` record
-    and is referenced in a site's `ungroupedArticles`. `publishedAt` is
-    absent. It belongs to a site but has not been placed in any named group.
+    but is not referenced in any Site record. `publishedAt` is absent.
   - **Published** — the article is referenced in a named group within a
-    site record. `publishedAt` is set. It has a canonical URL on the
-    author's consumer site.
+    Site record. `publishedAt` is set, `site` holds that Site's `at://`
+    URI, and it has a canonical URL on the author's consumer site.
+
+  An article belongs to at most one Site at a time — there is no
+  "published to multiple sites with a nominated canonical one" case.
+  The old **Canonical Site** concept (nominating one of several sites an
+  article was cross-posted to) no longer exists; site membership and
+  canonical identity are now the same thing, since there is only ever
+  one site.
 
 ---
 
