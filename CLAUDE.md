@@ -71,7 +71,7 @@ Scribe stores content in two collections on the author's Personal Data Server (P
       title: string,
       articles: ArticleRef[],  // cached snapshots — no N+1 fetches needed
     }>,
-    ungroupedArticles: ArticleRef[],  // articles not yet in any named group (unpublished)
+    ungroupedArticles: ArticleRef[],  // legacy — no current write path populates this; always empty (ADR 0013)
     createdAt: string,
     updatedAt: string,
   },
@@ -83,7 +83,11 @@ Scribe stores content in two collections on the author's Personal Data Server (P
 {
   // SPEC — top-level only, per site.standard.document lexicon
   $type: "site.standard.document",
-  site: string,          // AT URI of publication e.g. "at://did:plc:.../site.standard.publication/3abc"
+  site: string,          // ADR 0013 — the sole loose-vs-published signal. Either the owning
+                         // publication's AT URI ("at://did:plc:.../site.standard.publication/3abc")
+                         // once published, or a loose reader URL
+                         // ("https://reader.scribe-atp.app/{did}/site.standard.document/{rkey}")
+                         // before publish. Never a bare domain string.
   title: string,
   publishedAt?: string,  // ISO 8601 — omitted if blank
   path?: string,         // full URL path e.g. "/blog/my-article"
@@ -98,17 +102,19 @@ Scribe stores content in two collections on the author's Personal Data Server (P
 
   // SCRIBE EXTENSION — Scribe-specific fields not in the spec
   scribe: {
-    domain: string,        // domain name e.g. "norobots.blog"
-    createdAt: string,     // ISO 8601 — article creation date
+    domain?: string,        // domain name e.g. "norobots.blog" — omitted while loose (ADR 0013)
+    createdAt: string,      // ISO 8601 — article creation date
     coverImageUrl?: string, // source URL for the cover image (→ Article.coverImageUrl)
-    canonicalUrl?: string,  // fully-qualified article URL (→ Article.canonicalUrl)
+    canonicalUrl?: string,  // fully-qualified article URL (→ Article.canonicalUrl) — omitted while loose
   },
 }
 ```
 
-Article state is determined by position in the publication record:
-- **Unpublished** — referenced in `scribe.ungroupedArticles` (in the PDS but not grouped)
-- **Published** — referenced in a `scribe.groups[].articles` entry
+Article state (ADR 0013 — two states, not three):
+- **Draft** — `site` holds a loose reader URL; not referenced by any `site.standard.publication` record at all
+- **Published** — `site` holds the owning publication's AT URI; referenced in that publication's `scribe.groups[].articles`
+
+An article belongs to at most one publication at a time. The old middle state (`referenced in scribe.ungroupedArticles`, assigned to a site but not yet grouped) no longer exists — assignment and grouping happen together, atomically, at publish time. `ungroupedArticles` remains in the schema for backwards compatibility but no current write path populates it.
 
 `app.scribe.article` and `app.scribe.site` are **legacy collections — no longer used**. All content is in `site.standard.document` and `site.standard.publication`.
 
