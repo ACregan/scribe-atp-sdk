@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { articleMetadata, siteMetadata } from "./meta.js";
+import {
+  articleMetadata,
+  siteMetadata,
+  generateArticleJsonLd,
+  generateSiteJsonLd,
+} from "./meta.js";
 
 vi.mock("@scribe-atp/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@scribe-atp/core")>();
@@ -77,6 +82,25 @@ describe("articleMetadata", () => {
     expect(meta.description).toBeUndefined();
     expect(meta.openGraph?.description).toBeUndefined();
   });
+
+  it("sets alternates.canonical to the composed canonical url", () => {
+    const meta = articleMetadata(article, site);
+    expect(meta.alternates).toEqual({
+      canonical: "https://norobots.blog/blog/engineering/llms-are-full-of-shit",
+    });
+  });
+});
+
+describe("generateArticleJsonLd / generateSiteJsonLd re-exports", () => {
+  it("re-exports a working generateArticleJsonLd from @scribe-atp/core", () => {
+    const jsonLd = generateArticleJsonLd(article, site);
+    expect(jsonLd).toMatchObject({ "@type": "BlogPosting", headline: article.title });
+  });
+
+  it("re-exports a working generateSiteJsonLd from @scribe-atp/core", () => {
+    const jsonLd = generateSiteJsonLd(site);
+    expect(jsonLd).toMatchObject({ "@type": "WebSite", name: site.title });
+  });
 });
 
 describe("siteMetadata", () => {
@@ -105,5 +129,10 @@ describe("siteMetadata", () => {
     expect(meta.openGraph?.images).toContain(
       "https://norobots.blog/images/splash.webp",
     );
+  });
+
+  it("sets alternates.canonical to the composed site url", () => {
+    const meta = siteMetadata(site);
+    expect(meta.alternates).toEqual({ canonical: "https://norobots.blog/blog" });
   });
 });

@@ -1,12 +1,25 @@
 import type { Metadata } from "next";
 import type { Article, Site } from "@scribe-atp/core";
-import { buildCanonicalUrl } from "@scribe-atp/core";
+import {
+  buildCanonicalUrl,
+  buildSiteUrl,
+  generateArticleJsonLd,
+  generateSiteJsonLd,
+} from "@scribe-atp/core";
+
+// Re-exported so consumers can render structured data themselves — Next's
+// Metadata object has no field for a raw <script> tag, so the convention is
+// for the page component to render
+// <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+// using these.
+export { generateArticleJsonLd, generateSiteJsonLd };
 
 export function articleMetadata(article: Article, site: Site): Metadata {
   const canonicalUrl = buildCanonicalUrl(article, site);
   return {
     title: `${article.title} — ${site.title}`,
     description: article.description ?? undefined,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       type: "article",
       title: article.title,
@@ -25,10 +38,11 @@ export function articleMetadata(article: Article, site: Site): Metadata {
 }
 
 export function siteMetadata(site: Site): Metadata {
-  const siteUrl = `https://${site.url}${site.urlPrefix ? `/${site.urlPrefix}` : ""}`;
+  const siteUrl = buildSiteUrl(site);
   return {
     title: site.title,
     description: site.description ?? undefined,
+    alternates: { canonical: siteUrl },
     openGraph: {
       type: "website",
       title: site.title,
