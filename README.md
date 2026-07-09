@@ -408,6 +408,8 @@ The SDK resolves the correct PDS for each author automatically:
 
 PDS lookups are cached in memory for the lifetime of the module, so repeated calls within a single page load only hit the network once per author.
 
+Resolved publication (site) AT URIs are cached separately for 60 seconds. If a cached URI stops resolving — e.g. the site record was deleted and recreated — `fetchSite` automatically falls back to a fresh lookup instead of failing, so a long-running server process self-heals without needing a restart.
+
 ---
 
 ## License

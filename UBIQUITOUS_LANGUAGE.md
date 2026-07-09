@@ -216,6 +216,16 @@ discussion, it should match the definition here.
   resolved PDS endpoints keyed by DID. Prevents redundant DID document
   fetches within a single page load.
 
+**Publication URI cache**
+: An in-memory `Map` inside `packages/core/src/fetch.ts` that stores each
+  resolved `site.standard.publication` AT URI keyed by DID + publication
+  URL, avoiding a `listRecords` call on every `fetchSite` request. Entries
+  expire after 60 seconds, and `fetchSite` self-heals immediately if a
+  cached entry's `getRecord` call fails (e.g. the record was deleted and
+  recreated) by dropping it and falling back to a fresh `listRecords`
+  lookup — so a long-running consumer process never needs a manual restart
+  to recover.
+
 **Injection function**
 : An Angular-idiomatic function (e.g. `injectSite`, `injectArticle`) that
   uses Angular's `inject()` API internally. Must be called within an

@@ -269,6 +269,8 @@ import type {
 
 Scribe content is stored on the AT Protocol. Each author's articles live on their own Personal Data Server (PDS), which may be hosted anywhere. This package resolves the correct PDS for each author automatically — handling both `did:plc` and `did:web` identities — and caches DID document lookups in memory for the lifetime of the module.
 
+`fetchSite` also caches each resolved publication's AT URI for 60 seconds to avoid a `listRecords` call on every request. If a cached URI stops resolving — for example, the `site.standard.publication` record was deleted and a new one created for the same domain — `fetchSite` automatically falls back to a fresh lookup instead of failing, so long-running server processes self-heal without needing a restart.
+
 ## Framework adapters
 
 | Package | Framework |
