@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.7.1
+
+### Patch Changes
+
+- Fix `fetchSite` throwing indefinitely after a `site.standard.publication` record is deleted and recreated (e.g. re-running "Add New Site" for the same domain). `publicationUriCache` previously cached the resolved AT URI forever with no revalidation, so any long-running consumer process kept retrying a now-deleted rkey until it was manually restarted. Cache entries now expire after 60s, and `fetchSite` falls back to a fresh `listRecords` lookup whenever a cached URI's `getRecord` call fails, instead of surfacing the failure.
+
 ## 3.7.0
 
 ### Minor Changes

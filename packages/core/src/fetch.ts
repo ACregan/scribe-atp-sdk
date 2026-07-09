@@ -2,11 +2,58 @@ import type { Site, Article, ArticleResult } from "./types.js";
 import { resolveIdentifier, resolvePds, _clearCaches as _clearResolveCaches } from "./resolve.js";
 import { slugFromUri } from "./utils.js";
 
-const publicationUriCache = new Map<string, string>();
+const PUBLICATION_URI_CACHE_TTL_MS = 60_000;
+
+interface CachedPublicationUri {
+  uri: string;
+  expiresAt: number;
+}
+
+const publicationUriCache = new Map<string, CachedPublicationUri>();
 
 export function _clearAllCaches(): void {
   publicationUriCache.clear();
   _clearResolveCaches();
+}
+
+function getCachedPublicationUri(cacheKey: string): string | undefined {
+  const cached = publicationUriCache.get(cacheKey);
+  if (!cached) return undefined;
+  if (cached.expiresAt <= Date.now()) {
+    publicationUriCache.delete(cacheKey);
+    return undefined;
+  }
+  return cached.uri;
+}
+
+function setCachedPublicationUri(cacheKey: string, uri: string): void {
+  publicationUriCache.set(cacheKey, {
+    uri,
+    expiresAt: Date.now() + PUBLICATION_URI_CACHE_TTL_MS,
+  });
+}
+
+async function lookupPublicationRecord(
+  pdsUrl: string,
+  did: string,
+  normalizedUrl: string,
+  publicationUrl: string,
+  signal?: AbortSignal
+): Promise<{ uri: string; value: RawPublication }> {
+  const listUrl = new URL(`${pdsUrl}/xrpc/com.atproto.repo.listRecords`);
+  listUrl.searchParams.set("repo", did);
+  listUrl.searchParams.set("collection", "site.standard.publication");
+  listUrl.searchParams.set("limit", "100");
+  const res = await fetch(listUrl, { signal });
+  if (!res.ok) throw new Error(`Failed to fetch publications: ${res.statusText}`);
+  const data = (await res.json()) as {
+    records: Array<{ uri: string; value: RawPublication }>;
+  };
+  const record = data.records.find(
+    (r) => normalizeUrl(r.value.url ?? "") === normalizedUrl
+  );
+  if (!record) throw new Error(`Site not found: ${publicationUrl}`);
+  return record;
 }
 
 interface ScribeManifest {
@@ -71,25 +118,38 @@ export async function resolvePublicationUri(
   const normalizedUrl = normalizeUrl(publicationUrl);
   const did = await resolveIdentifier(author, signal);
   const cacheKey = `${did}:${normalizedUrl}`;
-  const cached = publicationUriCache.get(cacheKey);
+  const cached = getCachedPublicationUri(cacheKey);
   if (cached) return cached;
 
   const pdsUrl = await resolvePds(did, signal);
-  const listUrl = new URL(`${pdsUrl}/xrpc/com.atproto.repo.listRecords`);
-  listUrl.searchParams.set("repo", did);
-  listUrl.searchParams.set("collection", "site.standard.publication");
-  listUrl.searchParams.set("limit", "100");
-  const res = await fetch(listUrl, { signal });
-  if (!res.ok) throw new Error(`Failed to fetch publications: ${res.statusText}`);
-  const data = (await res.json()) as {
-    records: Array<{ uri: string; value: RawPublication }>;
-  };
-  const record = data.records.find(
-    (r) => normalizeUrl(r.value.url ?? "") === normalizedUrl
-  );
-  if (!record) throw new Error(`Site not found: ${publicationUrl}`);
-  publicationUriCache.set(cacheKey, record.uri);
+  const record = await lookupPublicationRecord(pdsUrl, did, normalizedUrl, publicationUrl, signal);
+  setCachedPublicationUri(cacheKey, record.uri);
   return record.uri;
+}
+
+async function fetchCachedPublicationRecord(
+  pdsUrl: string,
+  did: string,
+  cacheKey: string,
+  signal?: AbortSignal
+): Promise<{ uri: string; value: RawPublication } | undefined> {
+  const cachedUri = getCachedPublicationUri(cacheKey);
+  if (!cachedUri) return undefined;
+
+  const rkey = cachedUri.split("/").pop()!;
+  const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
+  url.searchParams.set("repo", did);
+  url.searchParams.set("collection", "site.standard.publication");
+  url.searchParams.set("rkey", rkey);
+  const res = await fetch(url, { signal });
+  if (!res.ok) {
+    // Cached URI no longer resolves (record deleted/recreated elsewhere) — drop it
+    // so the caller falls back to a fresh listRecords lookup instead of failing.
+    publicationUriCache.delete(cacheKey);
+    return undefined;
+  }
+  const data = (await res.json()) as { value: RawPublication };
+  return { uri: cachedUri, value: data.value };
 }
 
 export async function fetchSite(
@@ -101,50 +161,21 @@ export async function fetchSite(
   const did = await resolveIdentifier(author, signal);
   const pdsUrl = await resolvePds(did, signal);
   const cacheKey = `${did}:${normalizedUrl}`;
-  const cachedUri = publicationUriCache.get(cacheKey);
 
-  let scribe: ScribeManifest;
-  let description: string | undefined;
-  let siteUri: string;
-
-  if (cachedUri) {
-    siteUri = cachedUri;
-    const rkey = cachedUri.split("/").pop()!;
-    const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
-    url.searchParams.set("repo", did);
-    url.searchParams.set("collection", "site.standard.publication");
-    url.searchParams.set("rkey", rkey);
-    const res = await fetch(url, { signal });
-    if (!res.ok) throw new Error(`Failed to fetch site: ${res.statusText}`);
-    const data = (await res.json()) as { value: RawPublication };
-    scribe = data.value.scribe;
-    description = data.value.description;
-  } else {
-    const listUrl = new URL(`${pdsUrl}/xrpc/com.atproto.repo.listRecords`);
-    listUrl.searchParams.set("repo", did);
-    listUrl.searchParams.set("collection", "site.standard.publication");
-    listUrl.searchParams.set("limit", "100");
-    const res = await fetch(listUrl, { signal });
-    if (!res.ok) throw new Error(`Failed to fetch site: ${res.statusText}`);
-    const data = (await res.json()) as {
-      records: Array<{ uri: string; value: RawPublication }>;
-    };
-    const record = data.records.find(
-      (r) => normalizeUrl(r.value.url ?? "") === normalizedUrl
-    );
-    if (!record) throw new Error(`Site not found: ${publicationUrl}`);
-    publicationUriCache.set(cacheKey, record.uri);
-    siteUri = record.uri;
-    scribe = record.value.scribe;
-    description = record.value.description;
+  let record = await fetchCachedPublicationRecord(pdsUrl, did, cacheKey, signal);
+  if (!record) {
+    record = await lookupPublicationRecord(pdsUrl, did, normalizedUrl, publicationUrl, signal);
+    setCachedPublicationUri(cacheKey, record.uri);
   }
 
+  const scribe = record.value.scribe;
+
   return {
-    uri: siteUri,
+    uri: record.uri,
     title: scribe.title,
     url: scribe.domain,
     urlPrefix: scribe.basePath,
-    description,
+    description: record.value.description,
     splashImageUrl: scribe.splashImageUrl,
     logoImageUrl: scribe.logoImageUrl,
     groups: scribe.groups ?? [],

@@ -125,7 +125,7 @@ describe("fetchSite", () => {
 
     await expect(
       fetchSite("did:plc:testuser", "https://example.com")
-    ).rejects.toThrow("Failed to fetch site");
+    ).rejects.toThrow("Failed to fetch publications");
   });
 
   it("normalises missing groups and ungroupedArticles to empty arrays", async () => {
@@ -142,6 +142,60 @@ describe("fetchSite", () => {
     const result = await fetchSite("did:plc:testuser", "https://example.com");
     expect(result.groups).toEqual([]);
     expect(result.ungroupedArticles).toEqual([]);
+  });
+
+  it("reuses the cached AT URI on a second call via getRecord instead of listRecords", async () => {
+    mockFetch.mockResolvedValueOnce(makeListResponse([makeScribeRecord()]));
+    await fetchSite("did:plc:testuser", "https://example.com");
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ value: makeScribeRecord().value }),
+    });
+    await fetchSite("did:plc:testuser", "https://example.com");
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch.mock.calls[1][0].href).toContain("getRecord");
+    expect(mockFetch.mock.calls[1][0].href).not.toContain("listRecords");
+  });
+
+  it("self-heals when the cached AT URI no longer resolves (record deleted/recreated elsewhere)", async () => {
+    // First call caches the original AT URI.
+    mockFetch.mockResolvedValueOnce(makeListResponse([makeScribeRecord()]));
+    const first = await fetchSite("did:plc:testuser", "https://example.com");
+    expect(first.uri).toBe("at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y");
+
+    // Second call: getRecord against the cached (now-deleted) rkey fails...
+    mockFetch.mockResolvedValueOnce({ ok: false, statusText: "Not Found" });
+    // ...so it should fall back to a fresh listRecords lookup and find the new record.
+    mockFetch.mockResolvedValueOnce(
+      makeListResponse([{
+        uri: "at://did:plc:testuser/site.standard.publication/3newrkey",
+        value: {
+          url: "https://example.com",
+          scribe: { domain: "example.com", basePath: "blog", title: "Recreated Site", groups: [], ungroupedArticles: [] },
+        },
+      }])
+    );
+
+    const second = await fetchSite("did:plc:testuser", "https://example.com");
+    expect(second.uri).toBe("at://did:plc:testuser/site.standard.publication/3newrkey");
+    expect(second.title).toBe("Recreated Site");
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+
+    // A third call should now be served from the freshly-repaired cache via getRecord.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        value: {
+          url: "https://example.com",
+          scribe: { domain: "example.com", basePath: "blog", title: "Recreated Site", groups: [], ungroupedArticles: [] },
+        },
+      }),
+    });
+    await fetchSite("did:plc:testuser", "https://example.com");
+    expect(mockFetch).toHaveBeenCalledTimes(4);
+    expect(mockFetch.mock.calls[3][0].href).toContain("getRecord");
   });
 });
 
@@ -512,5 +566,34 @@ describe("resolvePublicationUri", () => {
 
     expect(second).toBe("at://did:plc:testuser/site.standard.publication/3other");
     expect(mockFetch.mock.calls.length).toBeGreaterThan(callsAfterFirst);
+  });
+
+  it("re-resolves once the cache entry's TTL has expired", async () => {
+    vi.useFakeTimers();
+    try {
+      mockFetch.mockResolvedValueOnce(
+        makeListResponse([{
+          uri: "at://did:plc:testuser/site.standard.publication/3jxtctq7kqm2y",
+          value: { url: "https://example.com", scribe: { domain: "example.com", basePath: "", title: "Test" } },
+        }])
+      );
+      await resolvePublicationUri("did:plc:testuser", "https://example.com");
+      const callsAfterFirst = mockFetch.mock.calls.length;
+
+      vi.advanceTimersByTime(61_000);
+
+      mockFetch.mockResolvedValueOnce(
+        makeListResponse([{
+          uri: "at://did:plc:testuser/site.standard.publication/3rekeyed",
+          value: { url: "https://example.com", scribe: { domain: "example.com", basePath: "", title: "Test" } },
+        }])
+      );
+      const second = await resolvePublicationUri("did:plc:testuser", "https://example.com");
+
+      expect(mockFetch.mock.calls.length).toBeGreaterThan(callsAfterFirst);
+      expect(second).toBe("at://did:plc:testuser/site.standard.publication/3rekeyed");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
