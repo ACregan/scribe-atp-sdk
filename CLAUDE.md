@@ -16,7 +16,7 @@ A monorepo of packages for reading Scribe content from the AT Protocol. Authors 
 | ------- | ---- | ------- |
 | `@scribe-atp/core` | `packages/core` | Pure TS fetch functions, PDS resolution, feed/sitemap generation, types. No framework deps. |
 | `@scribe-atp/react` | `packages/react` | React hooks (`useSite`, `useArticle`) wrapping core. |
-| `@scribe-atp/react-router-framework` | `packages/react-router-framework` | Loader factories for React Router v7 framework mode. |
+| `@scribe-atp/react-router-framework` | `packages/react-router-framework` | Loader factories for React Router v7/v8 framework mode. |
 | `@scribe-atp/angular` | `packages/angular` | Angular service (`ScribeService`) and injection functions (`injectSite`, `injectArticle`). |
 | `@scribe-atp/next` | `packages/next` | Next.js 13+ App Router adapter — `createScribeSite` factory for `generateStaticParams` and `generateMetadata`. |
 | `@scribe-atp/vue` | `packages/vue` | Vue 3 composables (`useScribeSite`, `useScribeArticle`). |
@@ -228,7 +228,7 @@ packages/react-router-framework/src/
   index.ts          — re-exports loaders and all types from core
 ```
 
-Factories return a loader function compatible with React Router v7 framework mode. Each factory:
+Factories return a loader function compatible with React Router v7/v8 framework mode. Each factory:
 - Accepts `author` and `siteSlug`/`articleSlug` at configuration time
 - Returns a loader that extracts `request.signal` and passes it to the core fetch function
 

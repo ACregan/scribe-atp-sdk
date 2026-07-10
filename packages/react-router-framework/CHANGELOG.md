@@ -1,5 +1,11 @@
 # @scribe-atp/react-router-framework
 
+## 2.1.3
+
+### Patch Changes
+
+- Widen the `react-router` peer dependency range to `^7.0.0 || ^8.0.0`. The package only imports the `LoaderFunctionArgs` type and wraps loader functions with a signature unchanged between v7 and v8 (no middleware, split route modules, or other v8-specific runtime APIs are used), so no code changes were needed — this is a compatibility declaration update, verified against react-router@8.2.0.
+
 ## 2.1.2
 
 ### Patch Changes
