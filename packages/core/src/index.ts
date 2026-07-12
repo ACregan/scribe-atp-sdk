@@ -17,3 +17,5 @@ export {
 export type { ScribeMetaTag, JsonLdObject } from "./meta.js";
 export { crossPostToBluesky } from "./crosspost.js";
 export type { CrossPostParams, StrongRef } from "./crosspost.js";
+export { fetchProfile } from "./profile.js";
+export type { Profile, ProfileAssociated, ProfileVerification, ProfileStatus } from "./profile.js";

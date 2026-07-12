@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.8.0
+
+### Minor Changes
+
+- Add `fetchProfile(handleOrDid, signal?)`, resolving a Bluesky profile via `app.bsky.actor.getProfile`. Returns a `Profile` type mirroring `app.bsky.actor.defs#profileViewDetailed` in full — `displayName`, `description`, `avatar`, `pronouns`, `website`, `banner`, `followersCount`, `followsCount`, `postsCount`, `createdAt`, `associated`, `pinnedPost`, `verification`, and `status` — so consumers can pick whichever fields they want for an author card without needing an SDK change per field. Omits `viewer` (always empty against the public unauthenticated AppView), `indexedAt`, and `labels`/`$type`/`debug`.
+
 ## 3.7.1
 
 ### Patch Changes
