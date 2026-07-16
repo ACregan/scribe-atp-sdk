@@ -1,5 +1,11 @@
 # @scribe-atp/core
 
+## 3.8.1
+
+### Patch Changes
+
+- Fix `fetchArticleBySlug` refetching an article via the site's own author identifier regardless of which repo its `ArticleRef.uri` actually names. Scribe CMS's Contributors feature (sync-later publish) can point an ArticleRef at a Contributor's own repo rather than the site owner's — resolving via the owner's identifier 404s in that case. Now resolves from the ArticleRef's own DID instead.
+
 ## 3.8.0
 
 ### Minor Changes

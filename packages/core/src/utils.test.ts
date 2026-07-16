@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toSlug, slugFromUri, flattenArticles } from "./utils.js";
+import { toSlug, slugFromUri, flattenArticles, didFromUri } from "./utils.js";
 
 describe("toSlug", () => {
   it("replaces dots with hyphens", () => {
@@ -24,6 +24,18 @@ describe("slugFromUri", () => {
 
   it("returns empty string for an empty URI", () => {
     expect(slugFromUri("")).toBe("");
+  });
+});
+
+describe("didFromUri", () => {
+  it("extracts the DID from an AT URI", () => {
+    expect(didFromUri("at://did:plc:abc/site.standard.document/my-post")).toBe(
+      "did:plc:abc"
+    );
+  });
+
+  it("throws on a malformed URI", () => {
+    expect(() => didFromUri("not-a-uri")).toThrow("Malformed at:// URI");
   });
 });
 
