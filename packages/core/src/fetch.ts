@@ -1,6 +1,6 @@
 import type { Site, Article, ArticleResult } from "./types.js";
 import { resolveIdentifier, resolvePds, _clearCaches as _clearResolveCaches } from "./resolve.js";
-import { slugFromUri } from "./utils.js";
+import { slugFromUri, didFromUri } from "./utils.js";
 
 const PUBLICATION_URI_CACHE_TTL_MS = 60_000;
 
@@ -238,7 +238,13 @@ export async function fetchArticleBySlug(
 
   if (!ref) throw new Error(`Article not found: ${articleSlug}`);
 
+  // ref.uri names the document's own repo — usually the site owner's, but
+  // Scribe CMS's Contributors feature (sync-later publish) can point it at
+  // a Contributor's repo instead. Resolve from that URI's own DID, not the
+  // site's `author`, so a Contributor-authored article on someone else's
+  // site resolves from the repo it actually lives in.
+  const documentDid = didFromUri(ref.uri);
   const rkey = slugFromUri(ref.uri);
-  const article = await fetchArticle(author, rkey, signal);
+  const article = await fetchArticle(documentDid, rkey, signal);
   return { article, uri: ref.uri };
 }

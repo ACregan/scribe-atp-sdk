@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri, _clearAllCaches } from "./fetch.js";
+import { resolveIdentifier } from "./resolve.js";
 
 vi.mock("./resolve.js", () => ({
   resolveIdentifier: vi.fn(async () => "did:plc:testuser"),
@@ -494,6 +495,43 @@ describe("fetchArticleBySlug", () => {
     await expect(
       fetchArticleBySlug("did:plc:testuser", "https://example.com", "nonexistent")
     ).rejects.toThrow("Article not found: nonexistent");
+  });
+
+  // Found live 2026-07-16: Scribe CMS's Contributors feature (sync-later
+  // publish) can point an ArticleRef.uri at a *different* account's repo
+  // than the site's own — this function used to always refetch via the
+  // site's own `author` identifier regardless, hitting the wrong repo
+  // (`RecordNotFound`, surfaced to readers as an unexpected error).
+  describe("Contributor-authored articles (ArticleRef.uri on a different repo than the site owner)", () => {
+    afterEach(() => {
+      vi.mocked(resolveIdentifier).mockImplementation(async () => "did:plc:testuser");
+    });
+
+    it("resolves the article from the ref's own DID, not the site's author", async () => {
+      vi.mocked(resolveIdentifier).mockImplementation(async (handleOrDid) => handleOrDid);
+
+      mockFetch
+        .mockResolvedValueOnce(makeArticleListResponse([{
+          uri: "at://did:plc:contributor/site.standard.document/3jxtctq7kqm2y",
+          title: "Guest Post",
+          slug: "guest-post",
+          splashImageUrl: null,
+          createdAt: "2024-01-01T00:00:00Z",
+        }]))
+        .mockResolvedValueOnce(makeArticleResponse());
+
+      const result = await fetchArticleBySlug("did:plc:siteowner", "https://example.com", "guest-post");
+
+      expect(result.article.title).toBe("My Article");
+      expect(result.uri).toBe("at://did:plc:contributor/site.standard.document/3jxtctq7kqm2y");
+      // The article fetch (second call) must hit the Contributor's own
+      // repo, not the site owner's — the bug fetched `repo=did:plc:siteowner`
+      // here instead, which 404s since the document doesn't live there.
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        expect.objectContaining({ href: expect.stringContaining("repo=did%3Aplc%3Acontributor") }),
+        expect.any(Object)
+      );
+    });
   });
 });
 
