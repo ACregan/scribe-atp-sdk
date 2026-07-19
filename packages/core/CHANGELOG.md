@@ -1,5 +1,15 @@
 # @scribe-atp/core
 
+## 3.9.0
+
+### Minor Changes
+
+- Add `contributors` to `ArticleRef`. Site manifests already carry contributor
+  data per article (written by Scribe CMS), but the type only exposed it on
+  the full `Article` shape — list views (`fetchSite`, `createSiteLoader`, etc.)
+  had no typed access to it. Consumers can now show per-article Writer/
+  Photographer credit on listing pages, not just the full article page.
+
 ## 3.8.1
 
 ### Patch Changes

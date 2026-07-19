@@ -1,3 +1,9 @@
+export interface ArticleContributor {
+  did: string;
+  role?: string;
+  displayName?: string;
+}
+
 export interface ArticleRef {
   uri: string;
   title: string;
@@ -5,6 +11,7 @@ export interface ArticleRef {
   splashImageUrl: string | null;
   description?: string | null;
   tags?: string[];
+  contributors?: ArticleContributor[];
   createdAt: string;
   publishedAt?: string;
   updatedAt?: string;
@@ -26,12 +33,6 @@ export interface Site {
   logoImageUrl?: string;
   groups: SiteGroup[];
   ungroupedArticles: ArticleRef[];
-}
-
-export interface ArticleContributor {
-  did: string;
-  role?: string;
-  displayName?: string;
 }
 
 export interface Article {
