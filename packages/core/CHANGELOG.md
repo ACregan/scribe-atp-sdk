@@ -1,5 +1,15 @@
 # @scribe-atp/core
 
+## 3.11.0
+
+### Minor Changes
+
+- Add `PdsUnreachableError`, distinguishing "the PDS responded with an error" from "the PDS couldn't be reached at all."
+
+  Previously `PdsFetchError` covered both a non-ok HTTP response (the service is up, this operation failed) and a connection-level failure (DNS failure, connection refused, timeout — `fetch()` itself never got a response). The latter wasn't even consistently wrapped: several internal `fetch()` calls threw raw, unclassified errors on connection failure instead of any typed SDK error.
+
+  `PdsUnreachableError` extends `PdsFetchError`, so existing `instanceof PdsFetchError` checks still match it — check `instanceof PdsUnreachableError` first if you want to distinguish "couldn't load that record" from "service is down" in your UI. All internal `fetch()` calls (`fetchSite`, `fetchArticle`, `fetchArticleBySlug`, `resolvePublicationUri`, `listSites`, `listArticles`, `fetchProfile`, handle/PDS resolution) now consistently throw either `PdsFetchError` or `PdsUnreachableError` — no more raw unclassified errors on connection failure. `withRetry` treats both the same (retryable); the distinction is for end-user messaging and logging, not retry behavior.
+
 ## 3.10.0
 
 ### Minor Changes

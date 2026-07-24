@@ -49,6 +49,13 @@ describe("resolveIdentifier", () => {
       message: expect.stringContaining("Failed to resolve handle"),
     });
   });
+
+  it("throws PdsUnreachableError when the connection itself fails", async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError("fetch failed"));
+    await expect(resolveIdentifier("unknown.handle")).rejects.toMatchObject({
+      name: "PdsUnreachableError",
+    });
+  });
 });
 
 describe("resolvePds", () => {

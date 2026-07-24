@@ -129,6 +129,14 @@ describe("fetchSite", () => {
     ).rejects.toMatchObject({ name: "PdsFetchError", message: expect.stringContaining("Failed to fetch publications") });
   });
 
+  it("throws PdsUnreachableError when the listRecords connection itself fails", async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError("fetch failed"));
+
+    await expect(
+      fetchSite("did:plc:testuser", "https://example.com")
+    ).rejects.toMatchObject({ name: "PdsUnreachableError" });
+  });
+
   it("normalises missing groups and ungroupedArticles to empty arrays", async () => {
     mockFetch.mockResolvedValueOnce(
       makeListResponse([{
