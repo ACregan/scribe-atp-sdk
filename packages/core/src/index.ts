@@ -19,3 +19,6 @@ export { crossPostToBluesky } from "./crosspost.js";
 export type { CrossPostParams, StrongRef } from "./crosspost.js";
 export { fetchProfile } from "./profile.js";
 export type { Profile, ProfileAssociated, ProfileVerification, ProfileStatus } from "./profile.js";
+export { NotFoundError, PdsFetchError } from "./errors.js";
+export { withRetry } from "./retry.js";
+export type { RetryOptions } from "./retry.js";

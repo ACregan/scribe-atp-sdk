@@ -113,20 +113,20 @@ describe("fetchSite", () => {
     expect(result.title).toBe("Test Site");
   });
 
-  it("throws when no publication matches the url", async () => {
+  it("throws NotFoundError when no publication matches the url", async () => {
     mockFetch.mockResolvedValueOnce(makeListResponse([]));
 
     await expect(
       fetchSite("did:plc:testuser", "https://notfound.example.com")
-    ).rejects.toThrow("Site not found");
+    ).rejects.toMatchObject({ name: "NotFoundError", message: expect.stringContaining("Site not found") });
   });
 
-  it("throws when listRecords fetch fails", async () => {
+  it("throws PdsFetchError when listRecords fetch fails", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, statusText: "Server Error" });
 
     await expect(
       fetchSite("did:plc:testuser", "https://example.com")
-    ).rejects.toThrow("Failed to fetch publications");
+    ).rejects.toMatchObject({ name: "PdsFetchError", message: expect.stringContaining("Failed to fetch publications") });
   });
 
   it("normalises missing groups and ungroupedArticles to empty arrays", async () => {
@@ -368,11 +368,11 @@ describe("fetchArticle", () => {
     expect(result.coverImageUrl).toBeUndefined();
   });
 
-  it("throws when the fetch fails", async () => {
+  it("throws PdsFetchError when the fetch fails", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, statusText: "Not Found" });
     await expect(
       fetchArticle("did:plc:testuser", "missing-article")
-    ).rejects.toThrow("Failed to fetch article");
+    ).rejects.toMatchObject({ name: "PdsFetchError", message: expect.stringContaining("Failed to fetch article") });
   });
 });
 
@@ -489,12 +489,12 @@ describe("fetchArticleBySlug", () => {
     expect(result.article.title).toBe("My Article");
   });
 
-  it("throws when no article matches the slug", async () => {
+  it("throws NotFoundError when no article matches the slug", async () => {
     mockFetch.mockResolvedValueOnce(makeArticleListResponse([]));
 
     await expect(
       fetchArticleBySlug("did:plc:testuser", "https://example.com", "nonexistent")
-    ).rejects.toThrow("Article not found: nonexistent");
+    ).rejects.toMatchObject({ name: "NotFoundError", message: "Article not found: nonexistent" });
   });
 
   // Found live 2026-07-16: Scribe CMS's Contributors feature (sync-later
@@ -560,12 +560,12 @@ describe("resolvePublicationUri", () => {
     expect(result).toBe("at://did:plc:testuser/site.standard.publication/3abc");
   });
 
-  it("throws when no publication matches the url", async () => {
+  it("throws NotFoundError when no publication matches the url", async () => {
     mockFetch.mockResolvedValueOnce(makeListResponse([]));
 
     await expect(
       resolvePublicationUri("did:plc:testuser", "https://notfound.example.com")
-    ).rejects.toThrow("Site not found");
+    ).rejects.toMatchObject({ name: "NotFoundError", message: expect.stringContaining("Site not found") });
   });
 
   it("caches the resolved AT URI, so a second call for the same author+url doesn't refetch", async () => {

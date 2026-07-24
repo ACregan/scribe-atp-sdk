@@ -1,5 +1,15 @@
 # @scribe-atp/core
 
+## 3.10.0
+
+### Minor Changes
+
+- Add `NotFoundError` and `PdsFetchError` typed errors, and a generic `withRetry()` wrapper.
+
+  `fetchSite`, `fetchArticle`, `fetchArticleBySlug`, and `resolvePublicationUri` now throw `NotFoundError` when a record genuinely doesn't exist (a fetch succeeded, the record just isn't there — retrying won't help) and `PdsFetchError` for everything else (network failure, non-ok HTTP response, handle/DID/PDS resolution failure — safe to retry). Both extend `Error` and are exported from the package root.
+
+  `withRetry(fn, options)` wraps any async call with configurable retry-with-backoff (`attempts`, `delaysMs`, `signal`). It never retries `NotFoundError` or an aborted signal, and retries everything else — including plain `Error`s from code that hasn't adopted the typed errors. Opt-in only; none of the existing fetch functions retry automatically.
+
 ## 3.9.0
 
 ### Minor Changes

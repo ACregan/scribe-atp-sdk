@@ -1,6 +1,7 @@
 import type { Site, Article, ArticleResult } from "./types.js";
 import { resolveIdentifier, resolvePds, _clearCaches as _clearResolveCaches } from "./resolve.js";
 import { slugFromUri, didFromUri } from "./utils.js";
+import { NotFoundError, PdsFetchError } from "./errors.js";
 
 const PUBLICATION_URI_CACHE_TTL_MS = 60_000;
 
@@ -45,14 +46,14 @@ async function lookupPublicationRecord(
   listUrl.searchParams.set("collection", "site.standard.publication");
   listUrl.searchParams.set("limit", "100");
   const res = await fetch(listUrl, { signal });
-  if (!res.ok) throw new Error(`Failed to fetch publications: ${res.statusText}`);
+  if (!res.ok) throw new PdsFetchError(`Failed to fetch publications: ${res.statusText}`);
   const data = (await res.json()) as {
     records: Array<{ uri: string; value: RawPublication }>;
   };
   const record = data.records.find(
     (r) => normalizeUrl(r.value.url ?? "") === normalizedUrl
   );
-  if (!record) throw new Error(`Site not found: ${publicationUrl}`);
+  if (!record) throw new NotFoundError(`Site not found: ${publicationUrl}`);
   return record;
 }
 
@@ -197,7 +198,7 @@ export async function fetchArticle(
   url.searchParams.set("rkey", articleSlug);
 
   const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`Failed to fetch article: ${res.statusText}`);
+  if (!res.ok) throw new PdsFetchError(`Failed to fetch article: ${res.statusText}`);
 
   const data = (await res.json()) as { value: RawDocument };
   const raw = data.value;
@@ -236,7 +237,7 @@ export async function fetchArticleBySlug(
     (r) => r.slug === articleSlug || slugFromUri(r.uri) === articleSlug
   );
 
-  if (!ref) throw new Error(`Article not found: ${articleSlug}`);
+  if (!ref) throw new NotFoundError(`Article not found: ${articleSlug}`);
 
   // ref.uri names the document's own repo — usually the site owner's, but
   // Scribe CMS's Contributors feature (sync-later publish) can point it at
