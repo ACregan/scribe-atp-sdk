@@ -42,11 +42,12 @@ describe("resolveIdentifier", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  it("throws when handle resolution fails", async () => {
+  it("throws PdsFetchError when handle resolution fails", async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, statusText: "Not Found" });
-    await expect(resolveIdentifier("unknown.handle")).rejects.toThrow(
-      "Failed to resolve handle"
-    );
+    await expect(resolveIdentifier("unknown.handle")).rejects.toMatchObject({
+      name: "PdsFetchError",
+      message: expect.stringContaining("Failed to resolve handle"),
+    });
   });
 });
 
@@ -101,15 +102,16 @@ describe("resolvePds", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  it("throws when DID document has no PDS service", async () => {
+  it("throws PdsFetchError when DID document has no PDS service", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ service: [] }),
     });
 
-    await expect(resolvePds("did:plc:abc123")).rejects.toThrow(
-      "No PDS service found"
-    );
+    await expect(resolvePds("did:plc:abc123")).rejects.toMatchObject({
+      name: "PdsFetchError",
+      message: expect.stringContaining("No PDS service found"),
+    });
   });
 
   it("throws for unsupported DID methods", async () => {
