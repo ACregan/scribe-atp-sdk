@@ -1,3 +1,6 @@
+import { PdsFetchError } from "./errors.js";
+import { pdsFetch } from "./http.js";
+
 export interface ProfileAssociated {
   lists?: number;
   feedgens?: number;
@@ -75,8 +78,8 @@ export async function fetchProfile(
   signal?: AbortSignal
 ): Promise<Profile> {
   const url = `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(handleOrDid)}`;
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`Failed to fetch profile for "${handleOrDid}": ${res.statusText}`);
+  const res = await pdsFetch(url, { signal });
+  if (!res.ok) throw new PdsFetchError(`Failed to fetch profile for "${handleOrDid}": ${res.statusText}`);
   const raw = (await res.json()) as RawProfile;
   return {
     did: raw.did,

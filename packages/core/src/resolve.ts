@@ -1,4 +1,5 @@
 import { PdsFetchError } from "./errors.js";
+import { pdsFetch } from "./http.js";
 
 const handleCache = new Map<string, string>();
 const pdsCache = new Map<string, string>();
@@ -17,7 +18,7 @@ export async function resolveIdentifier(
   if (cached) return cached;
 
   const url = `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handleOrDid)}`;
-  const res = await fetch(url, { signal });
+  const res = await pdsFetch(url, { signal });
   if (!res.ok) throw new PdsFetchError(`Failed to resolve handle: ${res.statusText}`);
   const data = (await res.json()) as { did: string };
   handleCache.set(handleOrDid, data.did);
@@ -41,7 +42,7 @@ export async function resolvePds(
     throw new Error(`Unsupported DID method: ${did}`);
   }
 
-  const res = await fetch(didDocUrl, { signal });
+  const res = await pdsFetch(didDocUrl, { signal });
   if (!res.ok) throw new PdsFetchError(`Failed to fetch DID document: ${res.statusText}`);
 
   const doc = (await res.json()) as {

@@ -1,6 +1,8 @@
 import type { Site, SiteRecord, ArticleRef } from "./types.js";
 import { resolveIdentifier, resolvePds } from "./resolve.js";
 import { slugFromUri } from "./utils.js";
+import { PdsFetchError } from "./errors.js";
+import { pdsFetch } from "./http.js";
 
 interface ScribeManifest {
   domain: string;
@@ -50,8 +52,8 @@ async function listAllRecords<T>(
     url.searchParams.set("limit", "100");
     if (cursor) url.searchParams.set("cursor", cursor);
 
-    const res = await fetch(url, { signal });
-    if (!res.ok) throw new Error(`Failed to list ${collection}: ${res.statusText}`);
+    const res = await pdsFetch(url, { signal });
+    if (!res.ok) throw new PdsFetchError(`Failed to list ${collection}: ${res.statusText}`);
 
     const page = (await res.json()) as ListRecordsPage<T>;
     for (const record of page.records) {

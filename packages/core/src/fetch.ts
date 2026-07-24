@@ -2,6 +2,7 @@ import type { Site, Article, ArticleResult } from "./types.js";
 import { resolveIdentifier, resolvePds, _clearCaches as _clearResolveCaches } from "./resolve.js";
 import { slugFromUri, didFromUri } from "./utils.js";
 import { NotFoundError, PdsFetchError } from "./errors.js";
+import { pdsFetch } from "./http.js";
 
 const PUBLICATION_URI_CACHE_TTL_MS = 60_000;
 
@@ -45,7 +46,7 @@ async function lookupPublicationRecord(
   listUrl.searchParams.set("repo", did);
   listUrl.searchParams.set("collection", "site.standard.publication");
   listUrl.searchParams.set("limit", "100");
-  const res = await fetch(listUrl, { signal });
+  const res = await pdsFetch(listUrl, { signal });
   if (!res.ok) throw new PdsFetchError(`Failed to fetch publications: ${res.statusText}`);
   const data = (await res.json()) as {
     records: Array<{ uri: string; value: RawPublication }>;
@@ -142,7 +143,7 @@ async function fetchCachedPublicationRecord(
   url.searchParams.set("repo", did);
   url.searchParams.set("collection", "site.standard.publication");
   url.searchParams.set("rkey", rkey);
-  const res = await fetch(url, { signal });
+  const res = await pdsFetch(url, { signal });
   if (!res.ok) {
     // Cached URI no longer resolves (record deleted/recreated elsewhere) — drop it
     // so the caller falls back to a fresh listRecords lookup instead of failing.
@@ -197,7 +198,7 @@ export async function fetchArticle(
   url.searchParams.set("collection", "site.standard.document");
   url.searchParams.set("rkey", articleSlug);
 
-  const res = await fetch(url, { signal });
+  const res = await pdsFetch(url, { signal });
   if (!res.ok) throw new PdsFetchError(`Failed to fetch article: ${res.statusText}`);
 
   const data = (await res.json()) as { value: RawDocument };
