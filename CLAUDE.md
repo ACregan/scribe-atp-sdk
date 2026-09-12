@@ -193,6 +193,9 @@ packages/core/src/
   utils.ts          — toSlug(), slugFromUri(), flattenArticles() (exported)
   feed.ts           — generateFeed() (exported) — RSS 2.0, hand-rolled XML
   sitemap.ts        — getSitemapEntries() (exported) — returns SitemapEntry[] for merging into framework sitemap generators
+  errors.ts         — NotFoundError, PdsFetchError, PdsUnreachableError (exported) — see "Typed errors and retry" below
+  retry.ts          — withRetry() (exported) — generic, opt-in retry-with-backoff wrapper
+  http.ts           — pdsFetch() (internal) — every fetch() call site in this package goes through it
   index.ts          — re-exports everything public
 ```
 
@@ -201,6 +204,20 @@ packages/core/src/
 `resolveIdentifier(handleOrDid)` → DID (already correct in the original, just moves here).
 
 `fetchSite(author, siteSlug)` and `fetchArticle(author, articleSlug)` call `resolveIdentifier` then `resolvePds` then the XRPC endpoint. Both functions should be cancellable via `AbortSignal` passed as an optional third argument.
+
+### Typed errors and retry
+
+Every fetch function throws one of three typed errors (all exported from `@scribe-atp/core`), never a raw `Error`:
+
+- **`NotFoundError`** — the fetch succeeded, the record genuinely doesn't exist (bad slug, deleted record, unresolvable handle). Retrying won't help.
+- **`PdsFetchError`** — the PDS responded, but with a non-ok HTTP status. The service is up, this operation failed. Safe to retry.
+- **`PdsUnreachableError`** (extends `PdsFetchError`) — the request never got a response at all (DNS failure, connection refused, timeout — `fetch()` itself rejected). Safe to retry, but suggests a broader outage rather than a one-off blip.
+
+**Every internal `fetch()` call must go through `http.ts`'s `pdsFetch()` wrapper**, not the global `fetch()` directly — that's what produces the `PdsUnreachableError` vs. `PdsFetchError` split (it catches a rejected `fetch()` and reclassifies it, while a resolved-but-non-ok `Response` is left for the caller's own `!res.ok` check to turn into `PdsFetchError`). A new fetch function that calls raw `fetch()` will silently leak unclassified errors on connection failure — this was a real bug fixed retroactively across `fetch.ts`, `resolve.ts`, `list.ts`, and `profile.ts`.
+
+`withRetry(fn, options)` (`retry.ts`) is a generic, opt-in retry-with-backoff wrapper — default 5 attempts, exponential backoff (`[300, 600, 1200, 2400]`ms). It never retries `NotFoundError` or an aborted signal; everything else is retried, including plain `Error`s from callers that haven't adopted the typed errors. **Not called automatically by any fetch function** — consumers call it themselves. This matters for callers like `@scribe-atp/next`'s build-time `generateStaticParams`, where failing fast is usually preferable to eating several seconds of backoff during a build.
+
+Consumer-facing usage pattern (attempt once synchronously, stream retries behind a `Suspense` boundary on failure) is documented in `scribe-atp-docs`'s "Errors and retries" guide, and implemented independently in `norobots`, `perpetual-summer-ltd`, `anthonycregan.co.uk-2025` (2-way: not-found vs. everything else), and `scribe-atp-reader` (3-way: also distinguishes `PdsUnreachableError`, since Reader visitors can trigger it more meaningfully than a fixed-author site would).
 
 ## `@scribe-atp/react` — hooks
 
