@@ -177,7 +177,10 @@ export async function fetchSite(
     title: scribe.title,
     url: scribe.domain,
     urlPrefix: scribe.basePath,
-    description: record.value.description,
+    // Spec puts description at the top level (site.standard.publication);
+    // scribe.description is a legacy location a prior CMS version wrote
+    // instead — kept as a fallback until existing records are migrated.
+    description: record.value.description ?? scribe.description,
     splashImageUrl: scribe.splashImageUrl,
     logoImageUrl: scribe.logoImageUrl,
     groups: scribe.groups ?? [],

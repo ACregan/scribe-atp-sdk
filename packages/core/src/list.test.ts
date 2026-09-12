@@ -46,6 +46,64 @@ describe("listSites", () => {
     );
   });
 
+  it("prefers the top-level description over scribe.description", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        records: [
+          {
+            uri: "at://did:plc:testuser/site.standard.publication/example-com",
+            cid: "bafy",
+            value: {
+              description: "Top-level wins",
+              scribe: {
+                domain: "example.com",
+                basePath: "blog",
+                title: "My Blog",
+                description: "Stale nested value",
+                groups: [],
+                ungroupedArticles: [],
+              },
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await listSites("alice.bsky.social");
+    expect(result[0].description).toBe("Top-level wins");
+  });
+
+  it("falls back to scribe.description for legacy records with no top-level field", async () => {
+    // Every publication written before the CMS's top-level description fix
+    // only has it here. Without this fallback, every existing site's
+    // description silently disappears the moment this SDK version ships.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        records: [
+          {
+            uri: "at://did:plc:testuser/site.standard.publication/example-com",
+            cid: "bafy",
+            value: {
+              scribe: {
+                domain: "example.com",
+                basePath: "blog",
+                title: "My Blog",
+                description: "Legacy nested description",
+                groups: [],
+                ungroupedArticles: [],
+              },
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await listSites("alice.bsky.social");
+    expect(result[0].description).toBe("Legacy nested description");
+  });
+
   it("fetches from site.standard.publication collection", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

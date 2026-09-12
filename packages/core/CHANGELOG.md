@@ -1,5 +1,13 @@
 # @scribe-atp/core
 
+## 3.11.1
+
+### Patch Changes
+
+- Fix `fetchSite`/`listSites` reading a publication's `description` from the wrong place. `site.standard.publication` defines `description` as a top-level field; `fetchSite` was already (correctly, but silently uselessly) reading it top-level only, which meant it always returned `undefined` since every CMS write path put it in `scribe.description` instead. `listSites` had the opposite problem — it read `scribe.description` only, with no top-level field even declared on the type.
+
+  Both functions now read `description` top-level first, falling back to `scribe.description` for existing records written before this fix — no code changes needed downstream, but consumer sites won't see a site's real description until they update to this version.
+
 ## 3.11.0
 
 ### Minor Changes
