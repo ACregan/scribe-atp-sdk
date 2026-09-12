@@ -16,6 +16,11 @@ interface ScribeManifest {
 }
 
 interface RawPublication {
+  // Spec-compliant top-level field (site.standard.publication#description).
+  // Prefer this over scribe.description below — see listSites() mapping.
+  // Optional because plenty of existing records still only have the
+  // scribe.description a prior version wrote instead of this field.
+  description?: string;
   scribe: ScribeManifest;
 }
 
@@ -80,7 +85,10 @@ export async function listSites(
       title: value.scribe.title,
       url: value.scribe.domain,
       urlPrefix: value.scribe.basePath,
-      description: value.scribe.description,
+      // Spec puts description at the top level (site.standard.publication);
+      // scribe.description is a legacy location a prior CMS version wrote
+      // instead — kept as a fallback until existing records are migrated.
+      description: value.description ?? value.scribe.description,
       splashImageUrl: value.scribe.splashImageUrl,
       logoImageUrl: value.scribe.logoImageUrl,
       groups: value.scribe.groups ?? [],

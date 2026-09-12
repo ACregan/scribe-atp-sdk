@@ -82,11 +82,44 @@ describe("fetchSite", () => {
     expect(result.description).toBe("Top-level description");
   });
 
-  it("returns undefined description when top-level field is absent", async () => {
+  it("returns undefined description when neither top-level nor scribe field is present", async () => {
     mockFetch.mockResolvedValueOnce(makeListResponse([makeScribeRecord()]));
 
     const result = await fetchSite("did:plc:testuser", "https://example.com");
     expect(result.description).toBeUndefined();
+  });
+
+  it("falls back to scribe.description for legacy records with no top-level field", async () => {
+    // Every publication written before the CMS's top-level description fix
+    // only has it here. Without this fallback, every existing site's
+    // description silently disappears the moment this SDK version ships.
+    mockFetch.mockResolvedValueOnce(
+      makeListResponse([
+        makeScribeRecord({ description: "Legacy nested description" }),
+      ])
+    );
+
+    const result = await fetchSite("did:plc:testuser", "https://example.com");
+    expect(result.description).toBe("Legacy nested description");
+  });
+
+  it("prefers the top-level description over scribe.description when both are present", async () => {
+    mockFetch.mockResolvedValueOnce(
+      makeListResponse([
+        {
+          uri: "at://did:plc:testuser/site.standard.publication/3abc",
+          value: {
+            url: "https://example.com",
+            name: "Test Site",
+            description: "Top-level wins",
+            scribe: { domain: "example.com", basePath: "", title: "Test Site", description: "Stale nested value" },
+          },
+        },
+      ])
+    );
+
+    const result = await fetchSite("did:plc:testuser", "https://example.com");
+    expect(result.description).toBe("Top-level wins");
   });
 
   it("maps scribe.domain to url and scribe.basePath to urlPrefix", async () => {
