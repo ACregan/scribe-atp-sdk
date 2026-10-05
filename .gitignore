@@ -5,3 +5,4 @@ dist/
 .claude/
 build/
 .react-router/
+public/search-index.json
