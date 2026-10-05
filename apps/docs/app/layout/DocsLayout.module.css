@@ -78,6 +78,9 @@
   align-items: center;
   /* Anchors .centerContainer's absolute centring. */
   position: relative;
+  /* Docs-only: the search results hang below the header, over <main>,
+     which comes later in the grid and would otherwise paint on top. */
+  z-index: 10;
 }
 /* Docs-only: the logo links home and carries an "SDK" badge. */
 .logoLink {

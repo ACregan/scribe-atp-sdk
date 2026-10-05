@@ -7,6 +7,14 @@ stages:
   - typecheck
   - test
   - publish
+  - deploy
+
+# Docs jobs (apps/docs, sdk.skyscribe.app; ADR 0003) only run when the docs
+# or this file changed, so package-only MRs don't pay for a docs build.
+.docs-changes: &docs-changes
+  - apps/docs/**/*
+  - package-lock.json
+  - .gitlab-ci.yml
 
 typecheck:
   stage: typecheck
@@ -42,3 +50,54 @@ publish:
     - npm run build
     - npm install -g npm@^11.15.0
     - bash scripts/stage-publish.sh
+
+# Typecheck, unit tests, a full build (prerender, search index, CSP) and a
+# check of every internal link and #anchor in the output. Blocking.
+docs:check:
+  stage: test
+  interruptible: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *docs-changes
+  script:
+    - npm ci
+    - npm run typecheck --workspace=apps/docs
+    - npm run test --workspace=apps/docs
+    - npm run docs:build
+    - npm run check-links --workspace=apps/docs
+  artifacts:
+    paths:
+      - apps/docs/build/client/
+    expire_in: 1 hour
+
+# External links depend on other people's sites, so this only warns.
+# Reuses docs:check's build; the script needs nothing beyond Node.
+docs:links-external:
+  stage: test
+  interruptible: true
+  needs: ["docs:check"]
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *docs-changes
+  script:
+    - node apps/docs/scripts/check-links.ts --external
+
+# Manual, main only, like every other deploy. Needs CLOUDFLARE_API_TOKEN
+# (Workers deploy permission on the skyscribe.app account) and
+# CLOUDFLARE_ACCOUNT_ID as CI/CD variables. Deploying separately from
+# `publish` means docs for a new API can wait until it's on npm.
+docs:deploy:
+  stage: deploy
+  interruptible: false
+  environment:
+    name: docs
+    url: https://sdk.skyscribe.app
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes: *docs-changes
+      when: manual
+  script:
+    - npm ci
+    - npm run docs:build
+    - npm run deploy --workspace=apps/docs

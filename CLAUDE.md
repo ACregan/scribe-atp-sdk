@@ -382,6 +382,18 @@ New packages (never published) do not need a changeset: the script stages any ve
 
 Granular write tokens last 90 days at most (the current one expires 2027-01-03). A sudden E401/E403 from the publish job usually means the token has expired.
 
+## Docs app (`apps/docs`, sdk.skyscribe.app)
+
+A private workspace (ADR 0003): React Router, fully prerendered (`ssr: false`), served by an assets-only Cloudflare Worker. Its look is copied from skyscribe-app (styles, shell, Omnibar matcher); each copied file says where it came from.
+
+- **Pages:** `app/docs/nav.ts` is the single list (side menu, sidebar, prev/next, prerender list, sitemap, search index). Content is `app/content/<slug>.mdx`. URLs are permanent; two older URL schemes redirect into them.
+- **Commands:** `npm run docs:dev`, `npm run docs:build` (pre: search index; post: `scripts/postbuild.ts`), `npm run check-links -w apps/docs`. Preview the real Cloudflare behaviour with `npm run preview -w apps/docs` (`wrangler dev`). `vite preview` serves the root index.html for every path, which looks like a hydration bug but isn't one.
+- **Search:** `scripts/build-search-index.ts` → `public/search-index.json` (generated, gitignored): titles, h2/h3 headings, and API names from inline code.
+- **CSP:** a per-page `<meta>` with hashes of that page's inline scripts, added by `postbuild.ts`. Never add an inline `<script>` that differs between build and runtime. `frame-ancestors` and other headers live in `public/_headers`.
+- **Vite 7, not 8:** vitest 3 hoists Vite 7 and `@react-router/dev` must use the same copy.
+- **Deploy:** the manual `docs:deploy` CI job on `main` (needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`). It's separate from `publish`, so docs for a new API can wait until the package is on npm.
+- **Docs rule:** an API change and its docs go in the same MR.
+
 ## Branch protection
 
 `main` is a protected branch. All changes require a feature branch and MR. No direct pushes to main.

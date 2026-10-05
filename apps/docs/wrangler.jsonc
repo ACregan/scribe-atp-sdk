@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // sdk.skyscribe.app (SDK ADR 0003): an assets-only Worker. No Worker
+  // script runs; Cloudflare serves the prerendered build/client/ files.
+  "name": "skyscribe-sdk-docs",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./build/client",
+    // URLs have no trailing slash (/api/core, not /api/core/), matching
+    // the canonical links. /api/core/ redirects to /api/core, which serves
+    // api/core/index.html.
+    "html_handling": "drop-trailing-slash",
+    // Unknown paths get build/client/404.html (scripts/postbuild.ts) with
+    // a real 404 status.
+    "not_found_handling": "404-page"
+  },
+  // skyscribe.app is a Cloudflare zone, so the subdomain is attached
+  // directly; Wrangler creates the DNS record and certificate.
+  "routes": [{ "pattern": "sdk.skyscribe.app", "custom_domain": true }],
+  "workers_dev": false
+}

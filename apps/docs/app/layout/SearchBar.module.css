@@ -1,4 +1,10 @@
-/* From skyscribe-app/app/components/Omnibar/Omnibar.module.css. */
+/* From skyscribe-app/app/components/Omnibar/Omnibar.module.css and
+   OmnibarResultRow.module.css: same bar, panel and row look. */
+.root {
+  position: relative;
+  width: 100%;
+}
+
 .bar {
   display: flex;
   align-items: center;
@@ -9,6 +15,15 @@
   background: var(--surface-positive);
   border: 1px solid var(--border-color);
   border-radius: var(--surface-border-radius);
+}
+.bar_open {
+  composes: bar;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.bar:focus-within {
+  outline: 2px solid var(--input-focus-colour);
+  outline-offset: 1px;
 }
 
 .input {
@@ -24,6 +39,10 @@
 .input::placeholder {
   color: var(--text-secondary);
 }
+/* The native clear button; Escape clears instead. */
+.input::-webkit-search-cancel-button {
+  display: none;
+}
 
 .keycap {
   flex: none;
@@ -34,7 +53,73 @@
   padding: 0 0.35rem;
   border: 1px solid var(--border-subtle);
   border-radius: var(--surface-inner-border-radius);
+  font: inherit;
   font-size: 1.3rem;
   font-weight: 900;
   color: var(--text-secondary);
+}
+
+.results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--surface-positive);
+  border-radius: 0 0 var(--surface-border-radius) var(--surface-border-radius);
+  box-shadow: 0 0 0 0.5rem var(--surface-negative);
+  transform: translateY(0.7rem);
+  padding: 0.5rem 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding: 0.6rem 1rem;
+  margin: 0 0.5rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+.row_active {
+  composes: row;
+  background: var(--surface-container_light);
+}
+
+.icon {
+  flex: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  align-self: center;
+}
+
+.primary {
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.secondary {
+  margin-left: auto;
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.message {
+  margin: 0;
+  padding: 1rem 1.5rem;
+  color: var(--text-secondary);
+  font-size: 1.4rem;
 }

@@ -548,3 +548,8 @@
 .docs-prose .token.important {
   color: var(--docs-token-variable);
 }
+
+/* Docs-only: room above a heading reached by an anchor link or search. */
+.docs-prose :is(h2, h3) {
+  scroll-margin-top: 2.4rem;
+}

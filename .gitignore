@@ -5,3 +5,5 @@ dist/
 .claude/
 build/
 .react-router/
+apps/docs/public/search-index.json
+.wrangler/
