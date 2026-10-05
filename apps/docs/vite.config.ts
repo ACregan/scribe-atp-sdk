@@ -5,6 +5,7 @@ import mdx from "@mdx-js/rollup";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypePrism from "rehype-prism-plus";
 import { remarkToc } from "./app/docs/mdx/remark-toc.ts";
 
 // Same MDX pipeline as skyscribe-app's User Guide (its vite.config.ts).
@@ -20,6 +21,10 @@ export default defineConfig({
         remarkPlugins: [remarkGfm, remarkToc],
         rehypePlugins: [
           rehypeSlug,
+          // Build-time highlighting: Prism's `token <type>` classes, the
+          // same ones @skyscribe-sdk/styles colours. Unknown languages
+          // (e.g. astro) render as plain code.
+          [rehypePrism, { ignoreMissing: true }],
           [
             rehypeAutolinkHeadings,
             { behavior: "wrap", properties: { className: "docs-anchor" } },

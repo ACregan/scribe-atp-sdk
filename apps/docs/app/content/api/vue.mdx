@@ -1,0 +1,117 @@
+# @skyscribe-sdk/vue
+
+Composables for Vue 3. Install with `npm install @skyscribe-sdk/vue`. See the [Vue guide](/frameworks/vue) for walkthroughs.
+
+All four composables take plain values, fetch once when called, and abort when the component unmounts. They don't re-fetch if the values change.
+
+## Composables
+
+### `useScribeSite`
+
+```ts
+function useScribeSite(author: string, publicationUrl: string): UseScribeSiteResult
+
+interface UseScribeSiteResult {
+  site: Ref<Site | null>;
+  loading: Ref<boolean>;
+  error: Ref<Error | null>;
+}
+```
+
+Fetches a Site when called and aborts the request when the component unmounts. Returns reactive refs.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL, e.g. `"https://alice.bsky.social"` |
+
+While loading, `site.value` is `null` and `loading.value` is `true`. On error, `error.value` is set. A cancelled request doesn't set `error`.
+
+---
+
+### `useScribeArticle`
+
+```ts
+function useScribeArticle(author: string, articleSlug: string): UseScribeArticleResult
+
+interface UseScribeArticleResult {
+  article: Ref<Article | null>;
+  loading: Ref<boolean>;
+  error: Ref<Error | null>;
+}
+```
+
+Fetches an article by its **record key (rkey)** when called, and aborts on unmount. Returns reactive refs.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Handle or DID of the account the article is stored in |
+| `articleSlug` | `string` | The article's **rkey**, despite the name |
+
+Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)`. A human-readable slug only finds very old articles.
+
+---
+
+### `useScribePublicationUri`
+
+```ts
+function useScribePublicationUri(
+  author: string,
+  publicationUrl: string
+): UseScribePublicationUriResult
+
+interface UseScribePublicationUriResult {
+  uri: Ref<string | null>;
+  loading: Ref<boolean>;
+  error: Ref<Error | null>;
+}
+```
+
+Resolves just the AT URI of a Site record (using `resolvePublicationUri` from `@skyscribe-sdk/core`), without returning the whole `Site`. Aborts on unmount.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+
+Use it when the AT URI is all you need, for example for your own subscribe UI.
+
+---
+
+### `useScribeDocumentUri`
+
+```ts
+function useScribeDocumentUri(
+  author: string,
+  publicationUrl: string,
+  articleSlug: string
+): UseScribeDocumentUriResult
+
+interface UseScribeDocumentUriResult {
+  uri: Ref<string | null>;
+  loading: Ref<boolean>;
+  error: Ref<Error | null>;
+}
+```
+
+Resolves just the AT URI of an article, looked up by its **slug** (it uses `fetchArticleBySlug` and keeps only the `uri`). Aborts on unmount.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
+Use it when the AT URI is all you need, for example for your own like UI.
+
+---
+
+## Types
+
+The main types from `@skyscribe-sdk/core` are re-exported, along with each composable's result type:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup } from '@skyscribe-sdk/vue';
+```
+
+See the [core reference](/api/core#types) for type definitions.

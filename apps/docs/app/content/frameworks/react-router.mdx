@@ -1,0 +1,124 @@
+# React Router
+
+`@skyscribe-sdk/react-router-framework` provides loader factories for [React Router v7/v8 framework mode](https://reactrouter.com). The loaders pass `request.signal` through, so a fetch is cancelled if the visitor navigates away before it finishes.
+
+<Callout>
+  This package is for **framework (server) mode** only. For React Router in SPA or library mode, use [`@skyscribe-sdk/react`](/frameworks/react) instead.
+</Callout>
+
+## Install
+
+```bash
+npm install @skyscribe-sdk/react-router-framework
+```
+
+## Site index route
+
+`createSiteLoader` creates a loader for a route that shows the whole site: its groups and article listings.
+
+```tsx
+// app/routes/blog.tsx
+import { createSiteLoader } from '@skyscribe-sdk/react-router-framework';
+import { useLoaderData } from 'react-router';
+
+export const loader = createSiteLoader('alice.bsky.social', 'https://alice.bsky.social');
+
+export default function Blog() {
+  const site = useLoaderData<typeof loader>();
+
+  return (
+    <main>
+      <h1>{site.title}</h1>
+      {site.groups.map((group) => (
+        <section key={group.slug}>
+          <h2>{group.title}</h2>
+          <ul>
+            {group.articles.map((article) => (
+              <li key={article.uri}>
+                <a href={`/blog/${group.slug}/${article.slug}`}>{article.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </main>
+  );
+}
+```
+
+## Article route
+
+`createArticleRouteLoader` creates a loader for a route whose URL contains the article's slug. It looks the slug up in the Site, fetches the article, and returns an `ArticleWithUri`: the article plus its AT URI as `documentUri`.
+
+```tsx
+// app/routes/blog.$group.$articleSlug.tsx
+import { createArticleRouteLoader } from '@skyscribe-sdk/react-router-framework';
+import { useLoaderData } from 'react-router';
+
+export const loader = createArticleRouteLoader('alice.bsky.social', 'https://alice.bsky.social');
+
+export default function Article() {
+  const { title, content, documentUri } = useLoaderData<typeof loader>();
+
+  return (
+    <article>
+      <h1>{title}</h1>
+      <div className="scribe-content" dangerouslySetInnerHTML={{ __html: content }} />
+    </article>
+  );
+}
+```
+
+The slug is read from the `articleSlug` route param by default. If your param has a different name, pass it as the third argument: `createArticleRouteLoader(author, siteUrl, 'slug')`.
+
+Pass `documentUri` to `@skyscribe-sdk/social`'s `LikeButton` if you want [social buttons](/guides/social) on the article page. If you render articles from accounts you don't control, sanitise `content` first (see [Rendering the HTML](/quickstart#3-fetch-an-article)).
+
+## Open Graph meta tags
+
+`articleMeta` returns Open Graph and Twitter Card tags for rich link previews. It needs the `site` as well, so fetch both in your loader:
+
+```tsx
+import { createArticleRouteLoader, articleMeta } from '@skyscribe-sdk/react-router-framework';
+import { fetchSite } from '@skyscribe-sdk/core';
+import type { Route } from './+types/Article';
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const [articleData, site] = await Promise.all([
+    createArticleRouteLoader('alice.bsky.social', 'https://alice.bsky.social')({ request, params }),
+    fetchSite('alice.bsky.social', 'https://alice.bsky.social', request.signal),
+  ]);
+  return { ...articleData, publicationUri: site.uri, site };
+}
+
+export function meta({ loaderData }: Route.MetaArgs) {
+  if (!loaderData) return [{ title: 'My Blog' }];
+  return [
+    ...articleMeta(loaderData, loaderData.site),
+    { title: `${loaderData.title} | My Blog` },
+  ];
+}
+```
+
+`siteMeta(site)` does the same for site-level pages. See the [meta tags guide](/guides/meta-tags) for more.
+
+## Publication verification route
+
+The [`site.standard` spec](https://standard.site/docs/verification/) lets apps confirm that a website really belongs to a Publication by requesting `/.well-known/site.standard.publication`, which should return the Publication's AT URI. `createWellKnownLoader` serves exactly that. (For a Site with a path prefix, the spec adds the prefix after it, e.g. `/.well-known/site.standard.publication/blog`.)
+
+```ts
+// app/routes.ts
+route(".well-known/site.standard.publication", "routes/well-known-publication.ts"),
+
+// app/routes/well-known-publication.ts
+import { createWellKnownLoader } from '@skyscribe-sdk/react-router-framework';
+
+export const loader = createWellKnownLoader('alice.bsky.social', 'https://alice.bsky.social');
+```
+
+## TypeScript types
+
+The main types from `@skyscribe-sdk/core` are re-exported, plus `ArticleWithUri`:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup, ArticleWithUri } from '@skyscribe-sdk/react-router-framework';
+```

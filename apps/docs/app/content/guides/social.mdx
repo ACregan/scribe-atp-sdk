@@ -1,0 +1,271 @@
+# Social buttons
+
+`@skyscribe-sdk/social` exports `LikeButton`, `ShareButton` and `SubscribeButton`: React components that let readers like, share and subscribe using their Bluesky account. The components handle signing in through a popup, so you don't need any server code.
+
+<Callout type="note" title="Your website must be registered">
+  The Social service only accepts actions from website origins on its allowlist. If the popup reports an error, or the button never confirms, email [hello@skyscribe.app](mailto:hello@skyscribe.app) with your website's address and the Publication it shows.
+</Callout>
+
+## Install
+
+```bash
+npm install @skyscribe-sdk/social
+```
+
+Requires React 18 or later.
+
+## Getting the AT URIs
+
+The components need AT URIs: permanent identifiers for specific AT Protocol records.
+
+- `LikeButton` and `ShareButton` both need the **document URI**: the AT URI of the `site.standard.document` article record.
+- All three need the **publication URI**: the AT URI of the `site.standard.publication` Site record.
+
+Your article page loader should fetch both. The exact approach depends on your framework:
+
+<Tabs>
+  <Tab label="React Router v7/v8">
+    `createArticleRouteLoader` returns `documentUri` alongside the article. Fetch the site separately to get the publication URI:
+
+    ```ts
+    // app/routes/blog.$articleSlug.tsx
+    import { createArticleRouteLoader } from '@skyscribe-sdk/react-router-framework';
+    import { fetchSite } from '@skyscribe-sdk/core';
+    import type { LoaderFunctionArgs } from 'react-router';
+
+    export async function loader({ request, params }: LoaderFunctionArgs) {
+      const [articleData, site] = await Promise.all([
+        createArticleRouteLoader('alice.bsky.social', 'https://alice.bsky.social')({ request, params }),
+        fetchSite('alice.bsky.social', 'https://alice.bsky.social', request.signal),
+      ]);
+      return { ...articleData, publicationUri: site.uri };
+    }
+    ```
+  </Tab>
+  <Tab label="Next.js App Router">
+    ```ts
+    import { fetchArticleBySlug, fetchSite } from '@skyscribe-sdk/core';
+
+    const { articleSlug } = await params;
+    const [{ article, uri: documentUri }, site] = await Promise.all([
+      fetchArticleBySlug('alice.bsky.social', 'https://alice.bsky.social', articleSlug),
+      fetchSite('alice.bsky.social', 'https://alice.bsky.social'),
+    ]);
+
+    // documentUri → LikeButton, ShareButton
+    // site.uri    → LikeButton, ShareButton, SubscribeButton
+    ```
+  </Tab>
+  <Tab label="Nuxt 3">
+    ```ts
+    import { fetchArticleBySlug, fetchSite } from '@skyscribe-sdk/core';
+
+    const route = useRoute();
+    const [{ article, uri: documentUri }, site] = await Promise.all([
+      fetchArticleBySlug('alice.bsky.social', 'https://alice.bsky.social', route.params.slug as string),
+      fetchSite('alice.bsky.social', 'https://alice.bsky.social'),
+    ]);
+    ```
+  </Tab>
+</Tabs>
+
+## Rendering the buttons
+
+Once you have the URIs, render the components in your article template:
+
+```tsx
+import { LikeButton, ShareButton, SubscribeButton } from '@skyscribe-sdk/social';
+
+{documentUri && (
+  <LikeButton
+    documentUri={documentUri}
+    publicationUri={publicationUri}
+    title={article.title}
+  />
+)}
+{documentUri && (
+  <ShareButton
+    documentUri={documentUri}
+    publicationUri={publicationUri}
+    title={article.title}
+  />
+)}
+{publicationUri && (
+  <SubscribeButton publicationUri={publicationUri} title="My Site" />
+)}
+```
+
+<Callout>
+  Render the buttons conditionally: `documentUri` only exists once the article is fetched, and some routes (404 pages, for example) won't have one.
+</Callout>
+
+## What happens when clicked
+
+1. A 480×640 popup opens at `social.scribe-atp.app`, showing the article title (or the site's name, for Subscribe).
+2. The reader signs in with their Bluesky account.
+3. The service writes the matching AT Protocol record to the reader's own account, then tells your page through `postMessage`.
+4. The button switches to its confirmed state. For Like and Subscribe, that state is saved in `localStorage`.
+
+<Callout type="tip">
+  If the browser blocks the `postMessage`, the button falls back to polling the service for up to 30 seconds.
+</Callout>
+
+<Callout>
+  `ShareButton` doesn't save anything to `localStorage`. After a successful share it resets after 3 seconds, so the reader can share again. By default the shared post links to the current page's URL; pass `canonicalUrl` to link somewhere else, such as the article's canonical URL.
+</Callout>
+
+## Customising the label
+
+All three buttons accept `children` to replace the default label. Pass a **function** to get the button's state, for different text before and after the action:
+
+```tsx
+<LikeButton documentUri={documentUri} publicationUri={publicationUri} title={article.title}>
+  {(isLiked) => (isLiked ? "Loved it ✓" : "Did you enjoy this?")}
+</LikeButton>
+
+<ShareButton documentUri={documentUri} publicationUri={publicationUri} title={article.title}>
+  {(isShared) => (isShared ? "Shared! ✓" : "Share on Bluesky")}
+</ShareButton>
+
+<SubscribeButton publicationUri={publicationUri} title="My Site">
+  {(isSubscribed) => (isSubscribed ? "Following ✓" : "Follow this site")}
+</SubscribeButton>
+```
+
+Or pass a **static node** if the label doesn't need to change:
+
+```tsx
+<LikeButton documentUri={documentUri} publicationUri={publicationUri} title={article.title}>
+  ♥ Recommend
+</LikeButton>
+```
+
+<Callout>
+  `LikeButton` and `SubscribeButton` show their confirmed state with `aria-pressed`, so the button stays focusable afterwards. `ShareButton` is `disabled` during its 3-second confirmed window, because that state is temporary rather than a toggle.
+</Callout>
+
+## Styling
+
+Each button renders a plain, unstyled `<button>` with a base CSS class (`scribe-atp-like-button`, `scribe-atp-share-button`, `scribe-atp-subscribe-button`). The class names kept their original prefix when the packages were renamed. Pass `className` to add your own class:
+
+```tsx
+<LikeButton
+  documentUri={documentUri}
+  publicationUri={publicationUri}
+  title={article.title}
+  className="btn btn-outline"
+/>
+```
+
+The base class is always there, so you can also style all the buttons from your stylesheet:
+
+```css
+.scribe-atp-like-button,
+.scribe-atp-share-button,
+.scribe-atp-subscribe-button {
+  /* shared button styles */
+}
+
+.scribe-atp-like-button[aria-pressed="true"],
+.scribe-atp-subscribe-button[aria-pressed="true"] {
+  /* confirmed / already-actioned state */
+}
+
+.scribe-atp-share-button:disabled {
+  /* briefly disabled during the 3-second confirmed window */
+}
+```
+
+## Reacting to success
+
+All three buttons accept an `onSuccess` callback, called once the action completes. Use it to show a message, record an analytics event, or update the page. `SubscribeButton` also has `onUnsubscribe`.
+
+```tsx
+<LikeButton
+  documentUri={documentUri}
+  publicationUri={publicationUri}
+  title={article.title}
+  onSuccess={() => toast("Thanks for the like!")}
+/>
+
+<SubscribeButton
+  publicationUri={publicationUri}
+  title="My Site"
+  onSuccess={() => analytics.track("subscribe")}
+/>
+
+<ShareButton
+  documentUri={documentUri}
+  publicationUri={publicationUri}
+  title={article.title}
+  onSuccess={() => toast("Article shared to Bluesky!")}
+/>
+```
+
+## SSR / avoiding flash of unconfirmed state
+
+With server rendering, `LikeButton` and `SubscribeButton` start in their unconfirmed state, because `localStorage` isn't available on the server. They read it after hydration, so a returning reader can briefly see the wrong state.
+
+Pass `defaultLiked` / `defaultSubscribed` to set the starting state yourself and skip the `localStorage` read:
+
+```tsx
+// app/routes/blog.$slug.tsx (React Router v7/v8 loader)
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const cookies = parseCookies(request.headers.get("Cookie") ?? "");
+  return {
+    ...articleData,
+    defaultLiked: cookies[`scribe:recommended:${documentUri}`] === "1",
+    defaultSubscribed: cookies[`scribe:subscribed:${publicationUri}`] === "1",
+  };
+}
+
+// In your article component:
+<LikeButton
+  documentUri={documentUri}
+  publicationUri={publicationUri}
+  title={article.title}
+  defaultLiked={defaultLiked}
+/>
+<SubscribeButton
+  publicationUri={publicationUri}
+  title="My Site"
+  defaultSubscribed={defaultSubscribed}
+/>
+```
+
+<Callout type="tip">
+  The components write liked/subscribed state to `localStorage` under `scribe:recommended:{documentUri}` and `scribe:subscribed:{publicationUri}`. Mirror these to a cookie (e.g. in `onSuccess`) so your SSR loader can read them on the next request.
+</Callout>
+
+## Unsubscribing
+
+`SubscribeButton` is a **toggle**. When the reader is already subscribed, clicking it opens a popup asking them to confirm unsubscribing, rather than the subscribe flow.
+
+After a confirmed unsubscribe:
+- The subscription AT Protocol record is deleted from the reader's repository.
+- `localStorage` is cleared for the publication.
+- The button returns to its unsubscribed state.
+
+No extra props are needed: the button knows the reader's state from `localStorage`.
+
+## Liked / subscribed state
+
+State is persisted in `localStorage` under:
+- `scribe:recommended:{documentUri}`: `"1"` when liked
+- `scribe:subscribed:{publicationUri}`: `"1"` when subscribed
+
+The components read this on mount, so a returning reader sees the confirmed state without signing in again.
+
+Functions to read and set this state are exported too:
+
+```ts
+import { isRecommended, markRecommended, isSubscribed, markSubscribed } from '@skyscribe-sdk/social';
+
+if (isRecommended(documentUri)) {
+  // already liked
+}
+
+markSubscribed(publicationUri); // e.g. after subscribing through your own UI
+```
+
+See the [API reference](/api/social) for the full function signatures.

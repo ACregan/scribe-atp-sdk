@@ -1,0 +1,98 @@
+# Vue
+
+`@skyscribe-sdk/vue` provides `useScribeSite` and `useScribeArticle` composables for Vue 3. Each returns reactive refs for `site` / `article`, `loading` and `error`, and aborts the in-flight request when the component unmounts.
+
+<Callout>
+  For **Nuxt 3**, use [`@skyscribe-sdk/nuxt`](/frameworks/nuxt) instead: its composables use `useAsyncData`, so content is fetched during server rendering, and they're auto-imported.
+</Callout>
+
+## Install
+
+```bash
+npm install @skyscribe-sdk/vue
+```
+
+Requires Vue 3 or later.
+
+## `useScribeSite`
+
+```vue
+<script setup lang="ts">
+import { useScribeSite } from '@skyscribe-sdk/vue';
+
+const { site, loading, error } = useScribeSite('alice.bsky.social', 'https://alice.bsky.social');
+</script>
+
+<template>
+  <p v-if="loading">Loading…</p>
+  <p v-else-if="error">Error: {{ error.message }}</p>
+  <main v-else-if="site">
+    <h1>{{ site.title }}</h1>
+    <section v-for="group in site.groups" :key="group.slug">
+      <h2>{{ group.title }}</h2>
+      <ul>
+        <li v-for="article in group.articles" :key="article.uri">
+          <a :href="`/${group.slug}/${article.slug}`">{{ article.title }}</a>
+        </li>
+      </ul>
+    </section>
+  </main>
+</template>
+```
+
+## `useScribeArticle`
+
+`useScribeArticle` fetches an article by its account and **record key (rkey)**, not its slug. Both are in the article's `ArticleRef.uri` (`at://{did}/site.standard.document/{rkey}`). Take the account from there: an article credited to a contributor can live in their account.
+
+```vue
+<script setup lang="ts">
+import { useScribeArticle } from '@skyscribe-sdk/vue';
+import { slugFromUri } from '@skyscribe-sdk/core';
+import type { ArticleRef } from '@skyscribe-sdk/vue';
+
+const props = defineProps<{ articleRef: ArticleRef }>();
+const did = props.articleRef.uri.split('/')[2];
+const { article, loading, error } = useScribeArticle(did, slugFromUri(props.articleRef.uri));
+</script>
+
+<template>
+  <p v-if="loading">Loading…</p>
+  <p v-else-if="error">Error: {{ error.message }}</p>
+  <article v-else-if="article">
+    <h1>{{ article.title }}</h1>
+    <p v-if="article.description">{{ article.description }}</p>
+    <div class="scribe-content" v-html="article.content" />
+  </article>
+</template>
+```
+
+<Callout type="warning" title="Only have a slug?">
+  Articles published with current tooling have opaque rkeys, so a slug from your URL won't work with `useScribeArticle`. Find the matching `ArticleRef` in the Site from `useScribeSite`, or call `fetchArticleBySlug` from `@skyscribe-sdk/core` yourself.
+</Callout>
+
+If you render articles from accounts you don't control, sanitise `content` before passing it to `v-html` (see [Rendering the HTML](/quickstart#3-fetch-an-article)).
+
+## Just the AT URI: `useScribePublicationUri` / `useScribeDocumentUri`
+
+`@skyscribe-sdk/social`'s buttons are React components, so you can't use them in a Vue template. If you're building your own like or subscribe UI, `useScribePublicationUri` and `useScribeDocumentUri` resolve just the AT URI you need. `useScribeDocumentUri` takes the article's **slug**:
+
+```vue
+<script setup lang="ts">
+import { useScribeDocumentUri } from '@skyscribe-sdk/vue';
+
+const props = defineProps<{ author: string; publicationUrl: string; slug: string }>();
+const { uri } = useScribeDocumentUri(props.author, props.publicationUrl, props.slug);
+</script>
+
+<template>
+  <p v-if="uri">AT URI: {{ uri }}</p>
+</template>
+```
+
+## TypeScript types
+
+The main types from `@skyscribe-sdk/core` are re-exported:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup } from '@skyscribe-sdk/vue';
+```

@@ -1,0 +1,196 @@
+# Meta tags
+
+When someone shares an article link on Bluesky, X, Slack or most other platforms, the platform fetches the page and reads its `<meta>` tags to build a rich preview: a card with a title, description and image. Without these tags, links show up as plain text.
+
+The SDK has helpers that generate Open Graph and Twitter Card tags, a canonical link and structured data from the article and site you've already fetched.
+
+## What gets generated
+
+For an article page, the helpers produce:
+
+| Tag | Value |
+| --- | ----- |
+| `<title>` | `"{Article Title} — {Site Title}"` |
+| `<link rel="canonical">` | Canonical article URL |
+| `description` | Article description (when set) |
+| `og:type` | `"article"` |
+| `og:title` | Article title |
+| `og:url` | Canonical article URL |
+| `og:site_name` | Site title |
+| `og:description` | Article description (when set) |
+| `og:image` | Cover image URL (when set) |
+| `twitter:card` | `"summary_large_image"` if there's a cover image, otherwise `"summary"` |
+| `twitter:title` | Article title |
+| `twitter:description` | Article description (when set) |
+| `twitter:image` | Cover image URL (when set) |
+| JSON-LD | A schema.org `BlogPosting` (headline, dates, author, publisher, image, keywords) |
+
+Add your own `{ title }` after the spread to use your own title format in the browser tab, while the Open Graph tags keep the plain article title.
+
+## Framework integration
+
+<Callout>
+  The helpers need the `site` as well as the article, so your article page's loader must fetch both. Exactly what each helper covers depends on the framework: the Next.js and Nuxt versions leave out structured data (see each tab).
+</Callout>
+
+<Tabs>
+  <Tab label="React Router v7/v8">
+    Use `articleMeta` from `@skyscribe-sdk/react-router-framework`. It returns `MetaDescriptor[]` for React Router's `meta` export.
+
+    ```ts
+    // app/routes/blog.$articleSlug.tsx
+    import { articleMeta } from '@skyscribe-sdk/react-router-framework';
+    import { fetchArticleBySlug, fetchSite } from '@skyscribe-sdk/core';
+    import type { Route } from './+types/Article';
+
+    export async function loader({ request, params }: Route.LoaderArgs) {
+      const [{ article, uri: documentUri }, site] = await Promise.all([
+        fetchArticleBySlug('alice.bsky.social', 'https://alice.bsky.social', params.articleSlug!, request.signal),
+        fetchSite('alice.bsky.social', 'https://alice.bsky.social', request.signal),
+      ]);
+      return { article, documentUri, publicationUri: site.uri, site };
+    }
+
+    export function meta({ loaderData }: Route.MetaArgs) {
+      if (!loaderData) return [{ title: 'My Blog' }];
+      return [
+        ...articleMeta(loaderData.article, loaderData.site),
+        { title: `${loaderData.article.title} | My Blog` },
+      ];
+    }
+    ```
+  </Tab>
+  <Tab label="Next.js App Router">
+    Use `articleMetadata` from `@skyscribe-sdk/next`. It returns a Next.js `Metadata` object for `generateMetadata`.
+
+    ```ts
+    // app/blog/[groupSlug]/[articleSlug]/page.tsx
+    import { articleMetadata } from '@skyscribe-sdk/next';
+    import { fetchArticleBySlug, fetchSite } from '@skyscribe-sdk/core';
+
+    export async function generateMetadata({
+      params,
+    }: {
+      params: Promise<{ articleSlug: string }>;
+    }) {
+      const { articleSlug } = await params;
+      const [{ article }, site] = await Promise.all([
+        fetchArticleBySlug('alice.bsky.social', 'https://alice.bsky.social', articleSlug),
+        fetchSite('alice.bsky.social', 'https://alice.bsky.social'),
+      ]);
+      return {
+        ...articleMetadata(article, site),
+        title: `${article.title} — My Blog`,  // override title format if needed
+      };
+    }
+    ```
+
+    `Metadata` has no field for structured data. To add it, render `generateArticleJsonLd(article, site)` in a `<script type="application/ld+json">` in the page itself. Import it from `@skyscribe-sdk/core`: `@skyscribe-sdk/next` doesn't re-export it.
+
+    The `createScribeSite` factory's `generateArticleMetadata` is simpler: it works from the Site record alone, without the canonical URL or Twitter Card. Use `articleMetadata` when you want the full set.
+  </Tab>
+  <Tab label="Nuxt 3">
+    Use `articleSeoMeta` from `@skyscribe-sdk/nuxt`. It returns an object shaped for `useSeoMeta()`.
+
+    ```vue
+    <!-- pages/blog/[slug].vue -->
+    <script setup lang="ts">
+    import { articleSeoMeta, buildCanonicalUrl, generateArticleJsonLd } from '@skyscribe-sdk/nuxt';
+    import { fetchArticleBySlug, fetchSite } from '@skyscribe-sdk/core';
+
+    const route = useRoute();
+    const [{ article }, site] = await Promise.all([
+      fetchArticleBySlug('alice.bsky.social', 'https://alice.bsky.social', route.params.slug as string),
+      fetchSite('alice.bsky.social', 'https://alice.bsky.social'),
+    ]);
+
+    useSeoMeta(articleSeoMeta(article, site));
+    useHead({
+      title: `${article.title} — My Blog`,
+      link: [{ rel: 'canonical', href: buildCanonicalUrl(article, site) }],
+      script: [{ type: 'application/ld+json', innerHTML: JSON.stringify(generateArticleJsonLd(article, site)) }],
+    });
+    </script>
+    ```
+
+    `useSeoMeta` has no field for a canonical link or structured data, so those go through `useHead`. `buildCanonicalUrl` and `generateArticleJsonLd` are re-exported from `@skyscribe-sdk/nuxt`.
+  </Tab>
+  <Tab label="Other frameworks">
+    Use `generateArticleMeta` from `@skyscribe-sdk/core` directly. It returns a `ScribeMetaTag[]` array:
+
+    ```ts
+    import { generateArticleMeta } from '@skyscribe-sdk/core';
+
+    const tags = generateArticleMeta(article, site);
+    // [
+    //   { title: "My Post — My Blog" },
+    //   { property: "og:type", content: "article" },
+    //   { property: "og:title", content: "My Post" },
+    //   { name: "twitter:card", content: "summary_large_image" },
+    //   ...
+    // ]
+    ```
+
+    Convert the output to whatever your framework's head management expects. Each element is one of:
+    - `{ title: string }`: the `<title>` tag
+    - `{ tagName: "link"; rel: "canonical"; href: string }`: the canonical link
+    - `{ property: string; content: string }`: a `<meta property="…">` tag
+    - `{ name: string; content: string }`: a `<meta name="…">` tag
+    - `{ "script:ld+json": object }`: JSON-LD structured data for a `<script type="application/ld+json">`
+  </Tab>
+</Tabs>
+
+## Canonical URLs
+
+The canonical link and `og:url` use `buildCanonicalUrl` from `@skyscribe-sdk/core`, which returns the article's `canonicalUrl`. SkyScribe sets that when the author publishes, from the Publication's domain and path prefix, the Category's slug and the Document's slug. Authors don't type it in.
+
+If the canonical URLs point at the wrong address, the Publication's domain or path prefix doesn't match your website. The author fixes that in the Publication's settings in SkyScribe (see [Publications](https://skyscribe.app/users-guide/authoring/publications)), and articles get the new URL the next time they're published.
+
+## Site index and group pages
+
+Use the site variants for pages that list articles rather than displaying one:
+
+<Tabs>
+  <Tab label="React Router v7/v8">
+    ```ts
+    import { siteMeta } from '@skyscribe-sdk/react-router-framework';
+
+    export function meta({ loaderData }: Route.MetaArgs) {
+      if (!loaderData) return [{ title: 'My Blog' }];
+      return [
+        ...siteMeta(loaderData.site),
+        { title: 'My Blog' },
+      ];
+    }
+    ```
+  </Tab>
+  <Tab label="Nuxt 3">
+    ```ts
+    import { siteSeoMeta } from '@skyscribe-sdk/nuxt';
+
+    useSeoMeta(siteSeoMeta(site));
+    ```
+  </Tab>
+  <Tab label="Core">
+    ```ts
+    import { generateSiteMeta } from '@skyscribe-sdk/core';
+
+    const tags = generateSiteMeta(site);
+    ```
+  </Tab>
+</Tabs>
+
+## `site.standard` verification
+
+The [`site.standard` spec](https://standard.site/docs/verification/) lets apps confirm that a web page really is a given record. Two pieces:
+
+- **Article pages** include a link tag pointing at the article's AT URI. The meta helpers above don't add it, so add it yourself, using the `uri` from `fetchArticleBySlug` (or `documentUri` from the React Router loader):
+
+  ```html
+  <link rel="site.standard.document" href="at://did:plc:…/site.standard.document/3mp47vvkh342n" />
+  ```
+
+  In a React Router `meta` function that's `{ tagName: 'link', rel: 'site.standard.document', href: documentUri }`.
+
+- **The website** serves the Publication's AT URI at `/.well-known/site.standard.publication`. If the Site has a path prefix, the spec puts it after that path, e.g. `/.well-known/site.standard.publication/blog`. The [React Router](/frameworks/react-router#publication-verification-route) and [Next.js](/frameworks/next#publication-verification-route) packages have ready-made handlers.
+

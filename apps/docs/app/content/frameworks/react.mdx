@@ -1,0 +1,90 @@
+# React
+
+`@skyscribe-sdk/react` provides `useSite` and `useArticle` hooks for React SPAs and client-rendered components. Each hook manages loading state, error state and request cancellation for you.
+
+<Callout>
+  For **React Router v7/v8 framework (server) mode**, use [`@skyscribe-sdk/react-router-framework`](/frameworks/react-router) instead. For the **Next.js App Router**, use [`@skyscribe-sdk/next`](/frameworks/next).
+</Callout>
+
+## Install
+
+```bash
+npm install @skyscribe-sdk/react
+```
+
+Requires React 18 or later.
+
+## `useSite`
+
+```tsx
+import { useSite } from '@skyscribe-sdk/react';
+
+function BlogIndex() {
+  const { site, loading, error } = useSite('alice.bsky.social', 'https://alice.bsky.social');
+
+  if (loading) return <p>Loading…</p>;
+  if (error)   return <p>Error: {error.message}</p>;
+  if (!site)   return null;
+
+  return (
+    <main>
+      <h1>{site.title}</h1>
+      {site.groups.map((group) => (
+        <section key={group.slug}>
+          <h2>{group.title}</h2>
+          <ul>
+            {group.articles.map((article) => (
+              <li key={article.uri}>
+                <a href={`/${group.slug}/${article.slug}`}>{article.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </main>
+  );
+}
+```
+
+## `useArticle`
+
+`useArticle` fetches an article by its account and **record key (rkey)**, not its slug. Both are in the article's `ArticleRef.uri` (`at://{did}/site.standard.document/{rkey}`). Take the account from there rather than assuming the site owner's: an article credited to a contributor can live in their account.
+
+```tsx
+import { useArticle, ScribeContent } from '@skyscribe-sdk/react';
+import { slugFromUri } from '@skyscribe-sdk/core';
+import type { ArticleRef } from '@skyscribe-sdk/react';
+
+function ArticlePage({ articleRef }: { articleRef: ArticleRef }) {
+  const did = articleRef.uri.split('/')[2];
+  const { article, loading, error } = useArticle(did, slugFromUri(articleRef.uri));
+
+  if (loading) return <p>Loading…</p>;
+  if (error)   return <p>Error: {error.message}</p>;
+  if (!article) return null;
+
+  return (
+    <article>
+      <h1>{article.title}</h1>
+      {article.description && <p>{article.description}</p>}
+      <ScribeContent html={article.content} />
+    </article>
+  );
+}
+```
+
+<Callout type="warning" title="Only have a slug?">
+  If your route only gives you the slug (`/essays/my-first-post`), `useArticle` can't use it: articles published with current tooling have opaque rkeys. Either find the `ArticleRef` with that slug in the Site you've already fetched with `useSite`, or call `fetchArticleBySlug` from `@skyscribe-sdk/core` yourself.
+</Callout>
+
+Both hooks re-fetch when their arguments change, and abort the in-flight request when the component unmounts.
+
+`<ScribeContent>` renders article HTML inside a `scribe-content` wrapper, ready for [`@skyscribe-sdk/styles`](/frameworks/styles). If you render articles from accounts you don't control, sanitise the HTML first (see [Rendering the HTML](/quickstart#3-fetch-an-article)).
+
+## TypeScript types
+
+The main types from `@skyscribe-sdk/core` are re-exported, so you rarely need to import from both packages:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup } from '@skyscribe-sdk/react';
+```

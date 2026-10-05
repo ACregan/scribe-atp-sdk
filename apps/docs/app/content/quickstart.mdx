@@ -1,0 +1,118 @@
+# Quickstart
+
+This guide uses `@skyscribe-sdk/core`, the framework-agnostic package. If you're using React, Angular, Vue, Next.js, Nuxt or React Router, the [framework guides](/frameworks/core) wrap these same functions in your framework's idioms.
+
+<Callout type="note">
+  The SDK calls a Publication a **Site**, a Category a **Group**, and a Document an **Article**. See the table in [Concepts](/concepts#skyscribes-names-and-the-sdks-names).
+</Callout>
+
+## 1. Install the package
+
+<Tabs>
+  <Tab label="npm">
+    `npm install @skyscribe-sdk/core`
+  </Tab>
+  <Tab label="pnpm">
+    `pnpm add @skyscribe-sdk/core`
+  </Tab>
+  <Tab label="yarn">
+    `yarn add @skyscribe-sdk/core`
+  </Tab>
+</Tabs>
+
+## 2. Fetch a Site
+
+A Site is identified by two things: the author's handle (or DID), and the site's canonical HTTPS URL.
+
+```ts
+import { fetchSite } from "@skyscribe-sdk/core";
+
+const author = "anthonycregan.dev";
+const site = await fetchSite(author, "https://anthonycregan.co.uk");
+
+console.log(site.title);
+console.log(site.description);
+
+// Published articles, organised into groups
+for (const group of site.groups) {
+  console.log(group.title);
+  for (const article of group.articles) {
+    console.log(article.title, article.slug);
+  }
+}
+```
+
+## 3. Fetch an Article
+
+With an article's slug (from the Site's `ArticleRef` list, or from your URL), fetch the full article, including its HTML content:
+
+```ts
+import { fetchArticleBySlug } from "@skyscribe-sdk/core";
+
+const { article, uri } = await fetchArticleBySlug(
+  "anthonycregan.dev",
+  "https://anthonycregan.co.uk",
+  "my-first-post",
+);
+
+console.log(article.title);
+console.log(article.description);
+console.log(article.content); // Full HTML
+console.log(article.createdAt);
+console.log(uri); // The article's AT URI
+```
+
+`fetchArticleBySlug` looks the slug up in the Site record, then fetches the article record it points to. If you already have the record's rkey (from an AT URI), `fetchArticle(author, rkey)` fetches it directly.
+
+<Callout type="warning" title="Rendering the HTML">
+  SkyScribe sanitises article HTML when the author saves it, but the SDK returns whatever is stored in the author's account, and any app can write to an account's records. Rendering your own account's content as-is is fine. If you render articles from accounts you don't control, sanitise the HTML first, for example with [DOMPurify](https://github.com/cure53/DOMPurify).
+</Callout>
+
+To render it, use `dangerouslySetInnerHTML` in React, `v-html` in Vue, or `[innerHTML]` in Angular.
+
+## 4. Build URLs for Articles
+
+Use the Site's `url` and `urlPrefix` fields to build canonical article URLs:
+
+```ts
+import type { Site } from "@skyscribe-sdk/core";
+
+function articleUrl(
+  site: Site,
+  groupSlug: string,
+  articleSlug: string,
+): string {
+  const base = site.urlPrefix
+    ? `https://${site.url}/${site.urlPrefix}`
+    : `https://${site.url}`;
+  return `${base}/${groupSlug}/${articleSlug}`;
+}
+```
+
+See [Building URLs](/guides/building-urls) for the full rules.
+
+## 5. Cancel in-flight requests
+
+Every fetch function accepts an optional `AbortSignal` as its last argument. Pass `request.signal` on the server, or an `AbortController`'s signal in client code:
+
+```ts
+const controller = new AbortController();
+
+const site = await fetchSite(
+  author,
+  "https://anthonycregan.co.uk",
+  controller.signal,
+);
+
+// Cancel the request if needed (e.g. component unmount, route change)
+controller.abort();
+```
+
+The framework adapters wire this up for you. You only manage the signal yourself when using `@skyscribe-sdk/core` directly.
+
+## What's next?
+
+- Use a **framework adapter** for your stack: [framework guides](/frameworks/core)
+- Add an **RSS feed**: [RSS feeds](/guides/rss)
+- Generate a **sitemap**: [Sitemaps](/guides/sitemaps)
+- Browse the full **API reference**: [`@skyscribe-sdk/core`](/api/core)

@@ -1,0 +1,89 @@
+# Errors and retries
+
+`fetchSite`, `fetchArticle`, `fetchArticleBySlug`, `resolvePublicationUri`, `listSites`, `listArticles`, and `fetchProfile` throw one of three typed errors, all exported from `@skyscribe-sdk/core`:
+
+| Error | Thrown when | Should you retry? |
+| ----- | ----------- | ------------------ |
+| `NotFoundError` | The fetch worked, but the site or article doesn't exist (bad slug, deleted record) | No: it will fail the same way every time |
+| `PdsFetchError` | The PDS responded, but with an error status. The service is up; this operation failed | Yes: it's usually temporary |
+| `PdsUnreachableError` | The request never got a response: DNS failure, connection refused, timeout | Yes, but it suggests a wider outage rather than one bad request |
+
+`PdsUnreachableError` extends `PdsFetchError`, so `instanceof PdsFetchError` matches both. Check `instanceof PdsUnreachableError` first if your UI wants to say something more specific, like "the service is down" rather than "something went wrong loading this".
+
+```ts
+import { fetchSite, NotFoundError, PdsFetchError, PdsUnreachableError } from '@skyscribe-sdk/core';
+
+try {
+  const site = await fetchSite(author, publicationUrl, signal);
+} catch (err) {
+  if (err instanceof NotFoundError) {
+    // show a 404: retrying won't help
+  } else if (err instanceof PdsUnreachableError) {
+    // couldn't reach the PDS at all: safe to retry, but worth a
+    // distinct "service is down" message if your UI differentiates
+  } else if (err instanceof PdsFetchError) {
+    // the PDS responded with an error: safe to retry
+  }
+  throw err;
+}
+```
+
+<Callout>
+  Most sites don't need the three-way split: one "temporarily unavailable, try again" message for both `PdsFetchError` and `PdsUnreachableError` is enough. The distinction helps when visitors can browse many authors' content, where it's worth telling them whether one record had trouble or the whole service is down.
+</Callout>
+
+<Callout>
+  A cancelled request rejects with a plain `AbortError`, not one of the typed errors above. See [Request cancellation](/guides/cancellation).
+</Callout>
+
+## Retrying with `withRetry`
+
+`withRetry` wraps any of the fetch functions above with configurable retries and backoff. It's generic: it doesn't care which function you call.
+
+```ts
+function withRetry<T>(
+  fn: () => Promise<T>,
+  options?: {
+    attempts?: number;   // total attempts including the first. Default 5
+    delaysMs?: number[]; // delay before each retry. Default [300, 600, 1200, 2400]
+    signal?: AbortSignal;
+  }
+): Promise<T>
+```
+
+```ts
+import { fetchSite, withRetry } from '@skyscribe-sdk/core';
+
+const site = await withRetry(() => fetchSite(author, publicationUrl, signal), { signal });
+```
+
+It never retries `NotFoundError`: retrying a real 404 only delays showing it. It also stops as soon as the `signal` is aborted, rather than retrying a request nobody is waiting for. Everything else is retried, including plain `Error`s.
+
+`withRetry` is opt-in: none of the fetch functions retry on their own. That matters at build time (for example `@skyscribe-sdk/next`'s `generateStaticParams`), where failing fast is usually better than several seconds of backoff.
+
+## Pairing retries with a loading state
+
+`withRetry` only handles the retry loop; it knows nothing about your UI. In a server-rendered framework, a good pattern is to try the fetch once and await it, so meta tags work on the normal, successful path. Only if that first attempt fails, fall back to a retrying fetch that's streamed to the page behind a loading spinner:
+
+```ts
+// React Router v7/v8 framework mode
+export async function loader({ request }: Route.LoaderArgs) {
+  try {
+    const site = await fetchSite(author, publicationUrl, request.signal);
+    return { status: 'ok' as const, site };
+  } catch (err) {
+    if (err instanceof NotFoundError) throw new Response('Not found', { status: 404 });
+    // Stream the retries (don't await) so the page shell renders
+    // immediately and a <Suspense> fallback covers the wait.
+    return {
+      status: 'retrying' as const,
+      site: withRetry(() => fetchSite(author, publicationUrl, request.signal), {
+        attempts: 4,
+        signal: request.signal,
+      }),
+    };
+  }
+}
+```
+
+See your framework's guide for how to render a `Suspense`/`Await` fallback around the streamed promise, and an error boundary for when all retries are exhausted.

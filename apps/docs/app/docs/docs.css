@@ -477,3 +477,74 @@
   color: var(--text-secondary);
   font-style: italic;
 }
+
+/* Docs-only: syntax highlighting. rehype-prism-plus (vite.config.ts) adds
+   Prism's `token <type>` classes at build time. Light colours are
+   @skyscribe-sdk/styles' defaults (Prism light); dark ones are the VS Code
+   Dark+ palette its docs suggest. */
+.docs {
+  --docs-token-comment: #708090;
+  --docs-token-punctuation: #555;
+  --docs-token-property: #905;
+  --docs-token-string: #690;
+  --docs-token-operator: #9a6e3a;
+  --docs-token-keyword: #07a;
+  --docs-token-function: #dd4a68;
+  --docs-token-variable: #e90;
+}
+[data-theme="dark"] .docs {
+  --docs-token-comment: #6a9955;
+  --docs-token-punctuation: #d4d4d4;
+  --docs-token-property: #4ec9b0;
+  --docs-token-string: #ce9178;
+  --docs-token-operator: #d4d4d4;
+  --docs-token-keyword: #569cd6;
+  --docs-token-function: #dcdcaa;
+  --docs-token-variable: #9cdcfe;
+}
+.docs-prose .token.comment,
+.docs-prose .token.prolog,
+.docs-prose .token.doctype,
+.docs-prose .token.cdata {
+  color: var(--docs-token-comment);
+  font-style: italic;
+}
+.docs-prose .token.punctuation {
+  color: var(--docs-token-punctuation);
+}
+.docs-prose .token.property,
+.docs-prose .token.tag,
+.docs-prose .token.boolean,
+.docs-prose .token.number,
+.docs-prose .token.constant,
+.docs-prose .token.symbol,
+.docs-prose .token.deleted {
+  color: var(--docs-token-property);
+}
+.docs-prose .token.string,
+.docs-prose .token.selector,
+.docs-prose .token.attr-name,
+.docs-prose .token.char,
+.docs-prose .token.builtin,
+.docs-prose .token.inserted {
+  color: var(--docs-token-string);
+}
+.docs-prose .token.operator,
+.docs-prose .token.entity,
+.docs-prose .token.url {
+  color: var(--docs-token-operator);
+}
+.docs-prose .token.keyword,
+.docs-prose .token.atrule,
+.docs-prose .token.attr-value {
+  color: var(--docs-token-keyword);
+}
+.docs-prose .token.function,
+.docs-prose .token.class-name {
+  color: var(--docs-token-function);
+}
+.docs-prose .token.variable,
+.docs-prose .token.regex,
+.docs-prose .token.important {
+  color: var(--docs-token-variable);
+}

@@ -1,0 +1,82 @@
+# Migrating from @scribe-atp
+
+The Scribe ATP SDK is now the **SkyScribe SDK**. The packages moved from `@scribe-atp/*` to `@skyscribe-sdk/*`. **Only the package names changed:** every function, hook, component, type and CSS class has the same name and behaves the same way, and the version numbers carry on from where the old packages left off.
+
+The old packages still install and work, but they're deprecated and won't get any more updates.
+
+## Package names
+
+| Old | New |
+| --- | --- |
+| `@scribe-atp/core` | `@skyscribe-sdk/core` |
+| `@scribe-atp/react` | `@skyscribe-sdk/react` |
+| `@scribe-atp/react-router-framework` | `@skyscribe-sdk/react-router-framework` |
+| `@scribe-atp/next` | `@skyscribe-sdk/next` |
+| `@scribe-atp/vue` | `@skyscribe-sdk/vue` |
+| `@scribe-atp/nuxt` | `@skyscribe-sdk/nuxt` |
+| `@scribe-atp/angular` | `@skyscribe-sdk/angular` |
+| `@scribe-atp/social` | `@skyscribe-sdk/social` |
+| `@scribe-atp/styles` | `@skyscribe-sdk/styles` |
+
+## Steps
+
+### 1. Swap the packages
+
+Uninstall the old packages and install the new ones. For example, a site using core and the React Router package:
+
+<Tabs>
+  <Tab label="npm">
+    ```bash
+    npm uninstall @scribe-atp/core @scribe-atp/react-router-framework
+    npm install @skyscribe-sdk/core @skyscribe-sdk/react-router-framework
+    ```
+  </Tab>
+  <Tab label="pnpm">
+    ```bash
+    pnpm remove @scribe-atp/core @scribe-atp/react-router-framework
+    pnpm add @skyscribe-sdk/core @skyscribe-sdk/react-router-framework
+    ```
+  </Tab>
+  <Tab label="yarn">
+    ```bash
+    yarn remove @scribe-atp/core @scribe-atp/react-router-framework
+    yarn add @skyscribe-sdk/core @skyscribe-sdk/react-router-framework
+    ```
+  </Tab>
+</Tabs>
+
+### 2. Update your imports
+
+Replace `@scribe-atp/` with `@skyscribe-sdk/` everywhere in your source code, including CSS imports such as `@scribe-atp/styles`. In most projects one search-and-replace does it:
+
+```bash
+grep -rl "@scribe-atp/" src app | xargs sed -i 's#@scribe-atp/#@skyscribe-sdk/#g'
+```
+
+Adjust the folders for your project (on macOS, use `sed -i ''`). If you use Nuxt, also update the module name in `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@skyscribe-sdk/nuxt'],
+});
+```
+
+### 3. Check nothing old is left
+
+```bash
+grep -rn "@scribe-atp/" --exclude-dir=node_modules .
+```
+
+This should only find your lockfile entries, if any, until you reinstall. Then build and run your tests as usual.
+
+## What hasn't changed
+
+- **Function, hook and component names**, including the ones with "Scribe" in them, such as `ScribeService`, `useScribeSite` and `<ScribeContent>`.
+- **CSS class names**: the `scribe-content` wrapper and the social buttons' `scribe-atp-like-button`, `scribe-atp-share-button` and `scribe-atp-subscribe-button` classes. Your stylesheets keep working.
+- **`localStorage` keys** used by the social buttons, so readers' saved likes and subscriptions carry over.
+- **The Social service** at `social.scribe-atp.app`.
+- **The content.** The SDK reads the same records from the same accounts, whether the author writes in SkyScribe or Scribe CMS.
+
+## Need help?
+
+If something doesn't work after migrating, email [hello@skyscribe.app](mailto:hello@skyscribe.app).

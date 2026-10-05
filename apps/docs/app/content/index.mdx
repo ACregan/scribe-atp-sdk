@@ -1,15 +1,53 @@
 # SkyScribe SDK
 
-The SkyScribe SDK lets you show content written in [SkyScribe](https://skyscribe.app) on a website you build yourself: an **SDK-driven website**. Authors write and publish in SkyScribe, the content lives in their own Bluesky account, and the SDK fetches it for your site.
+The SkyScribe SDK is a set of TypeScript packages for showing content written in [SkyScribe](https://skyscribe.app) on a website you build yourself: an **SDK-driven website**. Authors write and publish in SkyScribe. The content lives in their own Bluesky account, and the SDK fetches it for your site.
 
 <Callout type="tip" title="Not a developer?">
-  You probably want a SkyScribe Site instead: pick a design, choose colours and fonts, and launch, with no coding. See [SkyScribe Sites vs. SDK-driven websites](https://skyscribe.app/users-guide/getting-started/skyscribe-sites-vs-your-own-frontend).
+  You probably want a SkyScribe Site instead: pick a design, choose colours and fonts, and launch, with no coding and nothing to install. See [SkyScribe Sites vs. SDK-driven websites](https://skyscribe.app/users-guide/getting-started/skyscribe-sites-vs-your-own-frontend).
 </Callout>
 
-## Placeholder
+<Callout type="note" title="Coming from @scribe-atp?">
+  The packages were renamed from `@scribe-atp/*` to `@skyscribe-sdk/*`. Only the import paths change. See [Migrating from @scribe-atp](/migrating).
+</Callout>
 
-This page shows the new docs shell. The real content arrives when the docs are ported from the SkyScribe User Guide.
+## What it does
 
-## Second heading
+Published content is stored on the author's AT Protocol Personal Data Server (PDS): a public, decentralised data store. The SDK handles everything between "I have an author's handle" and "I have their articles":
 
-Here so the "On this page" list has more than one entry.
+- Resolving a handle (`alice.bsky.social`) to the author's permanent DID
+- Finding which server stores the author's data
+- Fetching the Site and Article records and turning them into typed objects
+- Wiring up request cancellation, so you don't have to
+
+It also works with content written in Scribe CMS, the older authoring tool, which writes the same records.
+
+<Callout type="note">
+  The SDK's API is older than SkyScribe's naming, so it uses different names: a **Site** is a Publication, a **Group** is a Category, and an **Article** is a Document. These docs use the SDK's names. [Concepts](/concepts#skyscribes-names-and-the-sdks-names) has the full mapping.
+</Callout>
+
+## Which package do you need?
+
+| Package | For | Provides |
+| ------- | --- | -------- |
+| **`@skyscribe-sdk/core`** | Any framework, or none. Start here if unsure. | Plain async functions, no runtime dependencies |
+| **`@skyscribe-sdk/react`** | React SPAs and client-rendered components | `useSite`, `useArticle` hooks |
+| **`@skyscribe-sdk/react-router-framework`** | React Router v7/v8 framework (server) mode | Loader factories that wire up `request.signal` |
+| **`@skyscribe-sdk/next`** | Next.js 13+ App Router | `generateStaticParams` / `generateMetadata` factories |
+| **`@skyscribe-sdk/nuxt`** | Nuxt 3+ | A full module: auto-imports and `useAsyncData` integration |
+| **`@skyscribe-sdk/vue`** | Vue 3+ | `useScribeSite`, `useScribeArticle` composables |
+| **`@skyscribe-sdk/angular`** | Angular 16+ | `ScribeService` (Observables), `injectSite` / `injectArticle` (Signals) |
+| **`@skyscribe-sdk/social`** | React | `LikeButton`, `SubscribeButton`, `ShareButton` for reader engagement |
+| **`@skyscribe-sdk/styles`** | Any framework | Themeable CSS for rendering article content |
+
+For **SvelteKit**, **Astro**, or any other meta-framework that loads data on the server, install `@skyscribe-sdk/core` and call `fetchSite` / `fetchArticle` directly in your loaders or server components. See [Other frameworks](/frameworks/other).
+
+## Requirements
+
+- Node.js 22 or later
+- TypeScript 5.0 or later (optional but recommended: every package ships full type declarations)
+
+## Next steps
+
+1. Read [Concepts](/concepts) for the AT Protocol identity model and how content is organised.
+2. Follow the [Quickstart](/quickstart) to fetch your first Site and Article.
+3. Switch to your framework's [guide](/frameworks/core) for idiomatic integration.
