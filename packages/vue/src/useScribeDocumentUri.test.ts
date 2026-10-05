@@ -3,11 +3,11 @@ import { defineComponent, nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import { useScribeDocumentUri } from "./useScribeDocumentUri.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchArticleBySlug: vi.fn(),
 }));
 
-import { fetchArticleBySlug } from "@scribe-atp/core";
+import { fetchArticleBySlug } from "@skyscribe-sdk/core";
 const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 
 const DOCUMENT_URI = "at://did:plc:abc/site.standard.document/3jxtctq7kqm2y";

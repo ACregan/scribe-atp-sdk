@@ -4,12 +4,12 @@ import { resolve } from "path";
 export default defineConfig({
   resolve: {
     alias: {
-      "@scribe-atp/core": resolve(__dirname, "packages/core/src/index.ts"),
-      "@scribe-atp/react": resolve(__dirname, "packages/react/src/index.ts"),
-      "@scribe-atp/angular": resolve(__dirname, "packages/angular/src/index.ts"),
-      "@scribe-atp/next": resolve(__dirname, "packages/next/src/index.ts"),
-      "@scribe-atp/vue": resolve(__dirname, "packages/vue/src/index.ts"),
-      "@scribe-atp/social": resolve(__dirname, "packages/social/src/index.ts"),
+      "@skyscribe-sdk/core": resolve(__dirname, "packages/core/src/index.ts"),
+      "@skyscribe-sdk/react": resolve(__dirname, "packages/react/src/index.ts"),
+      "@skyscribe-sdk/angular": resolve(__dirname, "packages/angular/src/index.ts"),
+      "@skyscribe-sdk/next": resolve(__dirname, "packages/next/src/index.ts"),
+      "@skyscribe-sdk/vue": resolve(__dirname, "packages/vue/src/index.ts"),
+      "@skyscribe-sdk/social": resolve(__dirname, "packages/social/src/index.ts"),
     },
   },
   test: {

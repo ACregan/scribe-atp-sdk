@@ -1,16 +1,16 @@
-# @scribe-atp/styles
+# @skyscribe-sdk/styles
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/styles)](https://www.npmjs.com/package/@scribe-atp/styles)
+[![npm](https://img.shields.io/npm/v/@skyscribe-sdk/styles)](https://www.npmjs.com/package/@skyscribe-sdk/styles)
 [![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
-Base CSS for rendering [Scribe CMS](https://scribe-cms.app) article content in consumer sites. Pure CSS — no build step, no JavaScript.
+Base CSS for rendering [SkyScribe](https://skyscribe.app) article content in consumer sites. Pure CSS — no build step, no JavaScript.
 
 All rules are scoped to `.scribe-content` so they cannot leak into the rest of your page. Override any `--scribe-*` custom property to theme the output.
 
 ## Installation
 
 ```bash
-npm install @scribe-atp/styles
+npm install @skyscribe-sdk/styles
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ npm install @scribe-atp/styles
 Import the stylesheet once at the route that renders article content:
 
 ```ts
-import "@scribe-atp/styles";
+import "@skyscribe-sdk/styles";
 ```
 
 Then wrap your article HTML in an element with the `scribe-content` class:
@@ -32,11 +32,11 @@ Then wrap your article HTML in an element with the `scribe-content` class:
 />
 ```
 
-Or use the `<ScribeContent>` component from `@scribe-atp/react`, which adds the class automatically:
+Or use the `<ScribeContent>` component from `@skyscribe-sdk/react`, which adds the class automatically:
 
 ```tsx
-import { ScribeContent } from "@scribe-atp/react";
-import "@scribe-atp/styles";
+import { ScribeContent } from "@skyscribe-sdk/react";
+import "@skyscribe-sdk/styles";
 
 <ScribeContent html={article.content} />
 ```
@@ -44,7 +44,7 @@ import "@scribe-atp/styles";
 ### With a `<link>` tag (CDN / no bundler)
 
 ```html
-<link rel="stylesheet" href="https://unpkg.com/@scribe-atp/styles/src/index.css" />
+<link rel="stylesheet" href="https://unpkg.com/@skyscribe-sdk/styles/src/index.css" />
 ```
 
 ## What it styles
@@ -59,7 +59,7 @@ import "@scribe-atp/styles";
 | Ordered / unordered lists | `.scribe-content ul`, `.scribe-content ol` |
 | Checklists | `.scribe-content li[role="checkbox"]` |
 
-Token classes (`token keyword`, `token string`, …) are the Prism-compatible class names that Scribe CMS emits when it serialises article content.
+Token classes (`token keyword`, `token string`, …) are the Prism-compatible class names that the SkyScribe editor emits when it serialises article content.
 
 ## Theming
 

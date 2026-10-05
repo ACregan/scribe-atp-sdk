@@ -1,16 +1,16 @@
-# @scribe-atp/social
+# @skyscribe-sdk/social
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/social)](https://www.npmjs.com/package/@scribe-atp/social)
+[![npm](https://img.shields.io/npm/v/@skyscribe-sdk/social)](https://www.npmjs.com/package/@skyscribe-sdk/social)
 [![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
-React components for adding social interactions — likes, shares, and subscriptions — to [Scribe CMS](https://scribe-cms.app) articles. Works with any React-based framework (React Router, Next.js, etc.).
+React components for adding social interactions — likes, shares, and subscriptions — to [SkyScribe](https://skyscribe.app) articles. Works with any React-based framework (React Router, Next.js, etc.).
 
 Interactions are powered by the AT Protocol via `social.scribe-atp.app`. When a user clicks a button, a popup opens for them to sign in with their Bluesky account. The result is written to their AT Protocol repository and reported back to the originating page.
 
 ## Installation
 
 ```bash
-npm install @scribe-atp/social
+npm install @skyscribe-sdk/social
 ```
 
 Requires React 18 or later as a peer dependency.
@@ -22,7 +22,7 @@ Requires React 18 or later as a peer dependency.
 Creates an AT Protocol `app.bsky.feed.like` record ("recommend") for an article when clicked.
 
 ```tsx
-import { LikeButton } from "@scribe-atp/social";
+import { LikeButton } from "@skyscribe-sdk/social";
 
 <LikeButton
   documentUri="at://did:plc:abc123/site.standard.document/3jxtctq7kqm2y"
@@ -65,7 +65,7 @@ Or pass a **static node** to replace the label entirely:
 Opens a popup for the user to share the article via their Bluesky account.
 
 ```tsx
-import { ShareButton } from "@scribe-atp/social";
+import { ShareButton } from "@skyscribe-sdk/social";
 
 <ShareButton
   documentUri="at://did:plc:abc123/site.standard.document/3jxtctq7kqm2y"
@@ -100,7 +100,7 @@ Note: after a successful share the button briefly enters its confirmed state bef
 Follows the author's publication on the AT Protocol when clicked.
 
 ```tsx
-import { SubscribeButton } from "@scribe-atp/social";
+import { SubscribeButton } from "@skyscribe-sdk/social";
 
 <SubscribeButton
   publicationUri="at://did:plc:abc123/site.standard.publication/3xyz789"
@@ -184,10 +184,10 @@ When `defaultLiked` / `defaultSubscribed` is provided, the component uses it as 
 
 ## Getting the AT URIs
 
-Use `fetchArticleBySlug` and `fetchSite` from `@scribe-atp/core` to obtain the URIs needed by the components:
+Use `fetchArticleBySlug` and `fetchSite` from `@skyscribe-sdk/core` to obtain the URIs needed by the components:
 
 ```ts
-import { fetchArticleBySlug, fetchSite } from "@scribe-atp/core";
+import { fetchArticleBySlug, fetchSite } from "@skyscribe-sdk/core";
 
 const [{ uri: documentUri }, site] = await Promise.all([
   fetchArticleBySlug(author, siteUrl, articleSlug, signal),
@@ -203,7 +203,7 @@ const [{ uri: documentUri }, site] = await Promise.all([
 Exported for cases where you need to read or set liked/subscribed state outside the components:
 
 ```ts
-import { isRecommended, markRecommended, isSubscribed, markSubscribed } from "@scribe-atp/social";
+import { isRecommended, markRecommended, isSubscribed, markSubscribed } from "@skyscribe-sdk/social";
 
 isRecommended("at://...");  // → boolean
 markRecommended("at://...");

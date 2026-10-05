@@ -1,9 +1,9 @@
-# @scribe-atp/sdk
+# SkyScribe SDK
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/core?label=%40scribe-atp%2Fcore)](https://www.npmjs.com/package/@scribe-atp/core)
+[![npm](https://img.shields.io/npm/v/@skyscribe-sdk/core?label=%40skyscribe-sdk%2Fcore)](https://www.npmjs.com/package/@skyscribe-sdk/core)
 [![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
-A TypeScript SDK for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Authors write and publish articles in Scribe CMS; this SDK is for developers who want to display that content in their own sites and apps.
+A TypeScript SDK for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Authors write and publish articles in SkyScribe; this SDK is for developers who want to display that content in their own sites and apps.
 
 It handles the parts that are easy to get wrong: resolving author identities to the correct Personal Data Server (PDS), caching DID document lookups, normalising records, and wiring up request cancellation — so you can focus on building your UI.
 
@@ -13,15 +13,15 @@ It handles the parts that are easy to get wrong: resolving author identities to 
 
 | Package | Install | Use when… |
 | ------- | ------- | --------- |
-| `@scribe-atp/core` | `npm install @scribe-atp/core` | Any framework, or no framework. Start here. |
-| `@scribe-atp/react` | `npm install @scribe-atp/react` | React SPA / client-rendered components. |
-| `@scribe-atp/react-router-framework` | `npm install @scribe-atp/react-router-framework` | React Router v7 framework (server) mode. |
-| `@scribe-atp/angular` | `npm install @scribe-atp/angular` | Angular 16+. |
-| `@scribe-atp/next` | `npm install @scribe-atp/next` | Next.js 13+ App Router. |
-| `@scribe-atp/vue` | `npm install @scribe-atp/vue` | Vue 3+ SPA / client-rendered components. |
-| `@scribe-atp/nuxt` | `npm install @scribe-atp/nuxt` | Nuxt 3+. |
+| `@skyscribe-sdk/core` | `npm install @skyscribe-sdk/core` | Any framework, or no framework. Start here. |
+| `@skyscribe-sdk/react` | `npm install @skyscribe-sdk/react` | React SPA / client-rendered components. |
+| `@skyscribe-sdk/react-router-framework` | `npm install @skyscribe-sdk/react-router-framework` | React Router v7 framework (server) mode. |
+| `@skyscribe-sdk/angular` | `npm install @skyscribe-sdk/angular` | Angular 16+. |
+| `@skyscribe-sdk/next` | `npm install @skyscribe-sdk/next` | Next.js 13+ App Router. |
+| `@skyscribe-sdk/vue` | `npm install @skyscribe-sdk/vue` | Vue 3+ SPA / client-rendered components. |
+| `@skyscribe-sdk/nuxt` | `npm install @skyscribe-sdk/nuxt` | Nuxt 3+. |
 
-For **SvelteKit**, **Astro**, or any other meta-framework with server-side data fetching, install `@scribe-atp/core` and call `fetchSite` / `fetchArticle` directly in your page loaders or server components. See the [Other frameworks](#other-frameworks) section.
+For **SvelteKit**, **Astro**, or any other meta-framework with server-side data fetching, install `@skyscribe-sdk/core` and call `fetchSite` / `fetchArticle` directly in your page loaders or server components. See the [Other frameworks](#other-frameworks) section.
 
 ---
 
@@ -32,12 +32,12 @@ For **SvelteKit**, **Astro**, or any other meta-framework with server-side data 
 
 ---
 
-## `@scribe-atp/core`
+## `@skyscribe-sdk/core`
 
 Framework-agnostic. Pure async functions with no runtime dependencies.
 
 ```bash
-npm install @scribe-atp/core
+npm install @skyscribe-sdk/core
 ```
 
 ### Fetch a site
@@ -45,7 +45,7 @@ npm install @scribe-atp/core
 A *site* is an author's publication — it contains their article groups, metadata, and splash image. You identify it by the author's handle (or DID) and the site's canonical HTTPS URL.
 
 ```ts
-import { fetchSite } from "@scribe-atp/core";
+import { fetchSite } from "@skyscribe-sdk/core";
 
 const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
 
@@ -64,7 +64,7 @@ const basePath = site.urlPrefix ? `/${site.urlPrefix}` : "";
 ### Fetch an article
 
 ```ts
-import { fetchArticle } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
 
 const article = await fetchArticle("alice.bsky.social", "my-first-post");
 
@@ -78,7 +78,7 @@ console.log(article.synopsis);  // short summary for cards and meta tags
 When you need to discover everything an author has published — for example, to build a content browser — use `listSites` and `listArticles`:
 
 ```ts
-import { listSites, listArticles, slugFromUri } from "@scribe-atp/core";
+import { listSites, listArticles, slugFromUri } from "@skyscribe-sdk/core";
 
 const [sites, articles] = await Promise.all([
   listSites("alice.bsky.social"),
@@ -115,7 +115,7 @@ const sites = await listSites("alice.bsky.social", request.signal);
 ### Utilities
 
 ```ts
-import { slugFromUri, flattenArticles } from "@scribe-atp/core";
+import { slugFromUri, flattenArticles } from "@skyscribe-sdk/core";
 
 slugFromUri("at://did:plc:abc/site.standard.document/3mp4hfovqib2h"); // → "3mp4hfovqib2h"
 
@@ -124,18 +124,18 @@ flattenArticles(site.groups); // → ArticleRef[] — all articles across all gr
 
 ---
 
-## `@scribe-atp/react`
+## `@skyscribe-sdk/react`
 
-React hooks wrapping `@scribe-atp/core`. Handles loading state, error state, and request cancellation automatically. Requires React 18 or later.
+React hooks wrapping `@skyscribe-sdk/core`. Handles loading state, error state, and request cancellation automatically. Requires React 18 or later.
 
 ```bash
-npm install @scribe-atp/react
+npm install @skyscribe-sdk/react
 ```
 
 ### `useSite`
 
 ```tsx
-import { useSite } from "@scribe-atp/react";
+import { useSite } from "@skyscribe-sdk/react";
 
 function BlogIndex() {
   const { site, loading, error } = useSite("alice.bsky.social", "https://alice.bsky.social");
@@ -158,7 +158,7 @@ function BlogIndex() {
 ### `useArticle`
 
 ```tsx
-import { useArticle } from "@scribe-atp/react";
+import { useArticle } from "@skyscribe-sdk/react";
 
 function ArticlePage({ author, slug }: { author: string; slug: string }) {
   const { article, loading, error } = useArticle(author, slug);
@@ -179,19 +179,19 @@ Both hooks re-fetch automatically when their parameters change and abort the in-
 
 ---
 
-## `@scribe-atp/react-router-framework`
+## `@skyscribe-sdk/react-router-framework`
 
-Loader factories for [React Router v7 framework mode](https://reactrouter.com). Not compatible with React Router SPA (library) mode — use `@scribe-atp/react` instead.
+Loader factories for [React Router v7 framework mode](https://reactrouter.com). Not compatible with React Router SPA (library) mode — use `@skyscribe-sdk/react` instead.
 
 ```bash
-npm install @scribe-atp/react-router-framework
+npm install @skyscribe-sdk/react-router-framework
 ```
 
 ### Site index route
 
 ```ts
 // app/routes/blog.tsx
-import { createSiteLoader } from "@scribe-atp/react-router-framework";
+import { createSiteLoader } from "@skyscribe-sdk/react-router-framework";
 import { useLoaderData } from "react-router";
 
 export const loader = createSiteLoader("alice.bsky.social", "https://alice.bsky.social");
@@ -213,12 +213,12 @@ export default function Blog() {
 
 ### Dynamic article route
 
-For routes where the slug comes from URL params, use `fetchArticle` from `@scribe-atp/core` directly inside your loader:
+For routes where the slug comes from URL params, use `fetchArticle` from `@skyscribe-sdk/core` directly inside your loader:
 
 ```ts
 // app/routes/blog.$slug.tsx
 import type { LoaderFunctionArgs } from "react-router";
-import { fetchArticle } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
 import { useLoaderData } from "react-router";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -239,12 +239,12 @@ export default function Article() {
 
 ---
 
-## `@scribe-atp/angular`
+## `@skyscribe-sdk/angular`
 
 Angular service and injection functions. Requires Angular 16 or later. Ships two APIs — choose based on your component style.
 
 ```bash
-npm install @scribe-atp/angular
+npm install @skyscribe-sdk/angular
 ```
 
 ### Observable API — `ScribeService`
@@ -256,7 +256,7 @@ Compose with the `async` pipe for the most concise result:
 ```ts
 import { Component, inject } from "@angular/core";
 import { AsyncPipe, NgIf, NgFor } from "@angular/common";
-import { ScribeService } from "@scribe-atp/angular";
+import { ScribeService } from "@skyscribe-sdk/angular";
 
 @Component({
   standalone: true,
@@ -313,7 +313,7 @@ Injection functions that return readonly signals. The fetch is aborted automatic
 ```ts
 import { Component } from "@angular/core";
 import { NgIf } from "@angular/common";
-import { injectArticle } from "@scribe-atp/angular";
+import { injectArticle } from "@skyscribe-sdk/angular";
 
 @Component({
   standalone: true,
@@ -340,13 +340,13 @@ export class ArticleComponent {
 
 ## Other frameworks
 
-For **Next.js**, **Nuxt**, **SvelteKit**, **Astro**, or any framework with server-side data fetching, install `@scribe-atp/core` and call `fetchSite` / `fetchArticle` directly. They're plain async functions that work anywhere JavaScript runs.
+For **Next.js**, **Nuxt**, **SvelteKit**, **Astro**, or any framework with server-side data fetching, install `@skyscribe-sdk/core` and call `fetchSite` / `fetchArticle` directly. They're plain async functions that work anywhere JavaScript runs.
 
 **Next.js App Router:**
 
 ```ts
 // app/blog/page.tsx
-import { fetchSite } from "@scribe-atp/core";
+import { fetchSite } from "@skyscribe-sdk/core";
 
 export default async function BlogPage() {
   const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
@@ -367,7 +367,7 @@ export default async function BlogPage() {
 
 ```ts
 // src/routes/blog/+page.server.ts
-import { fetchSite } from "@scribe-atp/core";
+import { fetchSite } from "@skyscribe-sdk/core";
 
 export const load = async ({ fetch: _ }) => {
   const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
@@ -382,8 +382,8 @@ export const load = async ({ fetch: _ }) => {
 All types are exported from every package so you only ever need one import:
 
 ```ts
-import type { Site, SiteRecord, Article, ArticleRef, SiteGroup } from "@scribe-atp/core";
-// or from "@scribe-atp/react", "@scribe-atp/angular", etc.
+import type { Site, SiteRecord, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/core";
+// or from "@skyscribe-sdk/react", "@skyscribe-sdk/angular", etc.
 ```
 
 | Type | Description |

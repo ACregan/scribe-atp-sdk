@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
-import type { Site, Article } from "@scribe-atp/core";
+import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@skyscribe-sdk/core";
+import type { Site, Article } from "@skyscribe-sdk/core";
 
 export function createSiteLoader(
   author: string,

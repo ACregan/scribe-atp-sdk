@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { TestBed } from "@angular/core/testing";
 import { injectArticle } from "./inject-article.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchArticle: vi.fn(),
 }));
 
-import { fetchArticle } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
 const mockFetchArticle = vi.mocked(fetchArticle);
 
 const article = {

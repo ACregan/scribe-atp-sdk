@@ -3,11 +3,11 @@ import { defineComponent, nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import { useScribeSite } from "./useScribeSite.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchSite: vi.fn(),
 }));
 
-import { fetchSite } from "@scribe-atp/core";
+import { fetchSite } from "@skyscribe-sdk/core";
 const mockFetchSite = vi.mocked(fetchSite);
 
 const mockSite = {

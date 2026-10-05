@@ -1,7 +1,7 @@
 {
-  "name": "@scribe-atp/core",
-  "version": "3.11.1",
-  "description": "Pure TypeScript fetch functions, PDS resolution, and types for reading Scribe CMS content from the AT Protocol.",
+  "name": "@skyscribe-sdk/core",
+  "version": "3.11.2",
+  "description": "Pure TypeScript fetch functions, PDS resolution, and types for reading SkyScribe content from the AT Protocol.",
   "license": "MIT",
   "engines": {
     "node": ">=22"
@@ -25,14 +25,14 @@
     "atproto",
     "bluesky",
     "scribe",
-    "scribe-cms",
+    "skyscribe",
     "blog",
     "cms",
     "typescript"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+    "url": "git+https://github.com/ACregan/scribe-atp-sdk.git"
   },
   "publishConfig": {
     "access": "public"

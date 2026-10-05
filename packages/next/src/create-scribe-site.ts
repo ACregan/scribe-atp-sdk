@@ -1,4 +1,4 @@
-import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
+import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@skyscribe-sdk/core";
 import type { Metadata } from "next";
 
 export function createScribeSite(author: string, publicationUrl: string) {

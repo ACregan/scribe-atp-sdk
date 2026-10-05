@@ -1,18 +1,18 @@
-# @scribe-atp/vue
+# @skyscribe-sdk/vue
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/vue)](https://www.npmjs.com/package/@scribe-atp/vue)
+[![npm](https://img.shields.io/npm/v/@skyscribe-sdk/vue)](https://www.npmjs.com/package/@skyscribe-sdk/vue)
 [![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
-Vue 3 composables for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Requires Vue 3 or later.
+Vue 3 composables for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires Vue 3 or later.
 
-Wraps [`@scribe-atp/core`](https://www.npmjs.com/package/@scribe-atp/core) with idiomatic Vue 3 reactivity. Handles loading state, error state, and request cancellation automatically.
+Wraps [`@skyscribe-sdk/core`](https://www.npmjs.com/package/@skyscribe-sdk/core) with idiomatic Vue 3 reactivity. Handles loading state, error state, and request cancellation automatically.
 
-> **Building a Nuxt app?** Use [`@scribe-atp/nuxt`](https://www.npmjs.com/package/@scribe-atp/nuxt) instead — it builds on this package and adds auto-imports and `useAsyncData` integration.
+> **Building a Nuxt app?** Use [`@skyscribe-sdk/nuxt`](https://www.npmjs.com/package/@skyscribe-sdk/nuxt) instead — it builds on this package and adds auto-imports and `useAsyncData` integration.
 
 ## Installation
 
 ```bash
-npm install @scribe-atp/vue
+npm install @skyscribe-sdk/vue
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ npm install @scribe-atp/vue
 
 ```vue
 <script setup lang="ts">
-import { useScribeSite } from "@scribe-atp/vue";
+import { useScribeSite } from "@skyscribe-sdk/vue";
 
 const { site, loading, error } = useScribeSite(
   "alice.bsky.social",
@@ -44,7 +44,7 @@ const { site, loading, error } = useScribeSite(
 
 ```vue
 <script setup lang="ts">
-import { useScribeArticle } from "@scribe-atp/vue";
+import { useScribeArticle } from "@skyscribe-sdk/vue";
 
 const props = defineProps<{ author: string; slug: string }>();
 const { article, loading, error } = useScribeArticle(props.author, props.slug);
@@ -64,10 +64,10 @@ Both composables abort the in-flight request automatically when the component is
 
 ## TypeScript types
 
-All types from `@scribe-atp/core` are re-exported:
+All types from `@skyscribe-sdk/core` are re-exported:
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/vue";
+import type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/vue";
 ```
 
 ## License

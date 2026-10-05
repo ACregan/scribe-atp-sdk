@@ -1,7 +1,7 @@
 {
-  "name": "@scribe-atp/react",
-  "version": "2.1.0",
-  "description": "React hooks for reading Scribe CMS content from the AT Protocol.",
+  "name": "@skyscribe-sdk/react",
+  "version": "2.1.1",
+  "description": "React hooks for reading SkyScribe content from the AT Protocol.",
   "license": "MIT",
   "engines": {
     "node": ">=22"
@@ -25,7 +25,7 @@
     "atproto",
     "bluesky",
     "scribe",
-    "scribe-cms",
+    "skyscribe",
     "blog",
     "cms",
     "react",
@@ -34,7 +34,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+    "url": "git+https://github.com/ACregan/scribe-atp-sdk.git"
   },
   "publishConfig": {
     "access": "public"
@@ -44,7 +44,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@scribe-atp/core": "*"
+    "@skyscribe-sdk/core": "*"
   },
   "peerDependencies": {
     "react": ">=18"

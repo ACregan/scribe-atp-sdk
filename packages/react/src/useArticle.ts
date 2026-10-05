@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { fetchArticle } from "@scribe-atp/core";
-import type { Article } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
+import type { Article } from "@skyscribe-sdk/core";
 
 interface UseArticleResult {
   article: Article | null;

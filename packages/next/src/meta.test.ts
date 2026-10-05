@@ -6,12 +6,12 @@ import {
   generateSiteJsonLd,
 } from "./meta.js";
 
-vi.mock("@scribe-atp/core", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@scribe-atp/core")>();
+vi.mock("@skyscribe-sdk/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@skyscribe-sdk/core")>();
   return { ...actual };
 });
 
-import type { Article, Site } from "@scribe-atp/core";
+import type { Article, Site } from "@skyscribe-sdk/core";
 
 const site: Site = {
   uri: "at://did:plc:abc/site.standard.publication/tid123",
@@ -92,12 +92,12 @@ describe("articleMetadata", () => {
 });
 
 describe("generateArticleJsonLd / generateSiteJsonLd re-exports", () => {
-  it("re-exports a working generateArticleJsonLd from @scribe-atp/core", () => {
+  it("re-exports a working generateArticleJsonLd from @skyscribe-sdk/core", () => {
     const jsonLd = generateArticleJsonLd(article, site);
     expect(jsonLd).toMatchObject({ "@type": "BlogPosting", headline: article.title });
   });
 
-  it("re-exports a working generateSiteJsonLd from @scribe-atp/core", () => {
+  it("re-exports a working generateSiteJsonLd from @skyscribe-sdk/core", () => {
     const jsonLd = generateSiteJsonLd(site);
     expect(jsonLd).toMatchObject({ "@type": "WebSite", name: site.title });
   });

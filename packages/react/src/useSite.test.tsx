@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useSite } from "./useSite.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchSite: vi.fn(),
 }));
 
-import { fetchSite } from "@scribe-atp/core";
+import { fetchSite } from "@skyscribe-sdk/core";
 const mockFetchSite = vi.mocked(fetchSite);
 
 const site = {

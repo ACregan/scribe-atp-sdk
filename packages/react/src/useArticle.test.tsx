@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useArticle } from "./useArticle.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchArticle: vi.fn(),
 }));
 
-import { fetchArticle } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
 const mockFetchArticle = vi.mocked(fetchArticle);
 
 const article = {

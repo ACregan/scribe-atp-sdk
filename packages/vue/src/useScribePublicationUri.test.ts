@@ -3,11 +3,11 @@ import { defineComponent, nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import { useScribePublicationUri } from "./useScribePublicationUri.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   resolvePublicationUri: vi.fn(),
 }));
 
-import { resolvePublicationUri } from "@scribe-atp/core";
+import { resolvePublicationUri } from "@skyscribe-sdk/core";
 const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
 
 const PUBLICATION_URI = "at://did:plc:abc/site.standard.publication/3jxtctq7kqm2y";

@@ -1,7 +1,7 @@
 import { inject, DestroyRef, signal } from "@angular/core";
 import type { Signal } from "@angular/core";
-import { fetchSite } from "@scribe-atp/core";
-import type { Site } from "@scribe-atp/core";
+import { fetchSite } from "@skyscribe-sdk/core";
+import type { Site } from "@skyscribe-sdk/core";
 
 interface InjectSiteResult {
   site: Signal<Site | null>;

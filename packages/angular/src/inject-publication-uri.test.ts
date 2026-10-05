@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { TestBed } from "@angular/core/testing";
 import { injectPublicationUri } from "./inject-publication-uri.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   resolvePublicationUri: vi.fn(),
 }));
 
-import { resolvePublicationUri } from "@scribe-atp/core";
+import { resolvePublicationUri } from "@skyscribe-sdk/core";
 const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);
 
 const PUBLICATION_URI = "at://did:plc:test/site.standard.publication/my-blog";

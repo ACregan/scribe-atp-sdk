@@ -2,7 +2,7 @@ import { defineNuxtModule, addImportsDir, createResolver } from "@nuxt/kit";
 
 export default defineNuxtModule({
   meta: {
-    name: "@scribe-atp/nuxt",
+    name: "@skyscribe-sdk/nuxt",
     configKey: "scribe",
   },
   setup(_options, _nuxt) {

@@ -1,7 +1,7 @@
 import { ref, onUnmounted } from "vue";
 import type { Ref } from "vue";
-import { fetchSite } from "@scribe-atp/core";
-import type { Site } from "@scribe-atp/core";
+import { fetchSite } from "@skyscribe-sdk/core";
+import type { Site } from "@skyscribe-sdk/core";
 
 export interface UseScribeSiteResult {
   site: Ref<Site | null>;
