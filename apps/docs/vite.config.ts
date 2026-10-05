@@ -34,6 +34,13 @@ export default defineConfig({
     },
     reactRouter(),
   ],
+  // React Router prerenders by starting Vite's preview server and fetching
+  // each page from it. Bound to "localhost", the server can listen on ::1
+  // while the fetch goes to 127.0.0.1 (seen in the CI container:
+  // ECONNREFUSED 127.0.0.1). Pin it to IPv4.
+  preview: {
+    host: "127.0.0.1",
+  },
   resolve: {
     // Mirrors tsconfig.json's `~/*` path (Vite 7 has no tsconfigPaths).
     alias: { "~": fileURLToPath(new URL("./app", import.meta.url)) },
