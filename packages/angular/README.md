@@ -1,16 +1,16 @@
-# @scribe-atp/angular
+# @skyscribe-sdk/angular
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/angular)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@skyscribe-sdk/angular)](https://www.npmjs.com/package/@skyscribe-sdk/angular)
 [![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
-Angular service and injection functions for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Requires Angular 16 or later.
+Angular service and injection functions for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires Angular 16 or later.
 
-Wraps [`@scribe-atp/core`](https://www.npmjs.com/package/@scribe-atp/core) with idiomatic Angular reactivity. Ships two APIs — pick whichever fits your component style.
+Wraps [`@skyscribe-sdk/core`](https://www.npmjs.com/package/@skyscribe-sdk/core) with idiomatic Angular reactivity. Ships two APIs — pick whichever fits your component style.
 
 ## Installation
 
 ```bash
-npm install @scribe-atp/angular
+npm install @skyscribe-sdk/angular
 ```
 
 ## Observable API — `ScribeService`
@@ -22,7 +22,7 @@ Compose with the `async` pipe for the most concise result:
 ```ts
 import { Component, inject } from "@angular/core";
 import { AsyncPipe, NgIf, NgFor } from "@angular/common";
-import { ScribeService } from "@scribe-atp/angular";
+import { ScribeService } from "@skyscribe-sdk/angular";
 
 @Component({
   standalone: true,
@@ -79,7 +79,7 @@ Injection functions that return readonly signals. The fetch is aborted automatic
 ```ts
 import { Component } from "@angular/core";
 import { NgIf } from "@angular/common";
-import { injectArticle } from "@scribe-atp/angular";
+import { injectArticle } from "@skyscribe-sdk/angular";
 
 @Component({
   standalone: true,
@@ -109,10 +109,10 @@ vm = injectSite("alice.bsky.social", "https://alice.bsky.social");
 
 ## TypeScript types
 
-All types from `@scribe-atp/core` are re-exported:
+All types from `@skyscribe-sdk/core` are re-exported:
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/angular";
+import type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/angular";
 ```
 
 ## License

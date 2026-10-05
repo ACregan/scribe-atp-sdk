@@ -1,23 +1,23 @@
-# @scribe-atp/nuxt
+# @skyscribe-sdk/nuxt
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/nuxt)](https://www.npmjs.com/package/@scribe-atp/nuxt)
+[![npm](https://img.shields.io/npm/v/@skyscribe-sdk/nuxt)](https://www.npmjs.com/package/@skyscribe-sdk/nuxt)
 [![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
-Nuxt 3 module for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Requires Nuxt 3 or later.
+Nuxt 3 module for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires Nuxt 3 or later.
 
-Wraps [`@scribe-atp/core`](https://www.npmjs.com/package/@scribe-atp/core) with Nuxt-idiomatic `useAsyncData` composables and auto-imports — no explicit imports needed in your components or pages.
+Wraps [`@skyscribe-sdk/core`](https://www.npmjs.com/package/@skyscribe-sdk/core) with Nuxt-idiomatic `useAsyncData` composables and auto-imports — no explicit imports needed in your components or pages.
 
 ## Installation
 
 ```bash
-npm install @scribe-atp/nuxt
+npm install @skyscribe-sdk/nuxt
 ```
 
 Register the module in `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["@scribe-atp/nuxt"],
+  modules: ["@skyscribe-sdk/nuxt"],
 });
 ```
 
@@ -87,7 +87,7 @@ Use Nuxt's [`routeRules`](https://nuxt.com/docs/guide/concepts/rendering#route-r
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["@scribe-atp/nuxt"],
+  modules: ["@skyscribe-sdk/nuxt"],
   routeRules: {
     "/blog/**": { swr: 3600 }, // revalidate every hour
   },
@@ -101,8 +101,8 @@ export default defineNuxtConfig({
 ```vue
 <!-- pages/blog/[slug].vue -->
 <script setup lang="ts">
-import { articleSeoMeta } from "@scribe-atp/nuxt";
-import { fetchArticleBySlug, fetchSite } from "@scribe-atp/core";
+import { articleSeoMeta } from "@skyscribe-sdk/nuxt";
+import { fetchArticleBySlug, fetchSite } from "@skyscribe-sdk/core";
 
 const route = useRoute();
 const [{ article }, site] = await Promise.all([
@@ -117,12 +117,12 @@ useSeoMeta(articleSeoMeta(article, site));
 `siteSeoMeta` covers index and group pages:
 
 ```ts
-import { siteSeoMeta } from "@scribe-atp/nuxt";
+import { siteSeoMeta } from "@skyscribe-sdk/nuxt";
 
 useSeoMeta(siteSeoMeta(site));
 ```
 
-These functions are **not** auto-imported — use an explicit import from `@scribe-atp/nuxt`.
+These functions are **not** auto-imported — use an explicit import from `@skyscribe-sdk/nuxt`.
 
 ## Auto-imports
 
@@ -131,16 +131,16 @@ Only the data composables are auto-imported: `useScribeSite` and `useScribeArtic
 Utility functions and meta helpers require an explicit import:
 
 ```ts
-import { toSlug, flattenArticles } from "@scribe-atp/core";
-import { articleSeoMeta, siteSeoMeta } from "@scribe-atp/nuxt";
+import { toSlug, flattenArticles } from "@skyscribe-sdk/core";
+import { articleSeoMeta, siteSeoMeta } from "@skyscribe-sdk/nuxt";
 ```
 
 ## TypeScript types
 
-All types from `@scribe-atp/core` are re-exported:
+All types from `@skyscribe-sdk/core` are re-exported:
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/nuxt";
+import type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/nuxt";
 ```
 
 ## License

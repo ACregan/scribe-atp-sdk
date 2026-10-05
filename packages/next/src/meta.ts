@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import type { Article, Site } from "@scribe-atp/core";
+import type { Article, Site } from "@skyscribe-sdk/core";
 import {
   buildCanonicalUrl,
   buildSiteUrl,
   generateArticleJsonLd,
   generateSiteJsonLd,
-} from "@scribe-atp/core";
+} from "@skyscribe-sdk/core";
 
 // Re-exported so consumers can render structured data themselves — Next's
 // Metadata object has no field for a raw <script> tag, so the convention is

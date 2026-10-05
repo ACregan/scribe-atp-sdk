@@ -11,5 +11,5 @@ export {
   buildSiteUrl,
   generateArticleJsonLd,
   generateSiteJsonLd,
-} from "@scribe-atp/core";
-export type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/core";
+} from "@skyscribe-sdk/core";
+export type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/core";

@@ -1,7 +1,7 @@
 import { ref, onUnmounted } from "vue";
 import type { Ref } from "vue";
-import { fetchArticle } from "@scribe-atp/core";
-import type { Article } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
+import type { Article } from "@skyscribe-sdk/core";
 
 export interface UseScribeArticleResult {
   article: Ref<Article | null>;

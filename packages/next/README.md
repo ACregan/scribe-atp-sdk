@@ -1,18 +1,18 @@
-# @scribe-atp/next
+# @skyscribe-sdk/next
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/next)](https://www.npmjs.com/package/@scribe-atp/next)
+[![npm](https://img.shields.io/npm/v/@skyscribe-sdk/next)](https://www.npmjs.com/package/@skyscribe-sdk/next)
 [![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
-Next.js App Router adapter for reading [Scribe CMS](https://scribe-cms.app) content from the AT Protocol. Requires Next.js 13 or later.
+Next.js App Router adapter for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires Next.js 13 or later.
 
-Wraps [`@scribe-atp/core`](https://www.npmjs.com/package/@scribe-atp/core) with Next.js-idiomatic factories for `generateStaticParams` and `generateMetadata`.
+Wraps [`@skyscribe-sdk/core`](https://www.npmjs.com/package/@skyscribe-sdk/core) with Next.js-idiomatic factories for `generateStaticParams` and `generateMetadata`.
 
-> **App Router only.** For Pages Router support, use [`@scribe-atp/core`](https://www.npmjs.com/package/@scribe-atp/core) directly — see [Pages Router](#pages-router) below.
+> **App Router only.** For Pages Router support, use [`@skyscribe-sdk/core`](https://www.npmjs.com/package/@skyscribe-sdk/core) directly — see [Pages Router](#pages-router) below.
 
 ## Installation
 
 ```bash
-npm install @scribe-atp/next
+npm install @skyscribe-sdk/next
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ Create a factory once and export its functions from your route files:
 
 ```ts
 // lib/scribe.ts
-import { createScribeSite } from "@scribe-atp/next";
+import { createScribeSite } from "@skyscribe-sdk/next";
 
 export const scribe = createScribeSite("alice.bsky.social", "https://alice.bsky.social");
 ```
@@ -96,8 +96,8 @@ Article metadata uses the cached `ArticleRef` snapshot already present in the si
 Outside the factory pattern, `articleMetadata` and `siteMetadata` are exported as standalone functions that accept an `Article`/`Site` object directly. These are useful when you're already fetching content yourself and just need the `Metadata` object:
 
 ```ts
-import { articleMetadata, siteMetadata } from "@scribe-atp/next";
-import { fetchArticleBySlug, fetchSite } from "@scribe-atp/core";
+import { articleMetadata, siteMetadata } from "@skyscribe-sdk/next";
+import { fetchArticleBySlug, fetchSite } from "@skyscribe-sdk/core";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const [{ article }, site] = await Promise.all([
@@ -108,10 +108,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 ```
 
-**Need custom metadata?** Call `fetchSite` or `fetchArticle` from `@scribe-atp/core` directly and compose your own `Metadata` object:
+**Need custom metadata?** Call `fetchSite` or `fetchArticle` from `@skyscribe-sdk/core` directly and compose your own `Metadata` object:
 
 ```ts
-import { fetchSite } from "@scribe-atp/core";
+import { fetchSite } from "@skyscribe-sdk/core";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -134,12 +134,12 @@ export const revalidate = 3600; // revalidate every hour
 
 ## Pages Router
 
-`@scribe-atp/next` targets the App Router only. For Pages Router, use `@scribe-atp/core` directly:
+`@skyscribe-sdk/next` targets the App Router only. For Pages Router, use `@skyscribe-sdk/core` directly:
 
 ```ts
 // pages/blog/[slug].tsx
 import type { GetStaticPaths, GetStaticProps } from "next";
-import { fetchSite, fetchArticle } from "@scribe-atp/core";
+import { fetchSite, fetchArticle } from "@skyscribe-sdk/core";
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
@@ -157,10 +157,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 ## TypeScript types
 
-All types from `@scribe-atp/core` are re-exported:
+All types from `@skyscribe-sdk/core` are re-exported:
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/next";
+import type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/next";
 ```
 
 ## License

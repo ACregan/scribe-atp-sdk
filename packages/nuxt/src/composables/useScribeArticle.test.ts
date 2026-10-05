@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchArticle: vi.fn(),
 }));
 
@@ -8,7 +8,7 @@ vi.mock("#app", () => ({
   useAsyncData: vi.fn(),
 }));
 
-import { fetchArticle } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
 import { useAsyncData } from "#app";
 import { useScribeArticle } from "./useScribeArticle.js";
 

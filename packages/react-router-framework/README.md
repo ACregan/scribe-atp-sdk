@@ -1,18 +1,18 @@
-# @scribe-atp/react-router-framework
+# @skyscribe-sdk/react-router-framework
 
-[![npm](https://img.shields.io/npm/v/@scribe-atp/react-router-framework)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@skyscribe-sdk/react-router-framework)](https://www.npmjs.com/package/@skyscribe-sdk/react-router-framework)
 [![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
 
-Loader factories for reading [Scribe CMS](https://scribe-cms.app) content in [React Router v7 framework mode](https://reactrouter.com).
+Loader factories for reading [SkyScribe](https://skyscribe.app) content in [React Router v7 framework mode](https://reactrouter.com).
 
 Fetches content on the server, passes it to your route component via `useLoaderData`, and wires up request cancellation via `request.signal` automatically. No client-side loading states.
 
-> **Not compatible with React Router SPA (library) mode.** For client-rendered React, use [`@scribe-atp/react`](https://www.npmjs.com/package/@scribe-atp/react) instead.
+> **Not compatible with React Router SPA (library) mode.** For client-rendered React, use [`@skyscribe-sdk/react`](https://www.npmjs.com/package/@skyscribe-sdk/react) instead.
 
 ## Installation
 
 ```bash
-npm install @scribe-atp/react-router-framework
+npm install @skyscribe-sdk/react-router-framework
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ npm install @scribe-atp/react-router-framework
 
 ```ts
 // app/routes/blog.tsx
-import { createSiteLoader } from "@scribe-atp/react-router-framework";
+import { createSiteLoader } from "@skyscribe-sdk/react-router-framework";
 import { useLoaderData } from "react-router";
 
 export const loader = createSiteLoader("alice.bsky.social", "https://alice.bsky.social");
@@ -43,11 +43,11 @@ export default function Blog() {
 
 ### Dynamic article route
 
-Use `createArticleRouteLoader` for routes where the slug comes from URL params. It resolves the article and returns `{ ...article, documentUri }` — the AT URI is included so you can pass it to `@scribe-atp/social`'s `LikeButton`.
+Use `createArticleRouteLoader` for routes where the slug comes from URL params. It resolves the article and returns `{ ...article, documentUri }` — the AT URI is included so you can pass it to `@skyscribe-sdk/social`'s `LikeButton`.
 
 ```ts
 // app/routes/blog.$articleSlug.tsx
-import { createArticleRouteLoader } from "@scribe-atp/react-router-framework";
+import { createArticleRouteLoader } from "@skyscribe-sdk/react-router-framework";
 import { useLoaderData } from "react-router";
 
 export const loader = createArticleRouteLoader(
@@ -79,7 +79,7 @@ export const loader = createArticleRouteLoader("alice.bsky.social", "https://ali
 
 ```ts
 // app/routes/well-known.ts
-import { createWellKnownLoader } from "@scribe-atp/react-router-framework";
+import { createWellKnownLoader } from "@skyscribe-sdk/react-router-framework";
 
 export const loader = createWellKnownLoader("alice.bsky.social", "https://alice.bsky.social");
 ```
@@ -89,7 +89,7 @@ export const loader = createWellKnownLoader("alice.bsky.social", "https://alice.
 `articleMeta` and `siteMeta` return a `MetaDescriptor[]` array ready to spread into a React Router v7 `meta` function. They produce Open Graph and Twitter Card tags for rich link previews on Bluesky and other platforms.
 
 ```ts
-import { articleMeta } from "@scribe-atp/react-router-framework";
+import { articleMeta } from "@skyscribe-sdk/react-router-framework";
 import type { Route } from "./+types/Article";
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -104,7 +104,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 `siteMeta` covers site index and group pages:
 
 ```ts
-import { siteMeta } from "@scribe-atp/react-router-framework";
+import { siteMeta } from "@skyscribe-sdk/react-router-framework";
 
 export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData) return [{ title: "My Blog" }];
@@ -123,7 +123,7 @@ All three factory functions accept an optional `deps` parameter for dependency i
 
 ```ts
 import { describe, it, expect, vi } from "vitest";
-import { createSiteLoader, createArticleRouteLoader } from "@scribe-atp/react-router-framework";
+import { createSiteLoader, createArticleRouteLoader } from "@skyscribe-sdk/react-router-framework";
 
 const makeArgs = () =>
   ({ request: new Request("https://example.com"), params: {}, context: {} }) as any;
@@ -152,10 +152,10 @@ describe("blog loaders", () => {
 
 ## TypeScript types
 
-All types from `@scribe-atp/core` are re-exported, plus `ArticleWithUri`:
+All types from `@skyscribe-sdk/core` are re-exported, plus `ArticleWithUri`:
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup, ArticleWithUri } from "@scribe-atp/react-router-framework";
+import type { Site, Article, ArticleRef, SiteGroup, ArticleWithUri } from "@skyscribe-sdk/react-router-framework";
 ```
 
 `ArticleWithUri` is the return type of `createArticleRouteLoader` — it extends `Article` with `documentUri: string`.

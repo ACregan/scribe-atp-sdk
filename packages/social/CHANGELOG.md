@@ -1,4 +1,10 @@
-# @scribe-atp/social
+# @skyscribe-sdk/social
+
+## 1.4.2
+
+### Patch Changes
+
+- Renamed from `@scribe-atp/*` to `@skyscribe-sdk/*` as part of the move to the SkyScribe SDK. Only the package name changes: every export, hook, type and CSS class keeps its name, and version numbers continue from the old package. To migrate, replace `@scribe-atp/` with `@skyscribe-sdk/` in your imports and `package.json`.
 
 ## 1.4.1
 

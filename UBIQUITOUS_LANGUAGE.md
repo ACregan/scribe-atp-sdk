@@ -1,4 +1,4 @@
-# Ubiquitous Language — Scribe ATP SDK
+# Ubiquitous Language — SkyScribe SDK
 
 This document defines the shared vocabulary used across the SDK codebase,
 documentation, and conversations. When a term appears in code, tests, or
@@ -8,30 +8,40 @@ discussion, it should match the definition here.
 
 ## Project & Brand
 
+**SkyScribe** (`skyscribe.app`)
+: The authoring app and site builder where writers create and publish
+  their content. Separate repo; not part of this SDK.
+
 **Scribe CMS** (`scribe-cms.app`)
-: The authoring tool where writers create and publish their content.
-  Separate repo; not part of this SDK.
+: The original authoring tool. Writes the same records as SkyScribe and is
+  being retired. Separate repo.
 
-**Scribe ATP SDK** (this repo)
-: The developer toolkit for consuming Scribe content in third-party apps
-  and sites. Published to npm under the `@scribe-atp/` scope.
+**SkyScribe SDK** (this repo)
+: The developer toolkit for showing SkyScribe content on an SDK-driven
+  website. Published to npm under the `@skyscribe-sdk/` scope.
+  _Avoid_: "Scribe ATP SDK", "Scribe SDK" (pre-migration names).
 
-**`@scribe-atp/core`**
+**SDK-driven website**
+: A website a developer builds themselves with the SkyScribe SDK, not via
+  SkyScribe's site design wizard (that makes a SkyScribe Site).
+  _Avoid_: "self-hosted", "your own website".
+
+**`@skyscribe-sdk/core`**
 : The framework-agnostic package. Pure TypeScript fetch functions, PDS
   resolution logic, and shared types. No runtime dependencies.
 
-**`@scribe-atp/react`**
-: The React adapter. Thin hooks wrapping `@scribe-atp/core` with
+**`@skyscribe-sdk/react`**
+: The React adapter. Thin hooks wrapping `@skyscribe-sdk/core` with
   idiomatic React state management and cleanup.
 
-**`@scribe-atp/react-router-framework`**
+**`@skyscribe-sdk/react-router-framework`**
 : Loader factories for React Router v7 framework mode. Wraps core fetch
   functions in the loader/signal conventions of React Router's server-side
   data loading model.
 
-**`@scribe-atp/angular`**
+**`@skyscribe-sdk/angular`**
 : The Angular adapter. Provides `ScribeService` (Observable API) and
-  `injectSite` / `injectArticle` (Signals API) wrapping `@scribe-atp/core`
+  `injectSite` / `injectArticle` (Signals API) wrapping `@skyscribe-sdk/core`
   with idiomatic Angular reactivity and cleanup.
 
 ---

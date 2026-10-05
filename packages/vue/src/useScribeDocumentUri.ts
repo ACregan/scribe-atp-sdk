@@ -1,6 +1,6 @@
 import { ref, onUnmounted } from "vue";
 import type { Ref } from "vue";
-import { fetchArticleBySlug } from "@scribe-atp/core";
+import { fetchArticleBySlug } from "@skyscribe-sdk/core";
 
 export interface UseScribeDocumentUriResult {
   uri: Ref<string | null>;

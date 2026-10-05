@@ -1,6 +1,6 @@
 {
-  "name": "@scribe-atp/social",
-  "version": "1.4.1",
+  "name": "@skyscribe-sdk/social",
+  "version": "1.4.2",
   "description": "React components for Scribe social interactions (Like, Subscribe).",
   "license": "MIT",
   "engines": {
@@ -25,13 +25,13 @@
     "atproto",
     "bluesky",
     "scribe",
-    "scribe-cms",
+    "skyscribe",
     "react",
     "typescript"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+    "url": "git+https://github.com/ACregan/scribe-atp-sdk.git"
   },
   "publishConfig": {
     "access": "public"

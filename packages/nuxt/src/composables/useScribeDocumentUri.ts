@@ -1,6 +1,6 @@
 import { useAsyncData } from "#app";
 import type { AsyncDataOptions } from "#app";
-import { fetchArticleBySlug } from "@scribe-atp/core";
+import { fetchArticleBySlug } from "@skyscribe-sdk/core";
 
 export function useScribeDocumentUri(
   author: string,

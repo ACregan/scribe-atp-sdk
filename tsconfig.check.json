@@ -7,11 +7,11 @@
     "useDefineForClassFields": false,
     "types": ["@testing-library/jest-dom"],
     "paths": {
-      "@scribe-atp/core": ["./packages/core/src/index.ts"],
-      "@scribe-atp/react": ["./packages/react/src/index.ts"],
-      "@scribe-atp/social": ["./packages/social/src/index.ts"],
-      "@scribe-atp/next": ["./packages/next/src/index.ts"],
-      "@scribe-atp/vue": ["./packages/vue/src/index.ts"],
+      "@skyscribe-sdk/core": ["./packages/core/src/index.ts"],
+      "@skyscribe-sdk/react": ["./packages/react/src/index.ts"],
+      "@skyscribe-sdk/social": ["./packages/social/src/index.ts"],
+      "@skyscribe-sdk/next": ["./packages/next/src/index.ts"],
+      "@skyscribe-sdk/vue": ["./packages/vue/src/index.ts"],
       "#app": ["./node_modules/nuxt/dist/app/index.d.ts"]
     }
   },

@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { TestBed } from "@angular/core/testing";
 import { injectDocumentUri } from "./inject-document-uri.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchArticleBySlug: vi.fn(),
 }));
 
-import { fetchArticleBySlug } from "@scribe-atp/core";
+import { fetchArticleBySlug } from "@skyscribe-sdk/core";
 const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 
 const DOCUMENT_URI = "at://did:plc:test/site.standard.document/3jxtctq7kqm2y";

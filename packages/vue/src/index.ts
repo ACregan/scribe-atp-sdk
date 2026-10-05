@@ -6,4 +6,4 @@ export { useScribePublicationUri } from "./useScribePublicationUri.js";
 export type { UseScribePublicationUriResult } from "./useScribePublicationUri.js";
 export { useScribeDocumentUri } from "./useScribeDocumentUri.js";
 export type { UseScribeDocumentUriResult } from "./useScribeDocumentUri.js";
-export type { Site, Article, ArticleRef, SiteGroup } from "@scribe-atp/core";
+export type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/core";

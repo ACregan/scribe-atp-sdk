@@ -1,6 +1,6 @@
 # Developer Notes
 
-Practical reference for day-to-day development on the Scribe ATP SDK.
+Practical reference for day-to-day development on the SkyScribe SDK.
 
 ---
 
@@ -75,23 +75,21 @@ git add .
 git commit -m "chore: version packages"
 ```
 
-### 4. Publish to npm
+### 4. Stage on npm (CI)
+
+After merging to `main`, run the manual `publish` job in CI. It runs `scripts/stage-publish.sh`, which uploads every package version that isn't on npm yet as a **stage**. Nothing is live at this point. CI's `NPM_TOKEN` is stage-only, so it can't publish directly (ADR 0003).
+
+### 5. Approve with 2FA (your machine)
+
+Needs npm CLI 11.15 or later (`npm install -g npm@latest`).
 
 ```bash
-npx changeset publish
+npm login                                        # 2-hour session
+npm stage list                                   # what CI staged
+npm stage approve <stage-id> --otp=<2FA code>    # once per package
 ```
 
-This publishes only the packages that had version bumps. It will use your local npm credentials (`npm whoami` to check you're logged in).
-
-In CI, the pipeline handles this step automatically — you don't need to run it manually when merging to `main`.
-
-### 5. Push and tag
-
-Changesets publish creates git tags automatically (e.g. `@scribe-atp/core@1.0.0`). Push them:
-
-```bash
-git push --follow-tags
-```
+Use `npm stage view <stage-id>` to inspect a stage first, or `npm stage reject <stage-id>` to discard it.
 
 ---
 
@@ -105,7 +103,7 @@ npm run typecheck                         # type-check all packages
 
 npx changeset                             # create a changeset for your changes
 npx changeset version                     # bump versions + update changelogs
-npx changeset publish                     # publish changed packages to npm
+bash scripts/stage-publish.sh             # stage unpublished versions (CI runs this)
 
 npm -w packages/core run build            # build a single package
 npm -w packages/angular run build         # build the angular package
@@ -118,7 +116,7 @@ npm run test -- --project=angular         # test a single vitest project
 
 - **Don't manually edit version numbers** in `package.json` — let Changesets do it.
 - **Don't forget the changeset file** — if you merge code without one, the change won't be included in the next release.
-- **Don't run `npx changeset publish` locally** unless you specifically need to — the CI pipeline handles production publishes.
+- **Don't run `npx changeset publish` or `npm publish`.** Releases are staged by CI and approved with 2FA (ADR 0003), and the CI token can't publish directly anyway.
 
 ---
 

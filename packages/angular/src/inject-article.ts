@@ -1,7 +1,7 @@
 import { inject, DestroyRef, signal } from "@angular/core";
 import type { Signal } from "@angular/core";
-import { fetchArticle } from "@scribe-atp/core";
-import type { Article } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
+import type { Article } from "@skyscribe-sdk/core";
 
 interface InjectArticleResult {
   article: Signal<Article | null>;

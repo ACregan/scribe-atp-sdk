@@ -1,4 +1,4 @@
-/* @scribe-atp/styles
+/* @skyscribe-sdk/styles
  * Base styles for rendering Scribe CMS article content.
  * All rules are scoped to .scribe-content — wrap your article HTML in an element
  * with that class. Override any --scribe-* custom property to theme.

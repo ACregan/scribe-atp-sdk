@@ -1,7 +1,7 @@
 {
-  "name": "@scribe-atp/react-router-framework",
-  "version": "2.1.3",
-  "description": "Loader factories for reading Scribe CMS content in React Router v7/v8 framework mode.",
+  "name": "@skyscribe-sdk/react-router-framework",
+  "version": "2.1.4",
+  "description": "Loader factories for reading SkyScribe content in React Router v7/v8 framework mode.",
   "license": "MIT",
   "engines": {
     "node": ">=22"
@@ -25,7 +25,7 @@
     "atproto",
     "bluesky",
     "scribe",
-    "scribe-cms",
+    "skyscribe",
     "blog",
     "cms",
     "react",
@@ -34,7 +34,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ACregan/scribe-atp-sdk.git"
+    "url": "git+https://github.com/ACregan/scribe-atp-sdk.git"
   },
   "publishConfig": {
     "access": "public"
@@ -44,7 +44,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@scribe-atp/core": "*"
+    "@skyscribe-sdk/core": "*"
   },
   "peerDependencies": {
     "react-router": "^7.0.0 || ^8.0.0"

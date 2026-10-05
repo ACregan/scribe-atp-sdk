@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ScribeService } from "./scribe.service.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchSite: vi.fn(),
   fetchArticle: vi.fn(),
   fetchArticleBySlug: vi.fn(),
   resolvePublicationUri: vi.fn(),
 }));
 
-import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
+import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri } from "@skyscribe-sdk/core";
 const mockFetchSite = vi.mocked(fetchSite);
 const mockFetchArticle = vi.mocked(fetchArticle);
 const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);

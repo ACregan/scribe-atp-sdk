@@ -1,6 +1,6 @@
 import { inject, DestroyRef, signal } from "@angular/core";
 import type { Signal } from "@angular/core";
-import { fetchArticleBySlug } from "@scribe-atp/core";
+import { fetchArticleBySlug } from "@skyscribe-sdk/core";
 
 interface InjectDocumentUriResult {
   uri: Signal<string | null>;

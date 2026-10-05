@@ -1,5 +1,5 @@
-import type { Article, Site } from "@scribe-atp/core";
-import { buildCanonicalUrl, buildSiteUrl } from "@scribe-atp/core";
+import type { Article, Site } from "@skyscribe-sdk/core";
+import { buildCanonicalUrl, buildSiteUrl } from "@skyscribe-sdk/core";
 
 export function articleSeoMeta(article: Article, site: Site) {
   const canonicalUrl = buildCanonicalUrl(article, site);

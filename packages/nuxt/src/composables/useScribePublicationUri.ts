@@ -1,6 +1,6 @@
 import { useAsyncData } from "#app";
 import type { AsyncDataOptions } from "#app";
-import { resolvePublicationUri } from "@scribe-atp/core";
+import { resolvePublicationUri } from "@skyscribe-sdk/core";
 
 export function useScribePublicationUri(
   author: string,

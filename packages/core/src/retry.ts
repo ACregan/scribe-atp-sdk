@@ -36,7 +36,7 @@ function wait(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-// Generic retry wrapper for any @scribe-atp/core fetch call. Never retries
+// Generic retry wrapper for any @skyscribe-sdk/core fetch call. Never retries
 // NotFoundError (the record genuinely doesn't exist — retrying can't help)
 // or an aborted signal; retries everything else, including plain Errors
 // from callers that haven't adopted the typed errors yet.

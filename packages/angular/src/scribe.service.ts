@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
-import type { Site, Article } from "@scribe-atp/core";
+import { fetchSite, fetchArticle, fetchArticleBySlug, resolvePublicationUri } from "@skyscribe-sdk/core";
+import type { Site, Article } from "@skyscribe-sdk/core";
 
 @Injectable({ providedIn: "root" })
 export class ScribeService {

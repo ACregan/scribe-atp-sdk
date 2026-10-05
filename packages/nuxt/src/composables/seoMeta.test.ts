@@ -1,12 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
 import { articleSeoMeta, siteSeoMeta } from "./seoMeta.js";
 
-vi.mock("@scribe-atp/core", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@scribe-atp/core")>();
+vi.mock("@skyscribe-sdk/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@skyscribe-sdk/core")>();
   return { ...actual };
 });
 
-import type { Article, Site } from "@scribe-atp/core";
+import type { Article, Site } from "@skyscribe-sdk/core";
 
 const site: Site = {
   uri: "at://did:plc:abc/site.standard.publication/tid123",

@@ -1,6 +1,6 @@
-# @scribe-atp/sdk
+# SkyScribe SDK
 
-A monorepo of packages for reading Scribe content from the AT Protocol. Authors write articles in [Scribe CMS](https://scribe-cms.app); this SDK is for developers who want to display that content in their own sites or apps.
+A monorepo of packages for reading SkyScribe content from the AT Protocol. Authors write articles in [SkyScribe](https://skyscribe.app) (or the older Scribe CMS, which writes the same records); this SDK is for developers who want to display that content on an SDK-driven website. Formerly the Scribe ATP SDK (`@scribe-atp/*`); see [ADR 0003](./docs/adr/0003-migrate-to-skyscribe-sdk.md) for the migration plan.
 
 ## Project documentation
 
@@ -14,15 +14,15 @@ A monorepo of packages for reading Scribe content from the AT Protocol. Authors 
 
 | Package | Path | Purpose |
 | ------- | ---- | ------- |
-| `@scribe-atp/core` | `packages/core` | Pure TS fetch functions, PDS resolution, feed/sitemap generation, types. No framework deps. |
-| `@scribe-atp/react` | `packages/react` | React hooks (`useSite`, `useArticle`) wrapping core. |
-| `@scribe-atp/react-router-framework` | `packages/react-router-framework` | Loader factories for React Router v7/v8 framework mode. |
-| `@scribe-atp/angular` | `packages/angular` | Angular service (`ScribeService`) and injection functions (`injectSite`, `injectArticle`). |
-| `@scribe-atp/next` | `packages/next` | Next.js 13+ App Router adapter — `createScribeSite` factory for `generateStaticParams` and `generateMetadata`. |
-| `@scribe-atp/vue` | `packages/vue` | Vue 3 composables (`useScribeSite`, `useScribeArticle`). |
-| `@scribe-atp/nuxt` | `packages/nuxt` | Nuxt 3 module — wraps vue composables with `useAsyncData` and configures auto-imports. |
+| `@skyscribe-sdk/core` | `packages/core` | Pure TS fetch functions, PDS resolution, feed/sitemap generation, types. No framework deps. |
+| `@skyscribe-sdk/react` | `packages/react` | React hooks (`useSite`, `useArticle`) wrapping core. |
+| `@skyscribe-sdk/react-router-framework` | `packages/react-router-framework` | Loader factories for React Router v7/v8 framework mode. |
+| `@skyscribe-sdk/angular` | `packages/angular` | Angular service (`ScribeService`) and injection functions (`injectSite`, `injectArticle`). |
+| `@skyscribe-sdk/next` | `packages/next` | Next.js 13+ App Router adapter — `createScribeSite` factory for `generateStaticParams` and `generateMetadata`. |
+| `@skyscribe-sdk/vue` | `packages/vue` | Vue 3 composables (`useScribeSite`, `useScribeArticle`). |
+| `@skyscribe-sdk/nuxt` | `packages/nuxt` | Nuxt 3 module — wraps vue composables with `useAsyncData` and configures auto-imports. |
 
-All framework adapters are thin wrappers around `@scribe-atp/core`. New adapters should follow the same pattern: framework-idiomatic reactivity on top of the core fetch functions, with `AbortController` cleanup.
+All framework adapters are thin wrappers around `@skyscribe-sdk/core`. New adapters should follow the same pattern: framework-idiomatic reactivity on top of the core fetch functions, with `AbortController` cleanup.
 
 ## CI/CD
 
@@ -182,7 +182,7 @@ Use the resolved PDS URL for all XRPC calls:
 GET {pdsUrl}/xrpc/com.atproto.repo.getRecord?repo={did}&collection=...&rkey=...
 ```
 
-### Implementation in `@scribe-atp/core`
+### Implementation in `@skyscribe-sdk/core`
 
 ```
 packages/core/src/
@@ -207,7 +207,7 @@ packages/core/src/
 
 ### Typed errors and retry
 
-Every fetch function throws one of three typed errors (all exported from `@scribe-atp/core`), never a raw `Error`:
+Every fetch function throws one of three typed errors (all exported from `@skyscribe-sdk/core`), never a raw `Error`:
 
 - **`NotFoundError`** — the fetch succeeded, the record genuinely doesn't exist (bad slug, deleted record, unresolvable handle). Retrying won't help.
 - **`PdsFetchError`** — the PDS responded, but with a non-ok HTTP status. The service is up, this operation failed. Safe to retry.
@@ -215,11 +215,11 @@ Every fetch function throws one of three typed errors (all exported from `@scrib
 
 **Every internal `fetch()` call must go through `http.ts`'s `pdsFetch()` wrapper**, not the global `fetch()` directly — that's what produces the `PdsUnreachableError` vs. `PdsFetchError` split (it catches a rejected `fetch()` and reclassifies it, while a resolved-but-non-ok `Response` is left for the caller's own `!res.ok` check to turn into `PdsFetchError`). A new fetch function that calls raw `fetch()` will silently leak unclassified errors on connection failure — this was a real bug fixed retroactively across `fetch.ts`, `resolve.ts`, `list.ts`, and `profile.ts`.
 
-`withRetry(fn, options)` (`retry.ts`) is a generic, opt-in retry-with-backoff wrapper — default 5 attempts, exponential backoff (`[300, 600, 1200, 2400]`ms). It never retries `NotFoundError` or an aborted signal; everything else is retried, including plain `Error`s from callers that haven't adopted the typed errors. **Not called automatically by any fetch function** — consumers call it themselves. This matters for callers like `@scribe-atp/next`'s build-time `generateStaticParams`, where failing fast is usually preferable to eating several seconds of backoff during a build.
+`withRetry(fn, options)` (`retry.ts`) is a generic, opt-in retry-with-backoff wrapper — default 5 attempts, exponential backoff (`[300, 600, 1200, 2400]`ms). It never retries `NotFoundError` or an aborted signal; everything else is retried, including plain `Error`s from callers that haven't adopted the typed errors. **Not called automatically by any fetch function** — consumers call it themselves. This matters for callers like `@skyscribe-sdk/next`'s build-time `generateStaticParams`, where failing fast is usually preferable to eating several seconds of backoff during a build.
 
 Consumer-facing usage pattern (attempt once synchronously, stream retries behind a `Suspense` boundary on failure) is documented in `scribe-atp-docs`'s "Errors and retries" guide, and implemented independently in `norobots`, `perpetual-summer-ltd`, `anthonycregan.co.uk-2025` (2-way: not-found vs. everything else), and `scribe-atp-reader` (3-way: also distinguishes `PdsUnreachableError`, since Reader visitors can trigger it more meaningfully than a fixed-author site would).
 
-## `@scribe-atp/react` — hooks
+## `@skyscribe-sdk/react` — hooks
 
 ```
 packages/react/src/
@@ -228,16 +228,16 @@ packages/react/src/
   index.ts          — re-exports hooks and all types from core
 ```
 
-Hooks are thin wrappers — all fetch logic lives in `@scribe-atp/core`. Each hook:
+Hooks are thin wrappers — all fetch logic lives in `@skyscribe-sdk/core`. Each hook:
 - Creates an `AbortController` in `useEffect`
 - Passes `controller.signal` to the core fetch function
 - Returns `() => controller.abort()` as cleanup
 - Sets `{ loading: true }` on mount and on parameter change
 - Catches errors into the `error` state
 
-Re-export all types from `@scribe-atp/core` so consumers only need to import one package.
+Re-export all types from `@skyscribe-sdk/core` so consumers only need to import one package.
 
-## `@scribe-atp/react-router-framework` — loader factories
+## `@skyscribe-sdk/react-router-framework` — loader factories
 
 ```
 packages/react-router-framework/src/
@@ -249,7 +249,7 @@ Factories return a loader function compatible with React Router v7/v8 framework 
 - Accepts `author` and `siteSlug`/`articleSlug` at configuration time
 - Returns a loader that extracts `request.signal` and passes it to the core fetch function
 
-## `@scribe-atp/angular` — service and injection functions
+## `@skyscribe-sdk/angular` — service and injection functions
 
 ```
 packages/angular/src/
@@ -261,7 +261,7 @@ packages/angular/src/
 
 Ships two APIs. `ScribeService` returns cold Observables; the fetch is cancelled on unsubscribe. `injectSite`/`injectArticle` return readonly signals and abort on `DestroyRef.onDestroy`. Requires `experimentalDecorators: true` and `useDefineForClassFields: false` in tsconfig.
 
-## `@scribe-atp/next` — Next.js App Router adapter
+## `@skyscribe-sdk/next` — Next.js App Router adapter
 
 ```
 packages/next/src/
@@ -275,7 +275,7 @@ packages/next/src/
 
 Metadata is opinionated (complete OpenGraph by default). Uses `ArticleRef` snapshots from the site record — no per-article fetch at build time. ISR is handled by Next.js route segment config (`export const revalidate`), not by the SDK.
 
-## `@scribe-atp/vue` — Vue 3 composables
+## `@skyscribe-sdk/vue` — Vue 3 composables
 
 ```
 packages/vue/src/
@@ -286,7 +286,7 @@ packages/vue/src/
 
 Composables use `onUnmounted` for `AbortController` cleanup. Named with `Scribe` prefix (`useScribeSite` not `useSite`) to avoid collision in Nuxt's auto-import context.
 
-## `@scribe-atp/nuxt` — Nuxt 3 module
+## `@skyscribe-sdk/nuxt` — Nuxt 3 module
 
 ```
 packages/nuxt/src/
@@ -296,15 +296,15 @@ packages/nuxt/src/
   index.ts                         — re-exports module and all types from core
 ```
 
-Full Nuxt module — registered in `nuxt.config.ts` as `modules: ['@scribe-atp/nuxt']`. Auto-imports `useScribeSite` and `useScribeArticle` globally. Returns Nuxt conventions (`data`, `pending`, `error`). Accepts optional `useAsyncData` options as third argument. Calls `fetchSite`/`fetchArticle` from core directly (not the vue composables) to let `useAsyncData` own the SSR lifecycle.
+Full Nuxt module — registered in `nuxt.config.ts` as `modules: ['@skyscribe-sdk/nuxt']`. Auto-imports `useScribeSite` and `useScribeArticle` globally. Returns Nuxt conventions (`data`, `pending`, `error`). Accepts optional `useAsyncData` options as third argument. Calls `fetchSite`/`fetchArticle` from core directly (not the vue composables) to let `useAsyncData` own the SSR lifecycle.
 
 ## Relationship to scribe-cms.app
 
 `scribe-cms.app` currently has an `app/hooks/` directory with the original versions of these hooks (without PDS resolution). Once this SDK is published:
 
 - `scribe-cms.app`'s `app/hooks/` directory can be removed
-- The CMS's public-read routes can import from `@scribe-atp/core`
-- The `ArticleRef` and `SiteGroup` types used throughout the CMS already live in `app/hooks/types.ts` — these become the canonical definitions in `@scribe-atp/core`
+- The CMS's public-read routes can import from `@skyscribe-sdk/core`
+- The `ArticleRef` and `SiteGroup` types used throughout the CMS already live in `app/hooks/types.ts` — these become the canonical definitions in `@skyscribe-sdk/core`
 
 During development, use `npm link` or workspace references to test against the CMS before publishing.
 
@@ -344,13 +344,13 @@ Tests live alongside source in each package (`src/fetch.test.ts`, etc.).
 
 **Core tests** — mock `fetch` globally with `vi.stubGlobal("fetch", ...)` and assert the correct URLs are constructed for each DID type. Test the PDS resolution cache (call `resolvePds` twice with the same DID, verify only one fetch).
 
-**React hook tests** — use `@testing-library/react`'s `renderHook`. Mock the core fetch functions with `vi.mock("@scribe-atp/core")` to isolate hook logic from network behaviour.
+**React hook tests** — use `@testing-library/react`'s `renderHook`. Mock the core fetch functions with `vi.mock("@skyscribe-sdk/core")` to isolate hook logic from network behaviour.
 
-**Vue composable tests** — use `@vue/test-utils` `mount` with a minimal wrapper component. Mock `@scribe-atp/core` with `vi.mock`. Test: loading state, data on resolve, error on reject, abort on unmount.
+**Vue composable tests** — use `@vue/test-utils` `mount` with a minimal wrapper component. Mock `@skyscribe-sdk/core` with `vi.mock`. Test: loading state, data on resolve, error on reject, abort on unmount.
 
 **Angular tests** — require `zone.js` and `TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting())` in `test-setup.ts`. Use `TestBed.runInInjectionContext()` to test injection functions. `tsconfig.check.json` requires `experimentalDecorators: true` and `useDefineForClassFields: false`.
 
-**Nuxt composable tests** — mock both `@scribe-atp/core` and `#app` with `vi.mock`. The `#app` alias is resolved via a Vitest alias pointing to `packages/nuxt/node_modules/nuxt/dist/app/index.mjs`. Use `(mockUseAsyncData as any).mockImplementation(...)` to avoid fighting nuxt's complex overload types in tests.
+**Nuxt composable tests** — mock both `@skyscribe-sdk/core` and `#app` with `vi.mock`. The `#app` alias is resolved via a Vitest alias pointing to `packages/nuxt/node_modules/nuxt/dist/app/index.mjs`. Use `(mockUseAsyncData as any).mockImplementation(...)` to avoid fighting nuxt's complex overload types in tests.
 
 ## Key commands
 
@@ -364,15 +364,18 @@ npm -w packages/core run build   # build a single package
 
 ## Publishing
 
-Packages publish to npm under `@scribe-atp/`. Versions are independent (each package has its own semver). The CI publish job runs `npx changeset publish` — it detects unpublished versions and publishes them in dependency order automatically.
+Packages publish to npm under `@skyscribe-sdk/` through **npm staged publishing** (ADR 0003). Versions are independent (each package has its own semver). `NPM_TOKEN` is a stage-only granular token: CI can upload a version, but it only goes live once a maintainer approves it with 2FA. **Never call `npm publish` or `npx changeset publish` in CI.** The token is refused with `E_STAGE_REQUIRED`.
 
 **Workflow:**
 1. Create a changeset: `npx changeset` — select affected packages and bump type
 2. Run `npx changeset version` — updates `package.json` versions and `CHANGELOG.md` files
 3. Commit the version bump: `chore: version packages — <package>@<version>`
-4. Merge to main and trigger the manual publish job in CI
+4. Merge to main and trigger the manual `publish` job in CI. It runs `scripts/stage-publish.sh`, which runs `npm stage publish` in each package whose version isn't on npm yet.
+5. Approve each stage locally (npm CLI 11.15+): `npm login`, `npm stage list`, then `npm stage approve <stage-id> --otp=<code>`
 
-New packages (never published) do not need a changeset — `changeset publish` detects that the version in `package.json` hasn't been published and ships it at the current version.
+New packages (never published) do not need a changeset: the script stages any version that isn't on npm yet.
+
+Granular write tokens last 90 days at most (the current one expires 2027-01-03). A sudden E401/E403 from the publish job usually means the token has expired.
 
 ## Branch protection
 
@@ -380,8 +383,9 @@ New packages (never published) do not need a changeset — `changeset publish` d
 
 ## Branding context
 
-- **Scribe ATP** — umbrella project; home for the GitHub org, npm org (`@scribe-atp/*`), SDK docs
-- **Scribe CMS** (`scribe-cms.app`) — the authoring tool (separate repo)
-- **Scribe SDK** — this repo; the developer toolkit for consuming Scribe content
+- **SkyScribe** (`skyscribe.app`) — the authoring app and site builder (`skyscribe-app` repo)
+- **SkyScribe SDK** — this repo; the developer toolkit for building an SDK-driven website. npm org `@skyscribe-sdk` (`@skyscribe` was taken by an unrelated npm user). Docs are moving to `sdk.skyscribe.app`.
+- **Scribe ATP** — the original umbrella project, being folded into SkyScribe (ADR 0003). Its packages (`@scribe-atp/*`) get deprecated once the new docs site is live.
+- **Scribe CMS** (`scribe-cms.app`) — the original authoring tool (separate repo). Stays on `@scribe-atp/*` until it's retired.
 
 See `scribe-cms.app`'s CLAUDE.md for the full Scribe CMS architecture, AT Protocol collection schemas, and OAuth patterns.

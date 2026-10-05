@@ -4,7 +4,7 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "paths": {
-      "@scribe-atp/core": ["../core/src/index.ts"]
+      "@skyscribe-sdk/core": ["../core/src/index.ts"]
     }
   },
   "include": ["src"]

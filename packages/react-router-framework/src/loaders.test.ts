@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { LoaderFunctionArgs } from "react-router";
 import { createSiteLoader, createArticleRouteLoader, createWellKnownLoader } from "./loaders.js";
 
-vi.mock("@scribe-atp/core", () => ({
+vi.mock("@skyscribe-sdk/core", () => ({
   fetchSite: vi.fn(),
   fetchArticleBySlug: vi.fn(),
   resolvePublicationUri: vi.fn(),
 }));
 
-import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@scribe-atp/core";
+import { fetchSite, fetchArticleBySlug, resolvePublicationUri } from "@skyscribe-sdk/core";
 const mockFetchSite = vi.mocked(fetchSite);
 const mockFetchArticleBySlug = vi.mocked(fetchArticleBySlug);
 const mockResolvePublicationUri = vi.mocked(resolvePublicationUri);

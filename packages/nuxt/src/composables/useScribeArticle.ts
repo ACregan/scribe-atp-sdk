@@ -1,7 +1,7 @@
 import { useAsyncData } from "#app";
 import type { AsyncDataOptions } from "#app";
-import { fetchArticle } from "@scribe-atp/core";
-import type { Article } from "@scribe-atp/core";
+import { fetchArticle } from "@skyscribe-sdk/core";
+import type { Article } from "@skyscribe-sdk/core";
 
 export function useScribeArticle(
   author: string,
