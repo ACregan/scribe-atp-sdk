@@ -6,5 +6,7 @@ import { allDocsPages, docsHref } from "./app/docs/nav";
 // build/client/ as plain files.
 export default {
   ssr: false,
-  prerender: ["/", ...allDocsPages.map((page) => docsHref(page.slug))],
+  // "/404" renders the not-found page; scripts/postbuild.ts turns it into
+  // 404.html for Cloudflare.
+  prerender: ["/", "/404", ...allDocsPages.map((page) => docsHref(page.slug))],
 } satisfies Config;
