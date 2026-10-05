@@ -33,9 +33,12 @@ publish:
     - if: $CI_COMMIT_BRANCH == "main"
   # Stages unpublished versions; a maintainer approves them with 2FA
   # (ADR 0003). `npm stage` needs npm 11.15+, newer than node:22 bundles.
+  # Upgrade only after building: npm 11 lays out node_modules differently
+  # and skips install scripts by default, so install and build stay on the
+  # same bundled npm as the typecheck/test jobs.
   script:
-    - npm install -g npm@^11.15.0
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
     - npm ci
     - npm run build
+    - npm install -g npm@^11.15.0
     - bash scripts/stage-publish.sh
