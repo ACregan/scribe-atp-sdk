@@ -11,7 +11,11 @@ export default defineNuxtConfig({
 });
 ```
 
-Once it's registered, `useScribeSite`, `useScribeArticle`, `useScribePublicationUri` and `useScribeDocumentUri` are available in every component and page without importing them.
+Once it's registered, `useScribeSite`, `useScribeArticleBySlug`, `useScribeArticle`, `useScribePublicationUri`, `useScribeDocumentUri`, `articleSeoMeta` and `siteSeoMeta` are available in every component and page without importing them.
+
+<Callout type="warning">
+  Use version 1.3.0 or later. Earlier versions, including every `@scribe-atp/nuxt` release, left the composables out of the published package, so they were never auto-imported.
+</Callout>
 
 ---
 
@@ -39,12 +43,34 @@ Returns Nuxt's standard `AsyncData`: `{ data, pending, error, refresh }`, where 
 
 ---
 
+### `useScribeArticleBySlug`
+
+```ts
+function useScribeArticleBySlug(
+  author: string,
+  publicationUrl: string,
+  articleSlug: string,
+  options?: AsyncDataOptions
+): Promise<AsyncData<ArticleResult | null, Error | null>>
+```
+
+Looks an article up by its slug in the Site at `publicationUrl`, inside `useAsyncData`. `data` holds `{ article, uri }`: the article and its AT URI. Since 1.3.0.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+| `options` | `AsyncDataOptions` | Optional. Passed on to `useAsyncData` |
+
+---
+
 ### `useScribeArticle`
 
 ```ts
 function useScribeArticle(
   author: string,
-  articleSlug: string,
+  rkey: string,
   options?: AsyncDataOptions
 ): Promise<AsyncData<Article | null, Error | null>>
 ```
@@ -54,10 +80,10 @@ Runs `fetchArticle` inside `useAsyncData`, so it fetches by the article's **reco
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
 | `author` | `string` | Handle or DID of the account the article is stored in |
-| `articleSlug` | `string` | The article's **rkey**, despite the name |
+| `rkey` | `string` | The article's record key |
 | `options` | `AsyncDataOptions` | Optional. Forwarded to `useAsyncData` |
 
-Returns `{ data, pending, error, refresh }`, where `data` holds `Article | null`. For pages that have a slug from the URL, use `fetchArticleBySlug` in your own `useAsyncData` instead (see the [Nuxt guide](/frameworks/nuxt#article-pages)).
+Returns `{ data, pending, error, refresh }`, where `data` holds `Article | null`. Don't pass a slug: it only finds very old articles. With a slug, use `useScribeArticleBySlug`.
 
 ---
 

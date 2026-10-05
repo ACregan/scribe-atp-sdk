@@ -1,4 +1,4 @@
-import type { Site, SiteRecord, ArticleRef } from "./types.js";
+import type { Site, SiteRecord, ArticleRef, ArticleContributor } from "./types.js";
 import { resolveIdentifier, resolvePds } from "./resolve.js";
 import { slugFromUri } from "./utils.js";
 import { PdsFetchError } from "./errors.js";
@@ -26,14 +26,26 @@ interface RawPublication {
 
 interface RawDocument {
   title: string;
-  path: string;
+  path?: string;
   site: string;
-  publishedAt: string;
+  publishedAt?: string;
   description?: string | null;
-  splashImageUrl?: string | null;
   tags?: string[];
-  createdAt: string;
+  contributors?: ArticleContributor[];
   updatedAt?: string;
+  // Scribe-specific fields live in the `scribe` extension object.
+  scribe?: { createdAt?: string; coverImageUrl?: string };
+  // Legacy top-level fields, written by older Scribe versions.
+  createdAt?: string;
+  splashImageUrl?: string | null;
+}
+
+// The human-readable slug is the last segment of the document's `path`
+// ("/blog/essays/my-post" → "my-post"). Records without a path (older
+// drafts) fall back to the rkey.
+function slugForDocument(uri: string, path: string | undefined): string {
+  const fromPath = path?.split("/").filter(Boolean).at(-1);
+  return fromPath ?? slugFromUri(uri);
 }
 
 interface ListRecordsPage<T> {
@@ -107,11 +119,12 @@ export async function listArticles(
   return records.map(({ uri, value }) => ({
     uri,
     title: value.title,
-    slug: slugFromUri(uri),
-    splashImageUrl: value.splashImageUrl ?? null,
+    slug: slugForDocument(uri, value.path),
+    splashImageUrl: value.scribe?.coverImageUrl ?? value.splashImageUrl ?? null,
     description: value.description,
     tags: value.tags,
-    createdAt: value.createdAt,
+    contributors: value.contributors,
+    createdAt: value.scribe?.createdAt ?? value.createdAt ?? value.publishedAt ?? "",
     publishedAt: value.publishedAt,
     updatedAt: value.updatedAt,
   }));

@@ -219,6 +219,10 @@ Every fetch function throws one of three typed errors (all exported from `@skysc
 
 Consumer-facing usage pattern (attempt once synchronously, stream retries behind a `Suspense` boundary on failure) is documented in `scribe-atp-docs`'s "Errors and retries" guide, and implemented independently in `norobots`, `perpetual-summer-ltd`, `anthonycregan.co.uk-2025` (2-way: not-found vs. everything else), and `scribe-atp-reader` (3-way: also distinguishes `PdsUnreachableError`, since Reader visitors can trigger it more meaningfully than a fixed-author site would).
 
+## Fetching an article: slug vs. rkey
+
+Article rkeys are opaque TIDs, so **slug-based helpers are the default for article pages**: `fetchArticleBySlug` (core), `useArticleBySlug` (react), `useScribeArticleBySlug` (vue, nuxt), `injectArticleBySlug` / `ScribeService.getArticleBySlug` (angular), `createArticleRouteLoader` (react-router-framework). They look the slug up in the Site record and return the article with its AT URI. The older `fetchArticle` / `useArticle` / `useScribeArticle` / `injectArticle` / `getArticle` take the **rkey** (their parameter was misleadingly named `articleSlug` until it was renamed in the 2026-10 release). When fetching from an `ArticleRef`, take the account from `ref.uri` as well as the rkey, because an article credited to a contributor can live in their repo.
+
 ## `@skyscribe-sdk/react` — hooks
 
 ```
@@ -293,10 +297,11 @@ packages/nuxt/src/
   module.ts                        — defineNuxtModule, registers auto-imports
   composables/useScribeSite.ts     — wraps fetchSite with useAsyncData
   composables/useScribeArticle.ts  — wraps fetchArticle with useAsyncData
+  composables/useScribeArticleBySlug.ts — wraps fetchArticleBySlug with useAsyncData (slug from the URL)
   index.ts                         — re-exports module and all types from core
 ```
 
-Full Nuxt module — registered in `nuxt.config.ts` as `modules: ['@skyscribe-sdk/nuxt']`. Auto-imports `useScribeSite` and `useScribeArticle` globally. Returns Nuxt conventions (`data`, `pending`, `error`). Accepts optional `useAsyncData` options as third argument. Calls `fetchSite`/`fetchArticle` from core directly (not the vue composables) to let `useAsyncData` own the SSR lifecycle.
+Full Nuxt module — registered in `nuxt.config.ts` as `modules: ['@skyscribe-sdk/nuxt']`. Auto-imports everything in `src/composables/` globally. **Packaging:** `module.ts` points `addImportsDir` at `./composables` next to the built entry, so `tsup.config.ts` builds each composable into `dist/composables/` (ESM only; a CJS copy would register each twice). Before 1.3.0 only `src/index.ts` was built and no composables shipped at all. A new composable needs no config change (the tsup config reads the folder), but check `npm pack --dry-run` lists it. Returns Nuxt conventions (`data`, `pending`, `error`). Accepts optional `useAsyncData` options as third argument. Calls `fetchSite`/`fetchArticle` from core directly (not the vue composables) to let `useAsyncData` own the SSR lifecycle.
 
 ## Relationship to scribe-cms.app
 

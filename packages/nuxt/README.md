@@ -47,25 +47,30 @@ const { data: site, pending, error } = await useScribeSite(
 </template>
 ```
 
-### `useScribeArticle`
+### `useScribeArticleBySlug`
+
+Looks the article up by its slug (as in its URL). `data` holds `{ article, uri }`:
 
 ```vue
 <!-- pages/blog/[slug].vue -->
 <script setup lang="ts">
 const route = useRoute();
-const { data: article, pending, error } = await useScribeArticle(
+const { data, pending, error } = await useScribeArticleBySlug(
   "alice.bsky.social",
+  "https://alice.bsky.social",
   route.params.slug as string
 );
 </script>
 
 <template>
-  <article v-if="article">
-    <h1>{{ article.title }}</h1>
-    <div v-html="article.content" />
+  <article v-if="data">
+    <h1>{{ data.article.title }}</h1>
+    <div v-html="data.article.content" />
   </article>
 </template>
 ```
+
+`useScribeArticle(author, rkey)` fetches by record key instead, for when you already have an `ArticleRef`. Don't pass it a slug.
 
 The composables return the full `useAsyncData` result shape: `{ data, pending, error, refresh, ... }`.
 
@@ -126,7 +131,7 @@ These functions are **not** auto-imported — use an explicit import from `@skys
 
 ## Auto-imports
 
-Only the data composables are auto-imported: `useScribeSite` and `useScribeArticle`.
+The composables are auto-imported: `useScribeSite`, `useScribeArticleBySlug`, `useScribeArticle`, `useScribePublicationUri` and `useScribeDocumentUri` (version 1.3.0 or later; earlier versions didn't ship them).
 
 Utility functions and meta helpers require an explicit import:
 

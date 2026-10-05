@@ -2,8 +2,8 @@
 
 A service (Observables) and injection functions (Signals) for Angular 16+. Install with `npm install @skyscribe-sdk/angular`. See the [Angular guide](/frameworks/angular) for walkthroughs.
 
-<Callout type="warning">
-  `getArticle` and `injectArticle` take the article's **record key (rkey)**, not its slug. A human-readable slug only finds very old articles. With only a slug, use `fetchArticleBySlug` from `@skyscribe-sdk/core`.
+<Callout type="note">
+  To fetch an article by the slug in its URL, use `getArticleBySlug` or `injectArticleBySlug` (since 1.1.0). `getArticle` and `injectArticle` take the article's **record key (rkey)** instead.
 </Callout>
 
 ## Observable API: `ScribeService`
@@ -32,10 +32,24 @@ getSite(author: string, publicationUrl: string): Observable<Site>
 
 Subscribe with the `async` pipe, which unsubscribes when the component is destroyed.
 
+#### `getArticleBySlug`
+
+```ts
+getArticleBySlug(author: string, publicationUrl: string, articleSlug: string): Observable<ArticleResult>
+```
+
+Looks an article up by its slug in the Site at `publicationUrl`, and emits `{ article, uri }`: the article and its AT URI. Since 1.1.0.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
 #### `getArticle`
 
 ```ts
-getArticle(author: string, articleSlug: string): Observable<Article>
+getArticle(author: string, rkey: string): Observable<Article>
 ```
 
 Fetches an article by its **rkey**.
@@ -43,7 +57,7 @@ Fetches an article by its **rkey**.
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
 | `author` | `string` | Handle or DID of the account the article is stored in |
-| `articleSlug` | `string` | The article's **rkey**, despite the name. Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)` |
+| `rkey` | `string` | The article's record key. Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)` |
 
 #### `getPublicationUri` / `getDocumentUri`
 
@@ -77,10 +91,31 @@ Must be called in an injection context. Fetches a Site straight away and returns
 
 ---
 
+### `injectArticleBySlug`
+
+```ts
+function injectArticleBySlug(author: string, publicationUrl: string, articleSlug: string): {
+  article: Signal<Article | null>;
+  uri: Signal<string | null>;
+  loading: Signal<boolean>;
+  error: Signal<Error | null>;
+}
+```
+
+Must be called in an injection context. Looks an article up by its slug in the Site at `publicationUrl` and returns readonly signals, including its AT URI as `uri`. The request is aborted when the host component is destroyed. Since 1.1.0.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
+---
+
 ### `injectArticle`
 
 ```ts
-function injectArticle(author: string, articleSlug: string): {
+function injectArticle(author: string, rkey: string): {
   article: Signal<Article | null>;
   loading: Signal<boolean>;
   error: Signal<Error | null>;
@@ -92,7 +127,7 @@ Must be called in an injection context. Fetches an article by its **rkey** strai
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
 | `author` | `string` | Handle or DID of the account the article is stored in |
-| `articleSlug` | `string` | The article's **rkey**, despite the name. Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)` |
+| `rkey` | `string` | The article's record key. Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)` |
 
 ---
 
@@ -148,7 +183,7 @@ Use it when the AT URI is all you need, for example for your own like UI.
 The main types from `@skyscribe-sdk/core` are re-exported:
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup } from '@skyscribe-sdk/angular';
+import type { Site, Article, ArticleRef, SiteGroup, ArticleResult } from '@skyscribe-sdk/angular';
 ```
 
 See the [core reference](/api/core#types) for type definitions.

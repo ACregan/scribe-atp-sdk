@@ -55,10 +55,39 @@ While loading, `site` is `null` and `loading` is `true`. On error, `site` stays 
 
 ---
 
+### `useArticleBySlug`
+
+```ts
+function useArticleBySlug(
+  author: string,
+  publicationUrl: string,
+  articleSlug: string
+): UseArticleBySlugResult
+
+interface UseArticleBySlugResult {
+  article: Article | null;
+  uri: string | null;     // the article's AT URI
+  loading: boolean;
+  error: Error | null;
+}
+```
+
+Looks an article up by its slug in the Site at `publicationUrl` (using `fetchArticleBySlug`), and returns it with its AT URI. Fetches on mount and again whenever the arguments change, aborting the previous request. Since 2.2.0.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
+If no published article has that slug, `error` is a `NotFoundError`.
+
+---
+
 ### `useArticle`
 
 ```ts
-function useArticle(author: string, articleSlug: string): UseArticleResult
+function useArticle(author: string, rkey: string): UseArticleResult
 
 interface UseArticleResult {
   article: Article | null;
@@ -72,9 +101,9 @@ Fetches an article by its **record key (rkey)** on mount, and again whenever the
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
 | `author` | `string` | Handle or DID of the account the article is stored in |
-| `articleSlug` | `string` | The article's **rkey**, despite the name |
+| `rkey` | `string` | The article's record key |
 
-Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)`. A human-readable slug only finds very old articles. If you only have a slug, see [the React guide](/frameworks/react#usearticle).
+Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)`. Don't pass a slug: it only finds very old articles. With a slug, use `useArticleBySlug`.
 
 ---
 
@@ -83,7 +112,7 @@ Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the r
 The main types from `@skyscribe-sdk/core` are re-exported:
 
 ```ts
-import type { Site, Article, ArticleRef, SiteGroup } from '@skyscribe-sdk/react';
+import type { Site, Article, ArticleRef, SiteGroup, ArticleResult, UseArticleBySlugResult } from '@skyscribe-sdk/react';
 ```
 
 See the [core reference](/api/core#types) for type definitions.

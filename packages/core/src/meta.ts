@@ -17,9 +17,13 @@ export type ScribeMetaTag =
 export function buildCanonicalUrl(article: Article, site: Site): string {
   if (article.canonicalUrl) return article.canonicalUrl;
   const base = `https://${site.url.replace(/\/$/, "")}`;
-  const prefix = site.urlPrefix ? `/${site.urlPrefix}` : "";
   const path = article.path.startsWith("/") ? article.path : `/${article.path}`;
-  return `${base}${prefix}${path}`;
+  // Publishing writes `path` with the base path already in it
+  // ("/blog/essays/my-post"), so only add the prefix when it's missing.
+  // Prepending it unconditionally produced "/blog/blog/essays/my-post".
+  const prefix = site.urlPrefix ? `/${site.urlPrefix}` : "";
+  const hasPrefix = prefix !== "" && (path === prefix || path.startsWith(`${prefix}/`));
+  return `${base}${hasPrefix ? "" : prefix}${path}`;
 }
 
 export function buildSiteUrl(site: Site): string {

@@ -17,7 +17,7 @@ export default defineNuxtConfig({
 });
 ```
 
-That's it: `useScribeSite`, `useScribeArticle`, `useScribePublicationUri` and `useScribeDocumentUri` are now available in any component or page without importing them.
+That's it: `useScribeSite`, `useScribeArticleBySlug`, `useScribeArticle`, `useScribePublicationUri` and `useScribeDocumentUri` are now available in any component or page without importing them.
 
 ## `useScribeSite`
 
@@ -49,22 +49,19 @@ const { data: site, pending, error } = await useScribeSite(
 
 ## Article pages
 
-An article page usually gets the article's **slug** from the URL. Fetch it with `fetchArticleBySlug` inside `useAsyncData`:
+An article page usually gets the article's **slug** from the URL. `useScribeArticleBySlug` looks it up in the Site; `data` holds the article and its AT URI:
 
 ```vue
 <!-- pages/blog/[group]/[slug].vue -->
 <script setup lang="ts">
-import { fetchArticleBySlug } from '@skyscribe-sdk/core';
-
 const route = useRoute();
-const slug = route.params.slug as string;
 
-const { data: article, pending, error } = await useAsyncData(
-  `article:${slug}`,
-  () =>
-    fetchArticleBySlug('alice.bsky.social', 'https://alice.bsky.social', slug)
-      .then(({ article }) => article),
+const { data, pending, error } = await useScribeArticleBySlug(
+  'alice.bsky.social',
+  'https://alice.bsky.social',
+  route.params.slug as string,
 );
+const article = computed(() => data.value?.article);
 </script>
 
 <template>
@@ -82,11 +79,11 @@ If you render articles from accounts you don't control, sanitise `content` befor
 
 ### `useScribeArticle`
 
-`useScribeArticle(author, rkey)` fetches an article by its **record key (rkey)**, not its slug. Use it when you already have the rkey, for example from an `ArticleRef` in a Site you've fetched: `slugFromUri(ref.uri)`. Articles published with current tooling have opaque rkeys, so passing a slug only finds very old articles.
+`useScribeArticle(author, rkey)` fetches an article by its account and **record key (rkey)**, skipping the Site lookup. Use it when you already have an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)`. Don't pass a slug: articles published with current tooling have opaque rkeys, so a slug only finds very old articles.
 
 ## `useAsyncData` options
 
-`useScribeSite` and `useScribeArticle` accept an optional third argument that's passed on to `useAsyncData`:
+Every composable accepts an optional last argument that's passed on to `useAsyncData`:
 
 ```ts
 const { data: site } = await useScribeSite('alice.bsky.social', 'https://alice.bsky.social', {

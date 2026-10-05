@@ -188,9 +188,12 @@ export async function fetchSite(
   };
 }
 
+// Fetches by record key (rkey). Current articles have opaque TID rkeys, so
+// a human-readable slug only matches very old records: use
+// fetchArticleBySlug for slugs.
 export async function fetchArticle(
   author: string,
-  articleSlug: string,
+  rkey: string,
   signal?: AbortSignal
 ): Promise<Article> {
   const did = await resolveIdentifier(author, signal);
@@ -199,7 +202,7 @@ export async function fetchArticle(
   const url = new URL(`${pdsUrl}/xrpc/com.atproto.repo.getRecord`);
   url.searchParams.set("repo", did);
   url.searchParams.set("collection", "site.standard.document");
-  url.searchParams.set("rkey", articleSlug);
+  url.searchParams.set("rkey", rkey);
 
   const res = await pdsFetch(url, { signal });
   if (!res.ok) throw new PdsFetchError(`Failed to fetch article: ${res.statusText}`);

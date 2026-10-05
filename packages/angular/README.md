@@ -66,20 +66,22 @@ export class BlogComponent implements OnInit, OnDestroy {
 }
 ```
 
-`getArticle` follows the same pattern:
+`getArticleBySlug` follows the same pattern, emitting `{ article, uri }`:
 
 ```ts
-article$ = inject(ScribeService).getArticle("alice.bsky.social", "my-first-post");
+result$ = inject(ScribeService).getArticleBySlug("alice.bsky.social", "https://alice.bsky.social", "my-first-post");
 ```
 
-## Signals API — `injectSite` / `injectArticle`
+`getArticle(author, rkey)` and `injectArticle(author, rkey)` fetch by record key instead, for when you already have an `ArticleRef`. Don't pass them a slug.
+
+## Signals API — `injectSite` / `injectArticleBySlug`
 
 Injection functions that return readonly signals. The fetch is aborted automatically when the host component is destroyed.
 
 ```ts
 import { Component } from "@angular/core";
 import { NgIf } from "@angular/common";
-import { injectArticle } from "@skyscribe-sdk/angular";
+import { injectArticleBySlug } from "@skyscribe-sdk/angular";
 
 @Component({
   standalone: true,
@@ -94,7 +96,7 @@ import { injectArticle } from "@skyscribe-sdk/angular";
   `,
 })
 export class ArticleComponent {
-  vm = injectArticle("alice.bsky.social", "my-first-post");
+  vm = injectArticleBySlug("alice.bsky.social", "https://alice.bsky.social", "my-first-post");
 }
 ```
 

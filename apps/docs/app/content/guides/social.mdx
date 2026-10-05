@@ -259,13 +259,14 @@ The components read this on mount, so a returning reader sees the confirmed stat
 Functions to read and set this state are exported too:
 
 ```ts
-import { isRecommended, markRecommended, isSubscribed, markSubscribed } from '@skyscribe-sdk/social';
+import { isRecommended, markRecommended, isSubscribed, markSubscribed, clearSubscribed } from '@skyscribe-sdk/social';
 
 if (isRecommended(documentUri)) {
   // already liked
 }
 
-markSubscribed(publicationUri); // e.g. after subscribing through your own UI
+markSubscribed(publicationUri);  // e.g. after subscribing through your own UI
+clearSubscribed(publicationUri); // e.g. after unsubscribing through your own UI
 ```
 
 See the [API reference](/api/social) for the full function signatures.

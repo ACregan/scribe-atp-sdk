@@ -53,12 +53,12 @@ Use this when rendering an article page. Pass `uri` to `@skyscribe-sdk/social`'s
 
 ### Fetch an article directly
 
-If you don't need the AT URI, `fetchArticle` skips the site lookup:
+If you already have an `ArticleRef`, `fetchArticle` skips the site lookup. It takes the article's account and record key (rkey), both in `ref.uri`. Don't pass it a slug: current articles have opaque rkeys.
 
 ```ts
-import { fetchArticle } from "@skyscribe-sdk/core";
+import { fetchArticle, slugFromUri } from "@skyscribe-sdk/core";
 
-const article = await fetchArticle("alice.bsky.social", "my-first-post");
+const article = await fetchArticle(ref.uri.split("/")[2], slugFromUri(ref.uri));
 
 console.log(article.title);
 console.log(article.content);

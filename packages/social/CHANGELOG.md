@@ -1,5 +1,11 @@
 # @skyscribe-sdk/social
 
+## 1.5.0
+
+### Minor Changes
+
+- Export `clearSubscribed`, for removing a saved subscription from `localStorage` when you build your own unsubscribe UI. It already existed but wasn't exported.
+
 ## 1.4.2
 
 ### Patch Changes

@@ -267,7 +267,7 @@ describe("listArticles", () => {
     });
   });
 
-  it("derives slug from the URI rkey", async () => {
+  it("derives slug from the last segment of path", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -277,7 +277,7 @@ describe("listArticles", () => {
             cid: "bafy",
             value: {
               title: "Test",
-              path: "/essays/my-article-slug",
+              path: "/blog/essays/my-article-slug",
               site: "at://did:plc:testuser/site.standard.publication/example-com",
               publishedAt: "2024-01-01T00:00:00Z",
               createdAt: "2024-01-01T00:00:00Z",
@@ -289,6 +289,81 @@ describe("listArticles", () => {
 
     const result = await listArticles("did:plc:testuser");
     expect(result[0].slug).toBe("my-article-slug");
+  });
+
+  it("uses the human-readable slug from path, not the TID rkey", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        records: [
+          {
+            uri: "at://did:plc:testuser/site.standard.document/3mp47vvkh342n",
+            cid: "bafy",
+            value: {
+              title: "Test",
+              path: "/essays/a-year-of-letters",
+              site: "at://did:plc:testuser/site.standard.publication/3mp4nd46xwr2h",
+              publishedAt: "2024-01-01T00:00:00Z",
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await listArticles("did:plc:testuser");
+    expect(result[0].slug).toBe("a-year-of-letters");
+  });
+
+  it("falls back to the rkey for records without a path (drafts)", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        records: [
+          {
+            uri: "at://did:plc:testuser/site.standard.document/3mp47vvkh342n",
+            cid: "bafy",
+            value: {
+              title: "Draft",
+              site: "https://reader.scribe-atp.app/did:plc:testuser/site.standard.document/3mp47vvkh342n",
+              scribe: { createdAt: "2024-03-01T00:00:00Z" },
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await listArticles("did:plc:testuser");
+    expect(result[0].slug).toBe("3mp47vvkh342n");
+  });
+
+  it("reads createdAt, the cover image and contributors from current records", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        records: [
+          {
+            uri: "at://did:plc:testuser/site.standard.document/3mp47vvkh342n",
+            cid: "bafy",
+            value: {
+              title: "Current",
+              path: "/essays/current",
+              site: "at://did:plc:testuser/site.standard.publication/3mp4nd46xwr2h",
+              publishedAt: "2024-01-02T00:00:00Z",
+              contributors: [{ did: "did:plc:bob", role: "Editor" }],
+              scribe: {
+                createdAt: "2024-01-01T00:00:00Z",
+                coverImageUrl: "https://cdn.example.com/cover.webp",
+              },
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await listArticles("did:plc:testuser");
+    expect(result[0].createdAt).toBe("2024-01-01T00:00:00Z");
+    expect(result[0].splashImageUrl).toBe("https://cdn.example.com/cover.webp");
+    expect(result[0].contributors).toEqual([{ did: "did:plc:bob", role: "Editor" }]);
   });
 
   it("follows cursor across multiple pages", async () => {

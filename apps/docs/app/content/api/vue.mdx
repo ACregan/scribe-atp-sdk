@@ -2,7 +2,7 @@
 
 Composables for Vue 3. Install with `npm install @skyscribe-sdk/vue`. See the [Vue guide](/frameworks/vue) for walkthroughs.
 
-All four composables take plain values, fetch once when called, and abort when the component unmounts. They don't re-fetch if the values change.
+All five composables take plain values, fetch once when called, and abort when the component unmounts. They don't re-fetch if the values change.
 
 ## Composables
 
@@ -29,10 +29,37 @@ While loading, `site.value` is `null` and `loading.value` is `true`. On error, `
 
 ---
 
+### `useScribeArticleBySlug`
+
+```ts
+function useScribeArticleBySlug(
+  author: string,
+  publicationUrl: string,
+  articleSlug: string
+): UseScribeArticleBySlugResult
+
+interface UseScribeArticleBySlugResult {
+  article: Ref<Article | null>;
+  uri: Ref<string | null>;    // the article's AT URI
+  loading: Ref<boolean>;
+  error: Ref<Error | null>;
+}
+```
+
+Looks an article up by its slug in the Site at `publicationUrl` (using `fetchArticleBySlug`), and returns it with its AT URI. Aborts on unmount. Since 1.1.0.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
+---
+
 ### `useScribeArticle`
 
 ```ts
-function useScribeArticle(author: string, articleSlug: string): UseScribeArticleResult
+function useScribeArticle(author: string, rkey: string): UseScribeArticleResult
 
 interface UseScribeArticleResult {
   article: Ref<Article | null>;
@@ -46,9 +73,9 @@ Fetches an article by its **record key (rkey)** when called, and aborts on unmou
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
 | `author` | `string` | Handle or DID of the account the article is stored in |
-| `articleSlug` | `string` | The article's **rkey**, despite the name |
+| `rkey` | `string` | The article's record key |
 
-Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)`. A human-readable slug only finds very old articles.
+Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)`. Don't pass a slug: it only finds very old articles. With a slug, use `useScribeArticleBySlug`.
 
 ---
 

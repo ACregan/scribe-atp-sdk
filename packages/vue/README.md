@@ -40,14 +40,20 @@ const { site, loading, error } = useScribeSite(
 </template>
 ```
 
-### `useScribeArticle`
+### `useScribeArticleBySlug`
+
+Looks the article up by its slug (as in its URL) and returns it with its AT URI:
 
 ```vue
 <script setup lang="ts">
-import { useScribeArticle } from "@skyscribe-sdk/vue";
+import { useScribeArticleBySlug } from "@skyscribe-sdk/vue";
 
-const props = defineProps<{ author: string; slug: string }>();
-const { article, loading, error } = useScribeArticle(props.author, props.slug);
+const props = defineProps<{ slug: string }>();
+const { article, uri, loading, error } = useScribeArticleBySlug(
+  "alice.bsky.social",
+  "https://alice.bsky.social",
+  props.slug
+);
 </script>
 
 <template>
@@ -59,6 +65,8 @@ const { article, loading, error } = useScribeArticle(props.author, props.slug);
   </article>
 </template>
 ```
+
+`useScribeArticle(author, rkey)` fetches by record key instead, for when you already have an `ArticleRef`. Don't pass it a slug.
 
 Both composables abort the in-flight request automatically when the component is unmounted.
 

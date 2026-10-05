@@ -58,7 +58,7 @@ const article = await fetchArticle(ref.uri.split('/')[2], slugFromUri(ref.uri));
 ```
 
 <Callout type="warning">
-  Despite its name, `fetchArticle`'s second argument is the **rkey**, not the slug. Articles published with current tooling have opaque rkeys like `3mp47vvkh342n`, so passing a slug only finds very old articles. Use `fetchArticleBySlug` when you have a slug.
+  Don't pass a slug to `fetchArticle`: articles published with current tooling have opaque rkeys like `3mp47vvkh342n`, so a slug only finds very old articles. Use `fetchArticleBySlug` when you have a slug.
 </Callout>
 
 Before rendering `article.content`, read [Rendering the HTML](/quickstart#3-fetch-an-article): if you show articles from accounts you don't control, sanitise it first.

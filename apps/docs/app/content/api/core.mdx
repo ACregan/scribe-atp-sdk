@@ -55,7 +55,7 @@ This is the function to use for article pages, which usually have the slug from 
 ```ts
 function fetchArticle(
   author: string,
-  articleSlug: string, // actually the record key: see below
+  rkey: string,
   signal?: AbortSignal
 ): Promise<Article>
 ```
@@ -65,7 +65,7 @@ Fetches a single article record, including its full HTML content, by its **recor
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
 | `author` | `string` | Handle or DID of the account the article is stored in |
-| `articleSlug` | `string` | The article's **rkey**, despite the name. Get it from an `ArticleRef` with `slugFromUri(ref.uri)` |
+| `rkey` | `string` | The article's record key. Get it from an `ArticleRef` with `slugFromUri(ref.uri)` |
 
 <Callout type="warning">
   Articles published with current tooling have opaque rkeys like `3mp47vvkh342n`, so passing a human-readable slug only finds very old articles. Use `fetchArticleBySlug` when you have a slug. When you have an `ArticleRef`, take the account from its AT URI too (`ref.uri.split('/')[2]`), since an article can live in a contributor's account.
@@ -185,11 +185,11 @@ Returns **every** article record in the author's account, drafts included, as li
 | `author` | `string` | Author handle or DID |
 | `signal` | `AbortSignal` | Optional. Cancel the request when the signal fires |
 
-<Callout type="warning">
-  These refs are built from the raw records, not from a Site, so they differ from the ones `fetchSite` returns: `slug` is the **rkey**, not the human-readable slug, and `createdAt` and `splashImageUrl` are usually empty. To list published articles, use `fetchSite` and its Groups instead.
-</Callout>
+Each ref's `slug` comes from the last segment of the article's `path`; drafts, which have no path yet, get their rkey instead. `splashImageUrl` holds the article's cover image. To fetch an article's full content, pass its account and rkey (from `ref.uri`) to `fetchArticle`.
 
-Pass a ref's `slug` (the rkey) to `fetchArticle` to get its full content.
+<Callout type="note">
+  Use this to list everything an author has written, drafts included. To list what's published on a website, use `fetchSite` and its Groups, which have the authors' ordering.
+</Callout>
 
 ---
 
@@ -332,7 +332,7 @@ Returns tag descriptors for a site's index or group pages: the title, a canonica
 function buildCanonicalUrl(article: Article, site: Site): string
 ```
 
-Returns an article's full canonical URL: the `canonicalUrl` SkyScribe stored when the article was published. For very old records without one, it falls back to combining `site.url`, `site.urlPrefix` and `article.path`.
+Returns an article's full canonical URL: the `canonicalUrl` SkyScribe stored when the article was published. For very old records without one, it builds it from `site.url` and `article.path`, adding `site.urlPrefix` only if the path doesn't already start with it.
 
 ```ts
 buildCanonicalUrl(article, site);

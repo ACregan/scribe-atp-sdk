@@ -30,16 +30,16 @@ It also works with content written in Scribe CMS, the older authoring tool, whic
 | Package | For | Provides |
 | ------- | --- | -------- |
 | **`@skyscribe-sdk/core`** | Any framework, or none. Start here if unsure. | Plain async functions, no runtime dependencies |
-| **`@skyscribe-sdk/react`** | React SPAs and client-rendered components | `useSite`, `useArticle` hooks |
+| **`@skyscribe-sdk/react`** | React SPAs and client-rendered components | `useSite`, `useArticleBySlug`, `useArticle` hooks |
 | **`@skyscribe-sdk/react-router-framework`** | React Router v7/v8 framework (server) mode | Loader factories that wire up `request.signal` |
 | **`@skyscribe-sdk/next`** | Next.js 13+ App Router | `generateStaticParams` / `generateMetadata` factories |
 | **`@skyscribe-sdk/nuxt`** | Nuxt 3+ | A full module: auto-imports and `useAsyncData` integration |
-| **`@skyscribe-sdk/vue`** | Vue 3+ | `useScribeSite`, `useScribeArticle` composables |
-| **`@skyscribe-sdk/angular`** | Angular 16+ | `ScribeService` (Observables), `injectSite` / `injectArticle` (Signals) |
+| **`@skyscribe-sdk/vue`** | Vue 3+ | `useScribeSite`, `useScribeArticleBySlug`, `useScribeArticle` composables |
+| **`@skyscribe-sdk/angular`** | Angular 16+ | `ScribeService` (Observables), `injectSite` / `injectArticleBySlug` (Signals) |
 | **`@skyscribe-sdk/social`** | React | `LikeButton`, `SubscribeButton`, `ShareButton` for reader engagement |
 | **`@skyscribe-sdk/styles`** | Any framework | Themeable CSS for rendering article content |
 
-For **SvelteKit**, **Astro**, or any other meta-framework that loads data on the server, install `@skyscribe-sdk/core` and call `fetchSite` / `fetchArticle` directly in your loaders or server components. See [Other frameworks](/frameworks/other).
+For **SvelteKit**, **Astro**, or any other meta-framework that loads data on the server, install `@skyscribe-sdk/core` and call `fetchSite` / `fetchArticleBySlug` directly in your loaders or server components. See [Other frameworks](/frameworks/other).
 
 ## Requirements
 

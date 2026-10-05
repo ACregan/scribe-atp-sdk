@@ -18,9 +18,9 @@ fetchArticle(author, rkey, signal?)
 
 If you use a framework adapter, you don't need to manage signals yourself:
 
-- **React hooks** (`useSite`, `useArticle`): abort on unmount, and re-fetch (aborting the old request) when their arguments change
+- **React hooks** (`useSite`, `useArticleBySlug`, `useArticle`): abort on unmount, and re-fetch (aborting the old request) when their arguments change
 - **React Router loaders**: pass `request.signal` through
-- **Angular signals** (`injectSite`, `injectArticle`): abort when the host component is destroyed
+- **Angular signals** (`injectSite`, `injectArticleBySlug`, `injectArticle`): abort when the host component is destroyed
 - **Angular Observables** (`ScribeService`): abort when you unsubscribe, including when an `async` pipe's component is destroyed
 - **Vue composables**: abort on unmount. They take plain values and don't re-fetch when those change, so re-create the component (for example with a `:key`) to fetch something else
 - **Nuxt composables**: don't cancel. `useAsyncData` runs the fetch once during server rendering and reuses the result on the client

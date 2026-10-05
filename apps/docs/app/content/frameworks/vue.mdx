@@ -1,6 +1,6 @@
 # Vue
 
-`@skyscribe-sdk/vue` provides `useScribeSite` and `useScribeArticle` composables for Vue 3. Each returns reactive refs for `site` / `article`, `loading` and `error`, and aborts the in-flight request when the component unmounts.
+`@skyscribe-sdk/vue` provides `useScribeSite`, `useScribeArticleBySlug` and `useScribeArticle` composables for Vue 3. Each returns reactive refs for `site` / `article`, `loading` and `error`, and aborts the in-flight request when the component unmounts.
 
 <Callout>
   For **Nuxt 3**, use [`@skyscribe-sdk/nuxt`](/frameworks/nuxt) instead: its composables use `useAsyncData`, so content is fetched during server rendering, and they're auto-imported.
@@ -40,19 +40,20 @@ const { site, loading, error } = useScribeSite('alice.bsky.social', 'https://ali
 </template>
 ```
 
-## `useScribeArticle`
+## `useScribeArticleBySlug`
 
-`useScribeArticle` fetches an article by its account and **record key (rkey)**, not its slug. Both are in the article's `ArticleRef.uri` (`at://{did}/site.standard.document/{rkey}`). Take the account from there: an article credited to a contributor can live in their account.
+Article pages usually have the article's slug from the URL. `useScribeArticleBySlug` looks it up in the Site and returns the article with its AT URI:
 
 ```vue
 <script setup lang="ts">
-import { useScribeArticle } from '@skyscribe-sdk/vue';
-import { slugFromUri } from '@skyscribe-sdk/core';
-import type { ArticleRef } from '@skyscribe-sdk/vue';
+import { useScribeArticleBySlug } from '@skyscribe-sdk/vue';
 
-const props = defineProps<{ articleRef: ArticleRef }>();
-const did = props.articleRef.uri.split('/')[2];
-const { article, loading, error } = useScribeArticle(did, slugFromUri(props.articleRef.uri));
+const props = defineProps<{ slug: string }>();
+const { article, uri, loading, error } = useScribeArticleBySlug(
+  'alice.bsky.social',
+  'https://alice.bsky.social',
+  props.slug,
+);
 </script>
 
 <template>
@@ -66,11 +67,21 @@ const { article, loading, error } = useScribeArticle(did, slugFromUri(props.arti
 </template>
 ```
 
-<Callout type="warning" title="Only have a slug?">
-  Articles published with current tooling have opaque rkeys, so a slug from your URL won't work with `useScribeArticle`. Find the matching `ArticleRef` in the Site from `useScribeSite`, or call `fetchArticleBySlug` from `@skyscribe-sdk/core` yourself.
-</Callout>
-
 If you render articles from accounts you don't control, sanitise `content` before passing it to `v-html` (see [Rendering the HTML](/quickstart#3-fetch-an-article)).
+
+## `useScribeArticle`
+
+If you already have an `ArticleRef`, `useScribeArticle` skips the Site lookup. It takes the article's account and **record key (rkey)**, both found in `ArticleRef.uri` (`at://{did}/site.standard.document/{rkey}`). Take the account from there: an article credited to a contributor can live in their account.
+
+```ts
+import { useScribeArticle } from '@skyscribe-sdk/vue';
+import { slugFromUri } from '@skyscribe-sdk/core';
+
+const did = articleRef.uri.split('/')[2];
+const { article } = useScribeArticle(did, slugFromUri(articleRef.uri));
+```
+
+Don't pass a slug to `useScribeArticle`: articles published with current tooling have opaque rkeys, so a slug only finds very old articles.
 
 ## Just the AT URI: `useScribePublicationUri` / `useScribeDocumentUri`
 

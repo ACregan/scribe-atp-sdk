@@ -87,7 +87,7 @@ The metadata generators are opinionated by design. They produce complete, ready-
 | --------- | ------- | ------------- | --------- |
 | `generateSiteMetadata` | `site.title` | `site.description` | title, description, splash image |
 | `generateGroupMetadata` | `"Group — Site"` | — | title |
-| `generateArticleMetadata` | `"Article — Site"` | `article.synopsis` | title, description, splash image |
+| `generateArticleMetadata` | `"Article — Site"` | `description` | title, description, splash image |
 
 Article metadata uses the cached `ArticleRef` snapshot already present in the site record — no extra network request per article at build time.
 
@@ -139,18 +139,22 @@ export const revalidate = 3600; // revalidate every hour
 ```ts
 // pages/blog/[slug].tsx
 import type { GetStaticPaths, GetStaticProps } from "next";
-import { fetchSite, fetchArticle } from "@skyscribe-sdk/core";
+import { fetchSite, fetchArticleBySlug } from "@skyscribe-sdk/core";
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const site = await fetchSite("alice.bsky.social", "https://alice.bsky.social");
   const paths = site.groups.flatMap((group) =>
-    group.articles.map((article) => ({ params: { slug: article.url ?? "" } }))
+    group.articles.map((article) => ({ params: { slug: article.slug ?? "" } }))
   );
   return { paths, fallback: false };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const article = await fetchArticle("alice.bsky.social", params!.slug as string);
+  const { article } = await fetchArticleBySlug(
+    "alice.bsky.social",
+    "https://alice.bsky.social",
+    params!.slug as string
+  );
   return { props: { article } };
 };
 ```

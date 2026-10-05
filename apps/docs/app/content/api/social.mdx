@@ -164,11 +164,17 @@ Saves a subscribed state to `localStorage`.
 
 ---
 
-All four are safe to call on the server: where `localStorage` isn't available, they return `false` or do nothing.
+### `clearSubscribed`
 
-<Callout type="note">
-  There's no exported function to clear a saved subscription. `SubscribeButton` clears it itself after an unsubscribe. If you build your own unsubscribe UI, remove the `scribe:subscribed:{publicationUri}` key from `localStorage` yourself.
-</Callout>
+```ts
+function clearSubscribed(publicationUri: string): void
+```
+
+Removes a saved subscribed state from `localStorage`, for example after the reader unsubscribes through your own UI. `SubscribeButton` does this itself. Since 1.5.0.
+
+---
+
+All five are safe to call on the server: where `localStorage` isn't available, they return `false` or do nothing.
 
 ---
 
