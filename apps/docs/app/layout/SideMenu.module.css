@@ -1,0 +1,202 @@
+/* Copied verbatim from skyscribe-app/app/components/SideMenu/SideMenu.module.css
+   (SDK ADR 0003: the docs copy skyscribe.app's look rather than sharing
+   code). Some rules (pills, logout) are unused here; kept so a re-copy from
+   upstream stays a clean diff. */
+
+/* ______ CUSTOM PROPERTIES __________________ */
+
+.menuList {
+  --menu-item-height: 5rem;
+}
+
+/* ______ MENUS __________________ */
+
+.menuLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2.4rem;
+  margin: 0 0 1rem 1rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  font-weight: 800;
+  border-bottom: 0.2rem solid var(--text-primary);
+  padding-right: 0.4rem;
+}
+.menuLabel:first-of-type {
+  margin-top: 2rem;
+}
+
+/* Transition when Pill mounts on menu-toggle */
+@keyframes fadeInAnimation {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fadeInPill {
+  animation-name: fadeInAnimation;
+  animation-duration: 1s;
+}
+
+/* Starburst Icon */
+.menuLabel svg {
+  width: 2rem;
+  height: 2rem;
+  margin-left: 0.3rem;
+}
+/* Tooltip clones this span and injects the anchor-name onto it (see the
+   comment at its call site in SideMenu.tsx) — inline-flex so it doesn't
+   disrupt .menuLabel's own row layout. */
+.starburstAnchor {
+  display: inline-flex;
+  align-items: center;
+}
+.menuList {
+  width: 20rem;
+  padding: 0 0 2rem 0;
+}
+/* .menuList:first-of-type {
+  margin: 2rem 0;
+} */
+.menuItem {
+  position: relative;
+  height: var(--menu-item-height);
+  gap: 1rem;
+}
+.menuItemLink {
+  position: absolute;
+  inset: 0 0 0 1rem;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  border-radius: var(--surface-border-radius) 0 0 var(--surface-border-radius);
+
+  /* PROTOTYPE - WIP: Hover state for animation idea i had.
+  background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 16%, rgba(255, 255, 255, 0) 16.1%, rgba(255, 255, 255, 0) 100%);
+  background-position: -7rem 50%; */
+}
+.menuItemLink_active {
+  background: var(--menu-item-active-color);
+}
+/* This is the upper curved edge on the outside of the active menu item */
+.menuItemLink_active::before {
+  display: inline-block;
+  content: "";
+  background: var(--surface-negative);
+  height: 1rem;
+  width: 1rem;
+  position: absolute;
+  top: -1rem;
+  right: 14rem;
+  border-radius: 0 0 var(--surface-border-radius) 0;
+  box-shadow: 0 0.5rem 0 0 var(--surface-positive);
+
+  transition: right 0.2s ease-in-out;
+}
+/* This positions the upper curved edge appropriately when menu is expanded*/
+.menuItemLink_active.menuItemLink_expanded::before {
+  right: 0;
+}
+/* This is the lower curved edge on the outside of the active menu item */
+.menuItemLink_active::after {
+  display: inline-block;
+  content: "";
+  background: var(--surface-negative);
+  height: 1rem;
+  width: 1rem;
+  position: absolute;
+  bottom: -1rem;
+  right: 14rem;
+  border-radius: 0 var(--surface-border-radius) 0 0;
+  box-shadow: 0.5rem 0 0 0 var(--surface-positive);
+
+  transition: right 0.2s ease-in-out;
+}
+/* This positions the lower curved edge appropriately when menu is expanded*/
+.menuItemLink_active.menuItemLink_expanded::after {
+  right: 0;
+}
+
+.menuItemIcon {
+  height: 3rem;
+  width: 3rem;
+  margin: 1rem;
+}
+/* Real DOM anchor for the collapsed-state Tooltip — see SideMenu.tsx's
+   comment at its use site. Same shape as .starburstAnchor below. */
+.menuItemIconAnchor {
+  display: inline-flex;
+  align-items: center;
+}
+/* Pulls the tooltip bubble 1rem closer to its icon than Tooltip's own
+   default right-anchored gap. */
+.menuItemTooltipNudge {
+  transform: translateX(-1rem);
+}
+.menuItemLabel {
+  margin: 0;
+  padding-left: 0.5rem;
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  font-weight: 800;
+
+  letter-spacing: 0.1rem;
+  color: var(--text-primary);
+}
+.menuItemLink_active .menuItemLabel {
+  color: var(--text-primary_highlight);
+}
+
+/* ______ LOGOUT __________________ */
+
+/* Positioned absolutely against .aside (position: relative in
+   CoreLayout.module.css), same technique as .menuToggleButton there —
+   "just above the toggle chevron" means pinned near the bottom of the
+   aside itself, not just after the last menu item in normal flow (which
+   would leave a gap if the menu content doesn't fill the aside's height).
+   bottom: 4.5rem clears the chevron's own 3rem circle + its 0.5rem
+   bottom offset + a little breathing room. */
+.logoutForm {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 4.5rem;
+}
+/* !important on every property that collides with Button.module.css's own
+   .button base rule (padding, justify-content, border-radius) — .exitButton
+   and .button are both single-class selectors (equal specificity), so
+   without this, whichever module Vite happens to emit later in the
+   bundled stylesheet wins, not whichever comes later in the className
+   string. height/width don't need it — .button doesn't set those, so
+   there's nothing to lose to. Matches CMS's own AsideMenu.module.css,
+   which hits this same collision on this same button and fixes it the
+   same way. */
+.exitButton {
+  height: 5rem;
+  width: 100%;
+  padding-left: 0.8rem !important;
+  padding-right: -0.8rem !important;
+  justify-content: flex-start !important;
+  border-radius: var(--surface-border-radius) !important;
+  overflow: hidden;
+}
+.exitButtonContent {
+  width: auto;
+  display: flex;
+  justify-content: flex-start;
+
+  align-items: center;
+  gap: 0 1rem;
+}
+.exitButtonIcon {
+  height: 3rem;
+  width: 3rem;
+  flex-shrink: 0;
+}
+.exitButtonLabel {
+  padding-left: 1rem;
+  color: var(--white);
+}

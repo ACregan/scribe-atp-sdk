@@ -1,0 +1,14 @@
+:root {
+  scrollbar-color: var(--scrollbar-thumb-colour) var(--scrollbar-track-colour);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-colour);
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-colour);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-colour_hover);
+}

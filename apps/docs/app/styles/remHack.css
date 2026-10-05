@@ -1,0 +1,62 @@
+html {
+  font-size: 62.5%;
+}
+/* GLOBAL RESPONSIVE STYLES
+ *
+ * Boosts the root em (and so every rem-based measurement site-wide) as
+ * the reported CSS viewport width crosses each display-class threshold.
+ * Breakpoints sit at 1x/1.5x/2x/3x of a 1920px baseline (1921/2881/
+ * 3841/5761 — "just above" the previous class's own max width), same
+ * spacing convention as scribe-atp.app's own remHack-equivalent.
+ *
+ * IMPORTANT CAVEAT (confirmed against MDN + device-viewport references,
+ * not assumed): a min-width media query here responds to the *reported
+ * CSS viewport width*, not physical pixels — a 4K monitor at the OS's
+ * own recommended 200% scaling reports a ~1920px CSS viewport and never
+ * reaches ANY of these breakpoints at all. They only fire for a
+ * genuinely wide *reported* viewport: someone running low/no OS scaling
+ * on a large panel, a big low-density display (a 4K TV as a monitor),
+ * or an ultrawide/spanned multi-monitor window. There's no CSS-native
+ * way to detect true physical pixel density independent of OS scaling
+ * (min-resolution/dppx has the exact same limitation — it reports
+ * devicePixelRatio, i.e. applied OS scaling, not physical density) — so
+ * width is a reasonable lever for "compensate when content would
+ * otherwise render too small," just a narrower and more varied audience
+ * than "everyone with a 4K screen."
+ *
+ * Percentages below are `62.5% × (tier's nominal display width / 1920)`
+ * — linear-in-width-ratio, not chosen by feel. The one public reference
+ * point found (a general responsive-typography guide's ~20px root size
+ * "for extra large monitors or TVs") falls out of this formula exactly
+ * at the 4K tier (3840/1920 = 2.0 → 62.5% × 2.0 = 125% = 20px), which is
+ * the closest thing to outside validation available — the rest of the
+ * curve follows the same rule, not a separate guess per tier.
+ */
+
+/* > 2K (nominal ~2560px / 1440p) */
+@media screen and (min-width: 1921px) {
+  html {
+    font-size: 83%;
+  }
+}
+
+/* > 3K (nominal ~2880px) */
+@media screen and (min-width: 2881px) {
+  html {
+    font-size: 94%;
+  }
+}
+
+/* > 4K (nominal 3840px UHD — the one tier with outside reference support) */
+@media screen and (min-width: 3841px) {
+  html {
+    font-size: 125%;
+  }
+}
+
+/* > 5K (nominal 5120px) */
+@media screen and (min-width: 5761px) {
+  html {
+    font-size: 167%;
+  }
+}

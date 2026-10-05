@@ -1,0 +1,40 @@
+/* From skyscribe-app/app/components/Omnibar/Omnibar.module.css. */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0 0.75rem;
+  height: 3.6rem;
+  background: var(--surface-positive);
+  border: 1px solid var(--border-color);
+  border-radius: var(--surface-border-radius);
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+.keycap {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.35rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--surface-inner-border-radius);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
