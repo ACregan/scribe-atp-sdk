@@ -1,0 +1,115 @@
+# @skyscribe-sdk/styles
+
+A plain CSS package for rendering SkyScribe article content: no JavaScript, no build step. Every rule is scoped to `.scribe-content`, so nothing leaks into the rest of your page. See the [Styles guide](/frameworks/styles) for set-up in each framework.
+
+## Installation
+
+```bash
+npm install @skyscribe-sdk/styles
+```
+
+## Usage
+
+Import the stylesheet once, in the route that renders article content:
+
+```ts
+import "@skyscribe-sdk/styles";
+```
+
+Then wrap your article HTML in an element with the `scribe-content` class. The easiest way is the `<ScribeContent>` component from `@skyscribe-sdk/react`, which adds the class automatically:
+
+```tsx
+import { ScribeContent } from "@skyscribe-sdk/react";
+import "@skyscribe-sdk/styles";
+
+<ScribeContent html={article.content} />
+```
+
+Without React, add the class to whatever element you render the HTML into:
+
+```html
+<div class="scribe-content"><!-- article.content --></div>
+```
+
+---
+
+## What it styles
+
+| Element | Selector |
+| ------- | -------- |
+| Code blocks | `.scribe-content pre` |
+| Inline code | `.scribe-content :not(pre) > code` |
+| Syntax tokens | `.scribe-content .token.keyword` etc. |
+| Images | `.scribe-content img` |
+| Blockquotes | `.scribe-content blockquote` |
+| Ordered / unordered lists | `.scribe-content ul`, `.scribe-content ol` |
+| Checklists | `.scribe-content li[role="checkbox"]` |
+
+The syntax token classes (`token keyword`, `token string`, …) are the Prism-compatible class names the SkyScribe editor puts on highlighted code. The default colours match Prism's light theme.
+
+---
+
+## Theming
+
+Override any `--scribe-*` custom property on `.scribe-content` (or a parent element) to change the look. That's also how to support dark mode:
+
+```css
+.my-article.dark {
+  --scribe-code-bg: #1e1e1e;
+  --scribe-code-border: #333;
+  --scribe-inline-code-bg: rgba(255, 255, 255, 0.08);
+  --scribe-blockquote-border: #555;
+  --scribe-blockquote-color: #aaa;
+
+  /* VS Code dark+ palette */
+  --scribe-token-keyword:     #569cd6;
+  --scribe-token-string:      #ce9178;
+  --scribe-token-comment:     #6a9955;
+  --scribe-token-function:    #dcdcaa;
+  --scribe-token-variable:    #9cdcfe;
+  --scribe-token-property:    #4ec9b0;
+  --scribe-token-punctuation: #d4d4d4;
+  --scribe-token-operator:    #d4d4d4;
+}
+```
+
+### Custom property reference
+
+**Code blocks and inline code**
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--scribe-code-bg` | `#f5f5f5` | Code block background |
+| `--scribe-code-border` | `#e0e0e0` | Code block border colour |
+| `--scribe-code-font` | `"Courier New", Courier, monospace` | Font family for all code |
+| `--scribe-code-font-size` | `0.875em` | Font size for all code |
+| `--scribe-inline-code-bg` | `rgba(0,0,0,0.06)` | Inline code background |
+
+**Blockquotes**
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--scribe-blockquote-border` | `#ccc` | Left border colour |
+| `--scribe-blockquote-color` | `#666` | Text colour |
+
+**Checklists**
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--scribe-checkbox-size` | `1em` | Checkbox width and height |
+| `--scribe-checkbox-border` | `#aaa` | Border of an unchecked item |
+| `--scribe-checkbox-checked-bg` | `#333` | Fill of a checked item |
+| `--scribe-checkbox-checked-border` | `#333` | Border of a checked item |
+
+**Syntax token colours**
+
+| Property | Default | Applies to |
+| -------- | ------- | ---------- |
+| `--scribe-token-comment` | `#708090` | `comment`, `prolog`, `doctype`, `cdata` |
+| `--scribe-token-punctuation` | `#555` | `punctuation` |
+| `--scribe-token-property` | `#905` | `property`, `tag`, `boolean`, `number`, `constant`, `symbol`, `deleted` |
+| `--scribe-token-string` | `#690` | `string`, `selector`, `attr`, `char`, `builtin`, `inserted` |
+| `--scribe-token-operator` | `#9a6e3a` | `operator`, `entity`, `url` |
+| `--scribe-token-keyword` | `#07a` | `keyword`, `atrule` |
+| `--scribe-token-function` | `#dd4a68` | `function`, `class-name`, `class` |
+| `--scribe-token-variable` | `#e90` | `variable`, `regex`, `important` |

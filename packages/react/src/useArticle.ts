@@ -8,7 +8,10 @@ interface UseArticleResult {
   error: Error | null;
 }
 
-export function useArticle(author: string, articleSlug: string): UseArticleResult {
+// Fetches by record key (rkey): current articles have opaque TID rkeys, so
+// a human-readable slug only matches very old records. Use useArticleBySlug when
+// you have the slug from a URL.
+export function useArticle(author: string, rkey: string): UseArticleResult {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -19,7 +22,7 @@ export function useArticle(author: string, articleSlug: string): UseArticleResul
     setArticle(null);
     setError(null);
 
-    fetchArticle(author, articleSlug, controller.signal)
+    fetchArticle(author, rkey, controller.signal)
       .then((data) => {
         setArticle(data);
         setLoading(false);
@@ -31,7 +34,7 @@ export function useArticle(author: string, articleSlug: string): UseArticleResul
       });
 
     return () => controller.abort();
-  }, [author, articleSlug]);
+  }, [author, rkey]);
 
   return { article, loading, error };
 }

@@ -1,5 +1,13 @@
 # @skyscribe-sdk/core
 
+## 3.11.3
+
+### Patch Changes
+
+- - `buildCanonicalUrl` no longer repeats the path prefix when an article has no `canonicalUrl`. Published articles' `path` already includes it, which produced URLs like `/blog/blog/essays/my-post`.
+  - `listArticles` returns each article's human-readable slug (from its `path`) instead of its record key, and reads `createdAt`, the cover image (as `splashImageUrl`) and `contributors` from where current records store them. Drafts are still included.
+  - `fetchArticle`'s second parameter is renamed from `articleSlug` to `rkey`, matching what it has always done: fetch by record key. Callers aren't affected.
+
 ## 3.11.2
 
 ### Patch Changes

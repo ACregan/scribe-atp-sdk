@@ -1,5 +1,18 @@
 # @skyscribe-sdk/angular
 
+## 1.1.0
+
+### Minor Changes
+
+- New helpers that fetch an article by its human-readable slug, as in its URL, and return it with its AT URI: `useArticleBySlug` (React), `useScribeArticleBySlug` (Vue and Nuxt), and `injectArticleBySlug` / `ScribeService.getArticleBySlug` (Angular).
+
+  The existing `useArticle`, `useScribeArticle`, `injectArticle` and `ScribeService.getArticle` fetch by record key (rkey), which for articles published with current tooling is an opaque ID, not the slug. Their parameter is renamed from `articleSlug` to `rkey` to say so; callers aren't affected.
+
+### Patch Changes
+
+- Updated dependencies
+  - @skyscribe-sdk/core@3.11.3
+
 ## 1.0.2
 
 ### Patch Changes

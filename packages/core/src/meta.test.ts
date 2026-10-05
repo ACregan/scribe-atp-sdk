@@ -45,6 +45,29 @@ describe("generateArticleMeta", () => {
     });
   });
 
+  it("doesn't repeat the prefix when article.path already contains it", () => {
+    // Publishing writes path with the base path included.
+    const tags = generateArticleMeta(
+      { ...article, path: "/blog/engineering/llms-are-full-of-shit" },
+      site,
+    );
+    expect(tags).toContainEqual({
+      property: "og:url",
+      content: "https://norobots.blog/blog/engineering/llms-are-full-of-shit",
+    });
+  });
+
+  it("still adds the prefix when a path merely starts with the same letters", () => {
+    const tags = generateArticleMeta(
+      { ...article, path: "/blogging/llms-are-full-of-shit" },
+      site,
+    );
+    expect(tags).toContainEqual({
+      property: "og:url",
+      content: "https://norobots.blog/blog/blogging/llms-are-full-of-shit",
+    });
+  });
+
   it("prefers article.canonicalUrl when present", () => {
     const tags = generateArticleMeta(
       { ...article, canonicalUrl: "https://norobots.blog/custom" },

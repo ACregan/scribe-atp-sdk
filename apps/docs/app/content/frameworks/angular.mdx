@@ -1,0 +1,176 @@
+# Angular
+
+`@skyscribe-sdk/angular` ships two APIs. Choose based on your component style:
+
+| API | Style | Returns |
+| --- | ----- | ------- |
+| `ScribeService` | RxJS / `async` pipe | Cold Observables: the fetch starts on subscribe and is cancelled on unsubscribe |
+| `injectSite` / `injectArticleBySlug` / `injectArticle` | Angular Signals | Readonly signals: the fetch starts immediately and is cancelled when the component is destroyed |
+
+## Install
+
+```bash
+npm install @skyscribe-sdk/angular
+```
+
+Requires Angular 16 or later.
+
+## Observable API: `ScribeService`
+
+`ScribeService` is provided in the root injector. Use it with the `async` pipe for the most concise result.
+
+Article pages usually have the article's slug from the route, so the examples use `getArticleBySlug` and `injectArticleBySlug`, which look the slug up in the Site and return the article with its AT URI.
+
+<Tabs>
+  <Tab label="Fetch a site">
+    ```ts
+    import { Component, inject } from '@angular/core';
+    import { AsyncPipe, NgIf, NgFor } from '@angular/common';
+    import { ScribeService } from '@skyscribe-sdk/angular';
+
+    @Component({
+      standalone: true,
+      imports: [AsyncPipe, NgIf, NgFor],
+      template: `
+        <ng-container *ngIf="site$ | async as site">
+          <h1>{{ site.title }}</h1>
+          <section *ngFor="let group of site.groups">
+            <h2>{{ group.title }}</h2>
+            <ul>
+              <li *ngFor="let article of group.articles">{{ article.title }}</li>
+            </ul>
+          </section>
+        </ng-container>
+      `,
+    })
+    export class BlogComponent {
+      site$ = inject(ScribeService).getSite('alice.bsky.social', 'https://alice.bsky.social');
+    }
+    ```
+  </Tab>
+  <Tab label="Fetch an article">
+    ```ts
+    import { Component, inject } from '@angular/core';
+    import { AsyncPipe, NgIf } from '@angular/common';
+    import { ActivatedRoute } from '@angular/router';
+    import { ScribeService } from '@skyscribe-sdk/angular';
+
+    @Component({
+      standalone: true,
+      imports: [AsyncPipe, NgIf],
+      template: `
+        <ng-container *ngIf="result$ | async as result">
+          <h1>{{ result.article.title }}</h1>
+          <div class="scribe-content" [innerHTML]="result.article.content"></div>
+        </ng-container>
+      `,
+    })
+    export class ArticleComponent {
+      private slug = inject(ActivatedRoute).snapshot.paramMap.get('slug')!;
+      result$ = inject(ScribeService).getArticleBySlug(
+        'alice.bsky.social',
+        'https://alice.bsky.social',
+        this.slug,
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+The fetch is cancelled automatically when you unsubscribe or when the `async` pipe's host component is destroyed.
+
+## Signals API: `injectSite` / `injectArticleBySlug`
+
+The injection functions return readonly signals: `{ site, loading, error }`, or `{ article, uri, loading, error }` for `injectArticleBySlug`. The fetch is aborted when the host component is destroyed.
+
+<Tabs>
+  <Tab label="Fetch a site">
+    ```ts
+    import { Component } from '@angular/core';
+    import { NgIf, NgFor } from '@angular/common';
+    import { injectSite } from '@skyscribe-sdk/angular';
+
+    @Component({
+      standalone: true,
+      imports: [NgIf, NgFor],
+      template: `
+        <p *ngIf="vm.loading()">Loading…</p>
+        <p *ngIf="vm.error()">{{ vm.error()!.message }}</p>
+        <ng-container *ngIf="vm.site() as site">
+          <h1>{{ site.title }}</h1>
+          <section *ngFor="let group of site.groups">
+            <h2>{{ group.title }}</h2>
+          </section>
+        </ng-container>
+      `,
+    })
+    export class BlogComponent {
+      vm = injectSite('alice.bsky.social', 'https://alice.bsky.social');
+    }
+    ```
+  </Tab>
+  <Tab label="Fetch an article">
+    ```ts
+    import { Component, inject } from '@angular/core';
+    import { NgIf } from '@angular/common';
+    import { ActivatedRoute } from '@angular/router';
+    import { injectArticleBySlug } from '@skyscribe-sdk/angular';
+
+    @Component({
+      standalone: true,
+      imports: [NgIf],
+      template: `
+        <p *ngIf="vm.loading()">Loading…</p>
+        <article *ngIf="vm.article() as article">
+          <h1>{{ article.title }}</h1>
+          <div class="scribe-content" [innerHTML]="article.content"></div>
+        </article>
+      `,
+    })
+    export class ArticleComponent {
+      vm = injectArticleBySlug(
+        'alice.bsky.social',
+        'https://alice.bsky.social',
+        inject(ActivatedRoute).snapshot.paramMap.get('slug')!,
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Callout>
+  Injection functions must be called in an **injection context**: a constructor or a class field initialiser. They can't be called inside lifecycle hooks or event handlers.
+</Callout>
+
+### Fetching by record key
+
+If you already have an `ArticleRef`, `getArticle(author, rkey)` and `injectArticle(author, rkey)` skip the Site lookup. They take the article's account and **record key (rkey)**, both in `ArticleRef.uri`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)` (from `@skyscribe-sdk/core`). Don't pass a slug: articles published with current tooling have opaque rkeys, so a slug only finds very old articles.
+
+Angular sanitises values bound to `[innerHTML]`, removing scripts and other unsafe markup, so article content is safe to bind directly. The `scribe-content` class lets [`@skyscribe-sdk/styles`](/frameworks/styles) style it.
+
+## Just the AT URI: `injectPublicationUri` / `injectDocumentUri`
+
+`@skyscribe-sdk/social`'s buttons are React components, so you can't use them in an Angular template. If you're building your own like or subscribe UI, `injectPublicationUri` and `injectDocumentUri` resolve just the AT URI you need (`ScribeService` has matching `getPublicationUri` / `getDocumentUri` methods). `injectDocumentUri` takes the article's **slug**:
+
+```ts
+import { Component } from '@angular/core';
+import { NgIf } from '@angular/common';
+import { injectDocumentUri } from '@skyscribe-sdk/angular';
+
+@Component({
+  standalone: true,
+  imports: [NgIf],
+  template: `<p *ngIf="uri.uri() as documentUri">AT URI: {{ documentUri }}</p>`,
+})
+export class DocumentUriComponent {
+  uri = injectDocumentUri('alice.bsky.social', 'https://alice.bsky.social', 'my-first-post');
+}
+```
+
+## TypeScript types
+
+The main types from `@skyscribe-sdk/core` are re-exported:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup } from '@skyscribe-sdk/angular';
+```

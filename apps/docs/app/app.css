@@ -1,0 +1,9 @@
+/* Copied from skyscribe-app/app/styles/ (SDK ADR 0003: the docs copy
+   skyscribe.app's look rather than sharing code). Re-copy those files if
+   skyscribe.app's tokens change. Only the global sheets the docs need. */
+@import "./styles/colours.css";
+@import "./styles/tokens.css";
+@import "./styles/scrollbars.css";
+@import "./styles/remHack.css";
+@import "./styles/reset.css";
+@import "./styles/typography.css";

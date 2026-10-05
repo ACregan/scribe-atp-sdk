@@ -38,16 +38,24 @@ function BlogIndex() {
 }
 ```
 
-### `useArticle`
+### `useArticleBySlug`
+
+Looks the article up by its slug (as in its URL) and returns it with its AT URI:
 
 ```tsx
-import { useArticle } from "@skyscribe-sdk/react";
+import { useArticleBySlug } from "@skyscribe-sdk/react";
 
-function ArticlePage({ author, slug }: { author: string; slug: string }) {
-  const { article, loading, error } = useArticle(author, slug);
+function ArticlePage({ slug }: { slug: string }) {
+  const { article, uri, loading, error } = useArticleBySlug(
+    "alice.bsky.social",
+    "https://alice.bsky.social",
+    slug
+  );
 
   if (loading) return <p>Loading…</p>;
   if (error)   return <p>Something went wrong: {error.message}</p>;
+
+  if (!article) return null;
 
   return (
     <article>
@@ -57,6 +65,8 @@ function ArticlePage({ author, slug }: { author: string; slug: string }) {
   );
 }
 ```
+
+`useArticle(author, rkey)` fetches by record key instead, for when you already have an `ArticleRef`. Don't pass it a slug.
 
 ## TypeScript types
 

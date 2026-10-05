@@ -64,13 +64,13 @@ const basePath = site.urlPrefix ? `/${site.urlPrefix}` : "";
 ### Fetch an article
 
 ```ts
-import { fetchArticle } from "@skyscribe-sdk/core";
+import { fetchArticleBySlug } from "@skyscribe-sdk/core";
 
-const article = await fetchArticle("alice.bsky.social", "my-first-post");
+const { article } = await fetchArticleBySlug("alice.bsky.social", "https://alice.bsky.social", "my-first-post");
 
 console.log(article.title);
-console.log(article.content);   // full HTML string — safe to render directly
-console.log(article.synopsis);  // short summary for cards and meta tags
+console.log(article.content);     // full HTML: sanitise it if you render accounts you don't control
+console.log(article.description); // short summary for cards and meta tags
 ```
 
 ### List all sites and articles
@@ -155,13 +155,19 @@ function BlogIndex() {
 }
 ```
 
-### `useArticle`
+### `useArticleBySlug`
+
+Looks the article up by its slug (as in its URL) and returns it with its AT URI:
 
 ```tsx
-import { useArticle } from "@skyscribe-sdk/react";
+import { useArticleBySlug } from "@skyscribe-sdk/react";
 
-function ArticlePage({ author, slug }: { author: string; slug: string }) {
-  const { article, loading, error } = useArticle(author, slug);
+function ArticlePage({ slug }: { slug: string }) {
+  const { article, uri, loading, error } = useArticleBySlug(
+    "alice.bsky.social",
+    "https://alice.bsky.social",
+    slug
+  );
 
   if (loading) return <p>Loading…</p>;
   if (error)   return <p>Something went wrong: {error.message}</p>;
@@ -213,16 +219,17 @@ export default function Blog() {
 
 ### Dynamic article route
 
-For routes where the slug comes from URL params, use `fetchArticle` from `@skyscribe-sdk/core` directly inside your loader:
+For routes where the slug comes from URL params, use `fetchArticleBySlug` from `@skyscribe-sdk/core` inside your loader (or `createArticleRouteLoader` from `@skyscribe-sdk/react-router-framework`):
 
 ```ts
 // app/routes/blog.$slug.tsx
 import type { LoaderFunctionArgs } from "react-router";
-import { fetchArticle } from "@skyscribe-sdk/core";
+import { fetchArticleBySlug } from "@skyscribe-sdk/core";
 import { useLoaderData } from "react-router";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  return fetchArticle("alice.bsky.social", params.slug!, request.signal);
+  const { article } = await fetchArticleBySlug("alice.bsky.social", "https://alice.bsky.social", params.slug!, request.signal);
+  return article;
 };
 
 export default function Article() {
@@ -275,10 +282,10 @@ export class BlogComponent {
 }
 ```
 
-`getArticle` follows the same pattern:
+`getArticleBySlug` follows the same pattern, emitting `{ article, uri }`:
 
 ```ts
-article$ = inject(ScribeService).getArticle("alice.bsky.social", "my-first-post");
+result$ = inject(ScribeService).getArticleBySlug("alice.bsky.social", "https://alice.bsky.social", "my-first-post");
 ```
 
 For explicit subscription management:
@@ -306,14 +313,14 @@ export class BlogComponent implements OnInit, OnDestroy {
 }
 ```
 
-### Signals API — `injectSite` / `injectArticle`
+### Signals API — `injectSite` / `injectArticleBySlug`
 
 Injection functions that return readonly signals. The fetch is aborted automatically when the host component is destroyed.
 
 ```ts
 import { Component } from "@angular/core";
 import { NgIf } from "@angular/common";
-import { injectArticle } from "@skyscribe-sdk/angular";
+import { injectArticleBySlug } from "@skyscribe-sdk/angular";
 
 @Component({
   standalone: true,
@@ -328,7 +335,7 @@ import { injectArticle } from "@skyscribe-sdk/angular";
   `,
 })
 export class ArticleComponent {
-  vm = injectArticle("alice.bsky.social", "my-first-post");
+  vm = injectArticleBySlug("alice.bsky.social", "https://alice.bsky.social", "my-first-post");
 }
 ```
 
@@ -390,7 +397,7 @@ import type { Site, SiteRecord, Article, ArticleRef, SiteGroup } from "@skyscrib
 | ---- | ----------- |
 | `Site` | An author's full publication. Contains `title`, `url`, `urlPrefix`, `groups`, and `ungroupedArticles`. |
 | `SiteRecord` | A `Site` with a `uri` field — the full AT URI of the record. Returned by `listSites`. |
-| `Article` | A single article. Contains `title`, `content` (HTML), `url`, `synopsis`, `createdAt`, `updatedAt`, and optional `splashImageUrl`. |
+| `Article` | A single article. Contains `title`, `content` (HTML), `path`, `canonicalUrl`, `description`, `coverImageUrl`, `tags`, `contributors`, `bskyPostRef` and its dates. |
 | `SiteGroup` | A named group of articles within a site. Contains `slug`, `title`, and `articles` (`ArticleRef[]`). |
 | `ArticleRef` | A lightweight article snapshot cached inside the site record. Contains enough metadata to render article cards without fetching each article individually. |
 

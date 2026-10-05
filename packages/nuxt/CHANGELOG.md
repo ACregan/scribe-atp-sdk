@@ -1,5 +1,19 @@
 # @skyscribe-sdk/nuxt
 
+## 1.3.0
+
+### Minor Changes
+
+- New helpers that fetch an article by its human-readable slug, as in its URL, and return it with its AT URI: `useArticleBySlug` (React), `useScribeArticleBySlug` (Vue and Nuxt), and `injectArticleBySlug` / `ScribeService.getArticleBySlug` (Angular).
+
+  The existing `useArticle`, `useScribeArticle`, `injectArticle` and `ScribeService.getArticle` fetch by record key (rkey), which for articles published with current tooling is an opaque ID, not the slug. Their parameter is renamed from `articleSlug` to `rkey` to say so; callers aren't affected.
+
+### Patch Changes
+
+- The published package now includes its composables. Previously only the module entry was built, so `useScribeSite`, `useScribeArticle`, `useScribePublicationUri` and `useScribeDocumentUri` were never auto-imported for anyone installing from npm. The CommonJS build also gets a shim for `import.meta.url`, which the module uses to find them.
+- Updated dependencies
+  - @skyscribe-sdk/core@3.11.3
+
 ## 1.2.1
 
 ### Patch Changes

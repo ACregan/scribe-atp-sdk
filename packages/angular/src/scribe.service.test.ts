@@ -166,6 +166,49 @@ describe("ScribeService", () => {
     });
   });
 
+  describe("getArticleBySlug", () => {
+    const DOCUMENT_URI = "at://did:plc:test/site.standard.document/3mp47vvkh342n";
+
+    it("emits the article with its AT URI and completes", () =>
+      new Promise<void>((resolve) => {
+        mockFetchArticleBySlug.mockResolvedValueOnce({ article, uri: DOCUMENT_URI });
+        const service = new ScribeService();
+        service.getArticleBySlug("did:plc:test", "https://example.com", "hello").subscribe({
+          next: (value) => {
+            expect(value).toEqual({ article, uri: DOCUMENT_URI });
+            expect(mockFetchArticleBySlug).toHaveBeenCalledWith(
+              "did:plc:test",
+              "https://example.com",
+              "hello",
+              expect.any(AbortSignal)
+            );
+          },
+          complete: resolve,
+        });
+      }));
+
+    it("errors on failure", () =>
+      new Promise<void>((resolve) => {
+        mockFetchArticleBySlug.mockRejectedValueOnce(new Error("Article not found: hello"));
+        const service = new ScribeService();
+        service.getArticleBySlug("did:plc:test", "https://example.com", "hello").subscribe({
+          error: (err: Error) => {
+            expect(err.message).toBe("Article not found: hello");
+            resolve();
+          },
+        });
+      }));
+
+    it("aborts on unsubscribe", () => {
+      mockFetchArticleBySlug.mockReturnValueOnce(new Promise(() => {}));
+      const service = new ScribeService();
+      const sub = service.getArticleBySlug("did:plc:test", "https://example.com", "hello").subscribe();
+      const signal = mockFetchArticleBySlug.mock.calls[0][3] as AbortSignal;
+      sub.unsubscribe();
+      expect(signal.aborted).toBe(true);
+    });
+  });
+
   describe("getDocumentUri", () => {
     const DOCUMENT_URI = "at://did:plc:test/site.standard.document/3jxtctq7kqm2y";
 

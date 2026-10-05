@@ -1,0 +1,113 @@
+# Other frameworks
+
+For **SvelteKit**, **Astro**, **Remix**, or any other framework that loads data on the server, install `@skyscribe-sdk/core` and call its functions directly in your loaders or server components. They're plain async functions that work anywhere JavaScript runs.
+
+## SvelteKit
+
+```ts
+// src/routes/blog/+page.server.ts
+import { fetchSite } from '@skyscribe-sdk/core';
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ({ request }) => {
+  const site = await fetchSite('alice.bsky.social', 'https://alice.bsky.social', request.signal);
+  return { site };
+};
+```
+
+```svelte
+<!-- src/routes/blog/+page.svelte -->
+<script lang="ts">
+  import type { PageData } from './$types';
+  export let data: PageData;
+</script>
+
+<h1>{data.site.title}</h1>
+{#each data.site.groups as group}
+  <section>
+    <h2>{group.title}</h2>
+    <ul>
+      {#each group.articles as article}
+        <li><a href="/blog/{group.slug}/{article.slug}">{article.title}</a></li>
+      {/each}
+    </ul>
+  </section>
+{/each}
+```
+
+For article pages, look the article up by the slug in `params`:
+
+```ts
+// src/routes/blog/[group]/[slug]/+page.server.ts
+import { error } from '@sveltejs/kit';
+import { fetchArticleBySlug, NotFoundError } from '@skyscribe-sdk/core';
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ({ params, request }) => {
+  try {
+    const { article } = await fetchArticleBySlug(
+      'alice.bsky.social',
+      'https://alice.bsky.social',
+      params.slug,
+      request.signal,
+    );
+    return { article };
+  } catch (err) {
+    if (err instanceof NotFoundError) error(404, 'Not found');
+    throw err;
+  }
+};
+```
+
+## Astro
+
+```astro
+---
+// src/pages/blog/index.astro
+import { fetchSite } from '@skyscribe-sdk/core';
+
+const site = await fetchSite('alice.bsky.social', 'https://alice.bsky.social');
+---
+
+<h1>{site.title}</h1>
+{site.groups.map((group) => (
+  <section>
+    <h2>{group.title}</h2>
+    <ul>
+      {group.articles.map((article) => (
+        <li><a href={`/blog/${group.slug}/${article.slug}`}>{article.title}</a></li>
+      ))}
+    </ul>
+  </section>
+))}
+```
+
+For static article pages, `getStaticPaths` already has each article's `ArticleRef`, so pass its location along and fetch the article directly. Take the account from the ref's AT URI rather than assuming the site owner's: an article credited to a contributor can live in their account.
+
+```astro
+---
+// src/pages/blog/[group]/[slug].astro
+import { fetchSite, fetchArticle, slugFromUri } from '@skyscribe-sdk/core';
+
+export async function getStaticPaths() {
+  const site = await fetchSite('alice.bsky.social', 'https://alice.bsky.social');
+  return site.groups.flatMap((group) =>
+    group.articles.map((ref) => ({
+      params: { group: group.slug, slug: ref.slug },
+      // at://{did}/site.standard.document/{rkey}
+      props: { did: ref.uri.split('/')[2], rkey: slugFromUri(ref.uri) },
+    }))
+  );
+}
+
+const { did, rkey } = Astro.props;
+const article = await fetchArticle(did, rkey);
+---
+
+<article>
+  <h1>{article.title}</h1>
+  <div class="scribe-content" set:html={article.content} />
+</article>
+```
+
+If you render articles from accounts you don't control, sanitise `content` first (see [Rendering the HTML](/quickstart#3-fetch-an-article)).

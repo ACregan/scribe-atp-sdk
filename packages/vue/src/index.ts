@@ -2,6 +2,8 @@ export { useScribeSite } from "./useScribeSite.js";
 export type { UseScribeSiteResult } from "./useScribeSite.js";
 export { useScribeArticle } from "./useScribeArticle.js";
 export type { UseScribeArticleResult } from "./useScribeArticle.js";
+export { useScribeArticleBySlug } from "./useScribeArticleBySlug.js";
+export type { UseScribeArticleBySlugResult } from "./useScribeArticleBySlug.js";
 export { useScribePublicationUri } from "./useScribePublicationUri.js";
 export type { UseScribePublicationUriResult } from "./useScribePublicationUri.js";
 export { useScribeDocumentUri } from "./useScribeDocumentUri.js";

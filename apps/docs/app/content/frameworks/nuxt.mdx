@@ -1,0 +1,105 @@
+# Nuxt
+
+`@skyscribe-sdk/nuxt` is a full Nuxt 3 module. It registers its composables as auto-imports, and they use `useAsyncData`, so content is fetched during server rendering and reused on the client.
+
+## Install
+
+```bash
+npm install @skyscribe-sdk/nuxt
+```
+
+## Register the module
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@skyscribe-sdk/nuxt'],
+});
+```
+
+That's it: `useScribeSite`, `useScribeArticleBySlug`, `useScribeArticle`, `useScribePublicationUri` and `useScribeDocumentUri` are now available in any component or page without importing them.
+
+## `useScribeSite`
+
+```vue
+<!-- pages/blog/index.vue -->
+<script setup lang="ts">
+const { data: site, pending, error } = await useScribeSite(
+  'alice.bsky.social',
+  'https://alice.bsky.social'
+);
+</script>
+
+<template>
+  <p v-if="pending">Loading…</p>
+  <p v-else-if="error">Error: {{ error.message }}</p>
+  <main v-else-if="site">
+    <h1>{{ site.title }}</h1>
+    <section v-for="group in site.groups" :key="group.slug">
+      <h2>{{ group.title }}</h2>
+      <ul>
+        <li v-for="article in group.articles" :key="article.uri">
+          <NuxtLink :to="`/blog/${group.slug}/${article.slug}`">{{ article.title }}</NuxtLink>
+        </li>
+      </ul>
+    </section>
+  </main>
+</template>
+```
+
+## Article pages
+
+An article page usually gets the article's **slug** from the URL. `useScribeArticleBySlug` looks it up in the Site; `data` holds the article and its AT URI:
+
+```vue
+<!-- pages/blog/[group]/[slug].vue -->
+<script setup lang="ts">
+const route = useRoute();
+
+const { data, pending, error } = await useScribeArticleBySlug(
+  'alice.bsky.social',
+  'https://alice.bsky.social',
+  route.params.slug as string,
+);
+const article = computed(() => data.value?.article);
+</script>
+
+<template>
+  <p v-if="pending">Loading…</p>
+  <p v-else-if="error">Error: {{ error.message }}</p>
+  <article v-else-if="article">
+    <h1>{{ article.title }}</h1>
+    <p v-if="article.description">{{ article.description }}</p>
+    <div class="scribe-content" v-html="article.content" />
+  </article>
+</template>
+```
+
+If you render articles from accounts you don't control, sanitise `content` before passing it to `v-html` (see [Rendering the HTML](/quickstart#3-fetch-an-article)).
+
+### `useScribeArticle`
+
+`useScribeArticle(author, rkey)` fetches an article by its account and **record key (rkey)**, skipping the Site lookup. Use it when you already have an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)`. Don't pass a slug: articles published with current tooling have opaque rkeys, so a slug only finds very old articles.
+
+## `useAsyncData` options
+
+Every composable accepts an optional last argument that's passed on to `useAsyncData`:
+
+```ts
+const { data: site } = await useScribeSite('alice.bsky.social', 'https://alice.bsky.social', {
+  lazy: true,          // don't block navigation
+  server: false,       // client-only fetch
+});
+```
+
+## SEO meta
+
+`articleSeoMeta(article, site)` and `siteSeoMeta(site)` return objects ready for Nuxt's `useSeoMeta`. `useSeoMeta` has no field for a canonical link or structured data, so add those with `useHead`, using the re-exported `buildCanonicalUrl` and `generateArticleJsonLd`. See the [meta tags guide](/guides/meta-tags).
+
+## TypeScript types
+
+The main types from `@skyscribe-sdk/core` are re-exported:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup } from '@skyscribe-sdk/nuxt';
+```

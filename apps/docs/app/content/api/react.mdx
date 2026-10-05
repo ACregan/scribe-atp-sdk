@@ -1,0 +1,118 @@
+# @skyscribe-sdk/react
+
+React hooks and a content component for client-rendered React. Install with `npm install @skyscribe-sdk/react`. Requires React 18 or later. See the [React guide](/frameworks/react) for walkthroughs.
+
+## Components
+
+### `ScribeContent`
+
+```tsx
+function ScribeContent(props: ScribeContentProps): JSX.Element
+
+type ScribeContentProps = Omit<HTMLAttributes<HTMLDivElement>, "dangerouslySetInnerHTML"> & {
+  html: string;
+};
+```
+
+A thin `<div>` that renders article HTML. It adds the `scribe-content` class, so `@skyscribe-sdk/styles` applies. It accepts all standard `div` attributes, and `className` is added to `scribe-content` rather than replacing it. It renders the HTML as-is: sanitise it first if you show accounts you don't control.
+
+```tsx
+import { ScribeContent } from "@skyscribe-sdk/react";
+import "@skyscribe-sdk/styles";
+
+<ScribeContent html={article.content} />
+
+// With an extra class
+<ScribeContent html={article.content} className={styles.articleBody} />
+```
+
+See the [`@skyscribe-sdk/styles` reference](/api/styles) for theming and the full list of styled elements.
+
+---
+
+## Hooks
+
+### `useSite`
+
+```ts
+function useSite(author: string, publicationUrl: string): UseSiteResult
+
+interface UseSiteResult {
+  site: Site | null;
+  loading: boolean;
+  error: Error | null;
+}
+```
+
+Fetches a Site on mount, and again whenever `author` or `publicationUrl` changes. Aborts the in-flight request on unmount and when the arguments change.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL, e.g. `"https://alice.bsky.social"` |
+
+While loading, `site` is `null` and `loading` is `true`. On error, `site` stays `null` and `error` is set. A cancelled request (`AbortError`) doesn't set `error`.
+
+---
+
+### `useArticleBySlug`
+
+```ts
+function useArticleBySlug(
+  author: string,
+  publicationUrl: string,
+  articleSlug: string
+): UseArticleBySlugResult
+
+interface UseArticleBySlugResult {
+  article: Article | null;
+  uri: string | null;     // the article's AT URI
+  loading: boolean;
+  error: Error | null;
+}
+```
+
+Looks an article up by its slug in the Site at `publicationUrl` (using `fetchArticleBySlug`), and returns it with its AT URI. Fetches on mount and again whenever the arguments change, aborting the previous request. Since 2.2.0.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
+If no published article has that slug, `error` is a `NotFoundError`.
+
+---
+
+### `useArticle`
+
+```ts
+function useArticle(author: string, rkey: string): UseArticleResult
+
+interface UseArticleResult {
+  article: Article | null;
+  loading: boolean;
+  error: Error | null;
+}
+```
+
+Fetches an article by its **record key (rkey)** on mount, and again whenever the arguments change. Aborts on unmount and when the arguments change.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Handle or DID of the account the article is stored in |
+| `rkey` | `string` | The article's record key |
+
+Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)`. Don't pass a slug: it only finds very old articles. With a slug, use `useArticleBySlug`.
+
+---
+
+## Types
+
+The main types from `@skyscribe-sdk/core` are re-exported:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup, ArticleResult, UseArticleBySlugResult } from '@skyscribe-sdk/react';
+```
+
+See the [core reference](/api/core#types) for type definitions.

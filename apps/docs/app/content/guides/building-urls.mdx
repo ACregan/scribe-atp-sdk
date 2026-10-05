@@ -1,0 +1,87 @@
+# Building URLs
+
+A `Site` record carries two URL-related fields that together define the root of the site's content:
+
+| Field | Example | Meaning |
+| ----- | ------- | ------- |
+| `site.url` | `"anthonycregan.co.uk"` | The site's domain (no protocol) |
+| `site.urlPrefix` | `"blog"` | Path prefix for content: an empty string if content is at the root |
+
+An article's own slug is `slug` on its `ArticleRef`.
+
+## Article URL pattern
+
+The canonical URL for a published article is:
+
+```
+https://{site.url}/{site.urlPrefix}/{group.slug}/{article.slug}
+```
+
+When `urlPrefix` is empty, the pattern is:
+
+```
+https://{site.url}/{group.slug}/{article.slug}
+```
+
+## Helper functions
+
+`@skyscribe-sdk/core` has two helpers:
+
+- `buildSiteUrl(site)` returns the site root, e.g. `https://anthonycregan.co.uk/blog`
+- `buildCanonicalUrl(article, site)` returns a full `Article`'s canonical URL. It uses the `canonicalUrl` SkyScribe stored when the article was published
+
+To build a URL from an `ArticleRef` (from `fetchSite`, without fetching each article), write a small helper once and reuse it:
+
+```ts
+import type { Site } from '@skyscribe-sdk/core';
+
+function articleUrl(site: Site, groupSlug: string, articleSlug: string): string {
+  const base = site.urlPrefix
+    ? `https://${site.url}/${site.urlPrefix}`
+    : `https://${site.url}`;
+  return `${base}/${groupSlug}/${articleSlug}`;
+}
+```
+
+Usage:
+
+```ts
+const url = articleUrl(site, group.slug, article.slug);
+// e.g. "https://anthonycregan.co.uk/blog/2024/my-first-post"
+//   or "https://norobots.blog/2024/my-first-post"
+```
+
+<Callout type="tip">
+  When building internal links within your own site, use relative paths (`/blog/2024/my-first-post`) rather than absolute URLs. The absolute form is for canonical `<link>` tags, RSS items, and sitemap entries.
+</Callout>
+
+## Looking up a site by URL
+
+Pass the site's canonical HTTPS URL straight to `fetchSite`:
+
+```ts
+import { fetchSite } from '@skyscribe-sdk/core';
+
+await fetchSite('alice.bsky.social', 'https://alice.bsky.social');
+await fetchSite('anthonycregan.dev', 'https://anthonycregan.co.uk');
+await fetchSite('anthonycregan.dev', 'https://norobots.blog');
+```
+
+(`toSlug` is still exported from `@skyscribe-sdk/core`, but site lookups no longer need it.)
+
+## Article slugs
+
+An article's human-readable slug is on the `ArticleRef` objects returned by `fetchSite`. Use `article.slug`; don't try to derive it from the AT URI.
+
+```ts
+const site = await fetchSite('alice.bsky.social', 'https://alice.bsky.social');
+
+for (const group of site.groups) {
+  for (const article of group.articles) {
+    if (!article.slug) continue; // very old records may lack one
+    const url = articleUrl(site, group.slug, article.slug);
+  }
+}
+```
+
+Article rkeys are opaque TIDs (e.g. `3mp47vvkh342n`) assigned by the PDS. `slugFromUri` returns that TID, which is not the human-readable slug, so use `article.slug` when building URLs.

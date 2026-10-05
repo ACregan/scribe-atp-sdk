@@ -1,0 +1,86 @@
+/* 1. Low-specificity encapsulation using Cascade Layers */
+@layer reset {
+  /* 2. Sane box-sizing and asset repetitions */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+  }
+
+  /* 3. Opt into intentional margin and padding spacing */
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 4. Document-level improvements with dynamic viewports */
+  body {
+    min-height: 100dvh; /* Dynamic viewport height for reliable mobile viewports */
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased; /* Sane typography rendering on macOS/iOS */
+  }
+
+  /* 5. Fix media element baseline spacing and overflow */
+  img,
+  picture,
+  video,
+  canvas,
+  svg,
+  iframe {
+    display: block; /* Eradicates mysterious line-height baseline spacing gaps */
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* 6. Prevent explicit-sized SVG icons from scaling down */
+  svg[width][height] {
+    max-width: revert;
+  }
+
+  /* 7. Ensure form controls inherit typography tokens */
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  /* 8. Native auto-growing form behaviors */
+  textarea,
+  input {
+    field-sizing: content; /* Modern CSS standard to dynamically fit content size */
+  }
+
+  /* 8a. Fieldsets ship a UA `min-inline-size: min-content` that stops
+     them shrinking below their widest child — and with `field-sizing:
+     content` above, an <input>'s intrinsic width tracks its value, so a
+     long pasted URL forces the whole fieldset (and its scroll container)
+     wide rather than the field staying put with the text scrolling
+     within it. Verified: `min-width: 0` here is what actually fixes that
+     — a component-level `min-width: 0` on the field can't, the fieldset
+     is the blocker. In the reset layer, so any fieldset can still opt
+     back out. */
+  fieldset {
+    min-width: 0;
+  }
+
+  /* 9. Typography wrapping guardrails */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word; /* Halts long URLs or text from blowing out the layout */
+  }
+
+  /* 10. Orphan prevention for headings */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance; /* Native line breaks distributed evenly */
+  }
+}

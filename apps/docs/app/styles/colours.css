@@ -1,0 +1,69 @@
+:root {
+  /* Palette — raw colour values only. Never reference these in components;
+     use the semantic tokens in tokens.css instead. */
+  --white: #ffffff;
+  --gallery: #f0f0f0;
+  --alto: #e0e0e0;
+  --silver: #c0c0c0;
+  --gray: #808080;
+  --mine-shaft: #404040;
+  --black: #000000;
+  --gold: #f3cf00;
+  --clementine: #e36c05;
+  --monza: #d2090a;
+  --harlequin: #24c600;
+  --persian-blue: #102feb;
+  --wild-sand: #f6f6f6;
+  --dorado: #5f5f5f;
+  --jacaranda: #110111;
+  --cinnabar: #df2827;
+  --blue-ribbon: #0070f3;
+  --flamingo: #e6501b;
+  --salem: #0c9553;
+  --picton-blue: #34d4ff;
+
+  /* DARK THEME ADDITIONS — imported verbatim from scribe-atp.app's
+     colours.css so skyscribe's dark theme uses the same navy/indigo-black
+     palette CMS does, rather than a flat grey scale. --dorado, --jacaranda,
+     --flamingo, and --salem above already matched CMS's own values
+     exactly (coincidentally, from the original "starting baseline copied
+     from scribe-atp.app" — see tokens.css's header comment) and are reused
+     as-is; --charcoal is new here too, matching CMS's own --surface-input
+     dark value. */
+  --charcoal: #333333;
+  --cloud-burst: #212a47;
+  --ebony-clay: #202940;
+  --mirage: #192036;
+  --stratos: #000527;
+  --jaguar: #09031c;
+  --cherry-pie: #2a004e;
+  --pigment-indigo: #500073;
+  --sepia-black: #280905;
+  --milano-red: #c3110c;
+  --eastern-blue: #19abbe;
+
+  /* REVISED DARK THEME */
+  /* 
+  */
+  --new-boulder: #7d7d7d;
+  --new-dove-gray: #666666;
+  --new-dorado: #4f4f4f;
+  --new-mine-shaft: #393939;
+  --new-mine-shaft: #252525;
+  --new-cod-gray: #121212;
+  --new-dodger-blue: #00a6ff;
+  --new-rob-roy: #f2c66f;
+  --new-mint-green: #7dff95;
+  --new-geraldine: #ff8080;
+  --new-brilliant-rose: #df46b2;
+  --new-malibu: #87d1ff;
+
+  --new-bunker: #171f25;
+  --new-outer-space: #2a3237;
+  --new-limed-spruce: #3e454b;
+  --new-abbey: #545a5f;
+  --new-nevada: #6a7074;
+  --new-oslo-gray: #81868a;
+  --new-gray-chateau: #afb5bb;
+  --new-starship: #f1ed2e;
+}

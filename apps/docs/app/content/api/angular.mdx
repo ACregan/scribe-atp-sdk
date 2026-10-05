@@ -1,0 +1,189 @@
+# @skyscribe-sdk/angular
+
+A service (Observables) and injection functions (Signals) for Angular 16+. Install with `npm install @skyscribe-sdk/angular`. See the [Angular guide](/frameworks/angular) for walkthroughs.
+
+<Callout type="note">
+  To fetch an article by the slug in its URL, use `getArticleBySlug` or `injectArticleBySlug` (since 1.1.0). `getArticle` and `injectArticle` take the article's **record key (rkey)** instead.
+</Callout>
+
+## Observable API: `ScribeService`
+
+### `ScribeService`
+
+An injectable service (provided in root) whose methods return cold Observables: the fetch starts when you subscribe and is cancelled when you unsubscribe.
+
+```ts
+import { inject } from '@angular/core';
+import { ScribeService } from '@skyscribe-sdk/angular';
+
+const scribe = inject(ScribeService);
+```
+
+#### `getSite`
+
+```ts
+getSite(author: string, publicationUrl: string): Observable<Site>
+```
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL, e.g. `"https://alice.bsky.social"` |
+
+Subscribe with the `async` pipe, which unsubscribes when the component is destroyed.
+
+#### `getArticleBySlug`
+
+```ts
+getArticleBySlug(author: string, publicationUrl: string, articleSlug: string): Observable<ArticleResult>
+```
+
+Looks an article up by its slug in the Site at `publicationUrl`, and emits `{ article, uri }`: the article and its AT URI. Since 1.1.0.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
+#### `getArticle`
+
+```ts
+getArticle(author: string, rkey: string): Observable<Article>
+```
+
+Fetches an article by its **rkey**.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Handle or DID of the account the article is stored in |
+| `rkey` | `string` | The article's record key. Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)` |
+
+#### `getPublicationUri` / `getDocumentUri`
+
+```ts
+getPublicationUri(author: string, publicationUrl: string): Observable<string>
+getDocumentUri(author: string, publicationUrl: string, articleSlug: string): Observable<string>
+```
+
+Return just the AT URI of a Site, or of an article looked up by its **slug**. The Observable versions of `injectPublicationUri` and `injectDocumentUri` below.
+
+---
+
+## Signals API
+
+### `injectSite`
+
+```ts
+function injectSite(author: string, publicationUrl: string): {
+  site: Signal<Site | null>;
+  loading: Signal<boolean>;
+  error: Signal<Error | null>;
+}
+```
+
+Must be called in an injection context. Fetches a Site straight away and returns readonly signals. The request is aborted when the host component is destroyed.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL, e.g. `"https://alice.bsky.social"` |
+
+---
+
+### `injectArticleBySlug`
+
+```ts
+function injectArticleBySlug(author: string, publicationUrl: string, articleSlug: string): {
+  article: Signal<Article | null>;
+  uri: Signal<string | null>;
+  loading: Signal<boolean>;
+  error: Signal<Error | null>;
+}
+```
+
+Must be called in an injection context. Looks an article up by its slug in the Site at `publicationUrl` and returns readonly signals, including its AT URI as `uri`. The request is aborted when the host component is destroyed. Since 1.1.0.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
+---
+
+### `injectArticle`
+
+```ts
+function injectArticle(author: string, rkey: string): {
+  article: Signal<Article | null>;
+  loading: Signal<boolean>;
+  error: Signal<Error | null>;
+}
+```
+
+Must be called in an injection context. Fetches an article by its **rkey** straight away and returns readonly signals. The request is aborted when the host component is destroyed.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Handle or DID of the account the article is stored in |
+| `rkey` | `string` | The article's record key. Take both from an `ArticleRef`: the account is `ref.uri.split('/')[2]` and the rkey is `slugFromUri(ref.uri)` |
+
+---
+
+### `injectPublicationUri`
+
+```ts
+function injectPublicationUri(author: string, publicationUrl: string): {
+  uri: Signal<string | null>;
+  loading: Signal<boolean>;
+  error: Signal<Error | null>;
+}
+```
+
+Must be called in an injection context. Resolves just the AT URI of a Site record (using `resolvePublicationUri`), without returning the whole `Site`. The request is aborted when the host component is destroyed.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+
+Use it when the AT URI is all you need, for example for your own subscribe UI.
+
+---
+
+### `injectDocumentUri`
+
+```ts
+function injectDocumentUri(
+  author: string,
+  publicationUrl: string,
+  articleSlug: string
+): {
+  uri: Signal<string | null>;
+  loading: Signal<boolean>;
+  error: Signal<Error | null>;
+}
+```
+
+Must be called in an injection context. Resolves just the AT URI of an article, looked up by its **slug** (it uses `fetchArticleBySlug` and keeps only the `uri`). The request is aborted when the host component is destroyed.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `author` | `string` | Author handle or DID |
+| `publicationUrl` | `string` | The site's canonical HTTPS URL |
+| `articleSlug` | `string` | The article's slug, as in its URL |
+
+Use it when the AT URI is all you need, for example for your own like UI.
+
+---
+
+## Types
+
+The main types from `@skyscribe-sdk/core` are re-exported:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup, ArticleResult } from '@skyscribe-sdk/angular';
+```
+
+See the [core reference](/api/core#types) for type definitions.

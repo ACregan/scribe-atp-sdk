@@ -9,9 +9,12 @@ interface InjectArticleResult {
   error: Signal<Error | null>;
 }
 
+// Fetches by record key (rkey): current articles have opaque TID rkeys, so
+// a human-readable slug only matches very old records. Use injectArticleBySlug when
+// you have the slug from a URL.
 export function injectArticle(
   author: string,
-  articleSlug: string
+  rkey: string
 ): InjectArticleResult {
   const article = signal<Article | null>(null);
   const loading = signal(true);
@@ -20,7 +23,7 @@ export function injectArticle(
   const destroyRef = inject(DestroyRef);
   const controller = new AbortController();
 
-  fetchArticle(author, articleSlug, controller.signal)
+  fetchArticle(author, rkey, controller.signal)
     .then((data) => {
       article.set(data);
       loading.set(false);

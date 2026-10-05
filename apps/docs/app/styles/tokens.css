@@ -1,0 +1,268 @@
+/* === SEMANTIC TOKENS ===
+ * Components must reference only tokens from this file, never raw palette
+ * values from colours.css. The [data-theme="dark"] block at the bottom
+ * reassigns tokens — all raw values must come from colours.css palette vars.
+ *
+ * Starting baseline copied from scribe-atp.app's token architecture. Add
+ * component-specific tokens under their own comment heading as components
+ * are built (see scribe-atp.app/app/styles/tokens.css for the pattern). */
+
+:root {
+  /* Without this, native form controls (the editor toolbar's font-family
+     <select> popup, in particular) are themed by the browser's own guess
+     rather than this site's actual (user-toggleable, cookie-backed) theme
+     — Chromium was seen flipping a single open dropdown between light and
+     dark mid-interaction because it had nothing authoritative to anchor
+     to. Declared explicitly per theme block below rather than via
+     `prefers-color-scheme` so it tracks [data-theme], not the OS. */
+  color-scheme: light;
+
+  /* ______ SURFACES __________________ */
+  /* Colours */
+  --surface-negative: var(--gallery);
+  --surface-positive: var(--white);
+  --surface-container: var(--alto);
+  --surface-container_light: var(--gallery);
+  --surface-container_dark: var(--silver);
+  /* Was missing in light mode — only ever defined below in
+     [data-theme="dark"], unlike scribe-atp.app's tokens.css (this file's
+     own stated baseline, see header comment) which defines both. Pill's
+     .default variant (background: var(--surface-neutral)) was invisible in
+     light mode until SiteListItem's count pills exposed the gap. */
+  --surface-neutral: var(--gray);
+  --surface-shadow-color: rgba(150, 150, 150, 1);
+  /* Decoration */
+  --surface-border-radius: 0.75rem;
+  --surface-inner-border-radius: 0.35rem;
+
+  /* Text */
+  --text-primary: var(--mine-shaft);
+  --text-primary_highlight: var(--black);
+  --text-secondary: var(--gray);
+  --text-on-dark: var(--white);
+  /* --text-secondary itself is used in 70+ files across the app — not
+     touched here, since darkening it globally would be a real visual
+     design change well beyond this one page. This is scoped to
+     LoginPrompt's own card specifically: axe-core found --text-secondary
+     failing WCAG AA there (3.94:1 against the card's white background,
+     needs 4.5:1) — #707070 clears it (~4.95:1) while staying close to
+     the original gray. Found live 2026-09-05. */
+  --login-prompt-secondary-text-color: #707070;
+
+  /* Borders */
+  --border-color: var(--alto);
+  --border-subtle: var(--silver);
+  --border-light: var(--alto);
+  --border-dark: var(--gray);
+
+  /* Actions / brand */
+  --action-primary: var(--blue-ribbon);
+  --action-danger: var(--cinnabar);
+  --action-success: var(--salem);
+
+  /* ______ TOAST __________________ */
+  --toast-primary-background-colour: var(--blue-ribbon);
+  --toast-primary-text-colour: var(--white);
+  --toast-secondary-background-colour: var(--white);
+  --toast-secondary-text-colour: var(--blue-ribbon);
+  --toast-danger-background-color: var(--cinnabar);
+  --toast-success-background-colour: var(--salem);
+
+  /* Toolbar bg, code blocks, hover states — slightly off --surface-positive.
+     Was previously only defined in [data-theme="dark"] below (same missing-
+     in-light-mode gap already flagged for --surface-neutral above); the
+     RichTextEditor port (chunk 3) is the first light-mode consumer. */
+  --surface-muted: var(--wild-sand);
+
+  /* ______ RICH TEXT EDITOR __________________ */
+  --dropdown-menu-background: var(--white);
+  --dropdown-menu-background_hover: var(--wild-sand);
+  --dropdown-menu-background_active: var(--wild-sand);
+  --inline-code-text-color: var(--text-secondary);
+  --inline-code-border-color: var(--border-color);
+  --inline-code-background-color: var(--gallery);
+
+  /* ______ INPUTS  __________________ */
+  /* Standard field/control border width — InputText, Select, Textarea,
+     TextArrayInput's own main input row, FieldSet, and Button's variant
+     borders all share this. Not used by small proportionally-thinner
+     elements (ColourPicker's swatches, TextArrayInput's own round add
+     button) — those are deliberately thinner for their own size, not an
+     inconsistency to fix. */
+  --input-border-width: 0.25rem;
+
+  --input-focus-colour: var(--blue-ribbon);
+  --input-error-colour: var(--cinnabar);
+
+  --input-disabled-border-colour: var(--gray);
+  --input-disabled-background-colour: var(--silver);
+
+  --input-readonly-border-colour: var(--silver);
+  --input-readonly-background-colour: var(--alto);
+
+  --input-positive-colour: var(--blue-ribbon);
+  --input-negative-colour: var(--cinnabar);
+
+  --input-valid-colour: var(--salem);
+
+  /* ______ SWITCH __________________ */
+  /* .thumb's glossy top-edge highlight — a pure white inset line, meant
+     to catch the light against a light-coloured thumb. Was hardcoded as
+     a raw hsla(0, 0%, 100%, 1) directly in Switch.module.css; moved to a
+     token so dark mode can dim it instead of showing a stark white ring
+     around a dark thumb. */
+  --switch-thumb-highlight-colour: hsla(0, 0%, 100%, 1);
+
+  /* ______ SCROLLBAR __________________ */
+  /* Own tokens rather than reusing --text-secondary/--action-primary
+     inline in scrollbars.css directly — gives scrollbars their own seam
+     to tweak independently of general text/action colours later, same
+     reasoning as every other component section in this file. */
+  --scrollbar-thumb-colour: var(--text-secondary);
+  --scrollbar-thumb-colour_hover: var(--action-primary);
+  --scrollbar-track-colour: transparent;
+
+  /* ______ SIDE MENU __________________ */
+  /* Was previously declared locally on SideMenu.module.css's .menuList,
+  hardcoded to --white regardless of theme — see the [data-theme="dark"]
+  override below for why that was a real contrast bug
+  (backlog-sidemenu-dark-mode-active-contrast) and moved here instead. */
+  --menu-item-active-color: var(--white);
+
+  /* ______ SITE WIZARD PREVIEW __________________ */
+  --grid-lines-color: var(--picton-blue);
+  /* The content column's own max-width — shared by every preview surface
+     under app/routes/Wizard/ (GroupPreview, ArticlePreview, HomePreview,
+     PreviewLayout, FooterPreview, FooterConfigModal's mock page). Was
+     hardcoded to 55rem independently in all of them (and mirrored,
+     independently, in skyscribe-site's own equivalent — that repo has its
+     own copy of this same variable, no cross-repo sharing). One value here
+     now; bump this if it ever needs to change again. Not yet user-
+     configurable — parked for a future revisit if a real per-site need
+     shows up.
+     Was 70rem, briefly 112rem (x1.6, docs/adr/0056's REM_REBASE_FACTOR —
+     tracking skyscribe-site's own ADR 0012 rescale of this same constant,
+     missed in that pass since it only touched skyscribe-site's files).
+     Narrowed to 90rem 2026-09-16 — a deliberate design call, not a rescale
+     derivation; 112rem read as too wide in practice. Keep this in lockstep
+     with skyscribe-site's app.css --content-max-width by hand; there's no
+     shared package to enforce it. */
+  --content-max-width: 90rem;
+
+  /* ______ PRE LOGIN HOME PAGE __________________ */
+  --button-container-background-color: color-mix(
+    in srgb,
+    var(--white) 50%,
+    transparent
+  );
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces — navy/indigo-black, matching CMS's own dark palette
+     (--surface-page/--surface-app there) rather than a flat grey scale.
+     --surface-negative (the outer shell, behind --surface-positive's
+     card) maps to CMS's --surface-app dark value; --surface-positive
+     (the readable content card) maps to CMS's --surface-page dark
+     value — see tokens.css's own light-mode comments for why those are
+     the right correspondences given skyscribe's different naming. */
+  --surface-negative: var(--new-bunker);
+  --surface-positive: var(--new-limed-spruce);
+  --surface-container: var(--new-outer-space);
+  --surface-container_light: var(--new-abbey);
+  --surface-container_dark: var(--new-outer-space);
+
+  /* Slightly darker than --charcoal for inset/muted surfaces */
+  --surface-muted: var(--mine-shaft);
+  /* Medium grey for neutral state backgrounds on dark pages */
+  --surface-neutral: var(--dorado);
+  --surface-shadow-color: rgba(255, 255, 255, 0.1);
+
+  /* Text */
+  --text-primary: var(--new-gray-chateau);
+  --text-primary_highlight: var(--gallery);
+  --text-secondary: var(--new-oslo-gray);
+  /* --new-oslo-gray (#81868a) against this card's own dark background
+     (--surface-positive here is --new-limed-spruce, #3e454b) measures
+     ~2.65:1 — worse than the light-mode failure axe actually caught,
+     just never scanned. #b0b5b9 clears 4.5:1 (~4.71:1) against that
+     background specifically. */
+  --login-prompt-secondary-text-color: #b0b5b9;
+
+  /* Borders */
+  --border-color: var(--new-outer-space);
+  --border-subtle: var(--new-nevada);
+  --border-light: var(--white);
+  --border-dark: var(--gray);
+
+  /* Actions / brand */
+  --action-primary: var(--flamingo);
+  --action-danger: var(--cinnabar);
+
+  /* Toast — no --toast-success-background-colour override, matching
+     --action-success above having none either; both stay --salem in dark. */
+  --toast-primary-background-colour: var(--flamingo);
+  --toast-primary-text-colour: var(--white);
+  --toast-secondary-background-colour: var(--white);
+  --toast-secondary-text-colour: var(--flamingo);
+  --toast-danger-background-color: var(--cinnabar);
+
+  /* ______ RICH TEXT EDITOR __________________ */
+  --dropdown-menu-background: var(--mine-shaft);
+  --dropdown-menu-background_hover: var(--flamingo);
+  --dropdown-menu-background_active: var(--flamingo);
+  --inline-code-text-color: var(--silver);
+  --inline-code-border-color: var(--dorado);
+  --inline-code-background-color: var(--mine-shaft);
+
+  /* ______ INPUTS __________________
+     Newly authored for the Dark Mode pass — the INPUTS section in :root
+     above was added after this block was first drafted, so it had no
+     prior dark values to carry over. Follows the same brand-shift
+     pattern as --action-primary/--action-danger: focus/positive follow
+     the primary-colour dark shift (blue-ribbon -> flamingo); error/valid
+     stay unchanged (cinnabar/salem read fine on dark surfaces already,
+     matching --action-danger/--action-success having no override). */
+  --input-focus-colour: var(--flamingo);
+  --input-disabled-border-colour: var(--dorado);
+  /* --charcoal here matches CMS's own --surface-input dark value exactly
+     (its one dark input background, reused for disabled/readonly alike). */
+  --input-disabled-background-colour: var(--charcoal);
+  --input-readonly-border-colour: var(--dorado);
+  --input-readonly-background-colour: var(--charcoal);
+  --input-positive-colour: var(--flamingo);
+
+  /* ______ SWITCH __________________ */
+  /* Was a stark hsla(0, 0%, 100%, 1) pure-white ring, jarring against a
+     dark thumb — mid-grey keeps the same glossy-highlight shape/position
+     without reading as a bright outline. */
+  --switch-thumb-highlight-colour: hsl(0deg 0% 48.18%);
+
+  /* ______ SCROLLBAR __________________ */
+  --scrollbar-thumb-colour: var(--text-secondary);
+  --scrollbar-thumb-colour_hover: var(--action-primary);
+  --scrollbar-track-colour: transparent;
+
+  /* ______ SIDE MENU __________________
+     Fixes backlog-sidemenu-dark-mode-active-contrast: the active nav
+     item's background used to be hardcoded to --white regardless of
+     theme (see SideMenu.module.css), so its --text-primary label (which
+     flips to near-white --wild-sand above) went low-contrast light-on-
+     white. --ebony-clay here is a lighter navy than --surface-negative's
+     --jacaranda page background, mirroring the light theme's own
+     relationship (--white active background sits lighter than
+     --surface-negative's --gallery page background there too) while
+     staying in the same navy family as the rest of the dark palette. */
+  --menu-item-active-color: var(--surface-positive);
+
+  /* ______ SITE WIZARD PREVIEW __________________ */
+  --grid-lines-color: var(--new-dorado);
+
+  /* ______ PRE LOGIN HOME PAGE __________________ */
+  --button-container-background-color: color-mix(
+    in srgb,
+    var(--charcoal) 50%,
+    transparent
+  );
+}

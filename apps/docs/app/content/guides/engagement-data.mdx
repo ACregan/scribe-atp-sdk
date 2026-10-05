@@ -1,0 +1,170 @@
+# Engagement data
+
+The Social service has a `GET /counts` endpoint that returns totals for likes, shares and subscribes, for any Site or article. Use it to show live numbers alongside your content.
+
+<Callout>
+  This endpoint is separate from the `@skyscribe-sdk/social` React components. The components handle signing readers in and recording their action; `GET /counts` only reads totals, and needs no authentication.
+</Callout>
+
+## Endpoint
+
+```
+GET https://social.scribe-atp.app/counts
+```
+
+No API key or token is needed. Browser requests only work from registered websites (see [CORS](#cors-and-allowed-origins)); requests from your server work from anywhere.
+
+## Parameters
+
+| Param | Required | Description |
+|-------|----------|-------------|
+| `action_type` | yes | `recommend`, `subscribe`, or `share` |
+| `publication_uri` | no | Only count actions on this Site: the AT URI of its `site.standard.publication` record |
+| `document_uri` | no | Only count actions on this article: the AT URI of its `site.standard.document` record |
+| `origin` | no | Only count actions made from this website, e.g. `https://norobots.blog` |
+| `from` | no | Start of the window: ISO 8601, a Unix timestamp in seconds, or relative (`-7d`) |
+| `to` | no | End of the window, in the same formats. Defaults to now |
+| `group_by` | no | `document_uri`, `did`, or `day` |
+| `order_by` | no | `count` (default) or `date`; only applies with `group_by` |
+| `limit` | no | 1–100, default 10; only applies with `group_by` |
+
+<Callout type="warning">
+  Likes use the `action_type` `recommend`, not `like`, matching the underlying `site.standard.graph.recommend` collection. Passing `like` returns a 400 error.
+</Callout>
+
+## Basic usage
+
+Fetch the total number of likes for an article:
+
+```ts
+const res = await fetch(
+  `https://social.scribe-atp.app/counts?action_type=recommend&document_uri=${encodeURIComponent(documentUri)}`
+);
+const { count } = await res.json();
+// count: 42
+```
+
+Fetch the current subscriber count for a site:
+
+```ts
+const res = await fetch(
+  `https://social.scribe-atp.app/counts?action_type=subscribe&publication_uri=${encodeURIComponent(publicationUri)}`
+);
+const { count } = await res.json();
+// count: 17
+```
+
+## Time windows
+
+Pass `from` to count only a recent period. Relative values work for any number of days:
+
+| Value | Meaning |
+|-------|---------|
+| `-7d` | Past 7 days |
+| `-14d` | Past 14 days |
+| `-30d` | Past 30 days |
+| ISO 8601 | e.g. `2026-06-01T00:00:00Z` |
+| Unix seconds | e.g. `1780272000` |
+
+Combine `from` and `to` for a specific window, for example to compare this week with last week:
+
+```ts
+// This week
+const thisWeek = await fetch(
+  `https://social.scribe-atp.app/counts?action_type=subscribe&publication_uri=${encodeURIComponent(publicationUri)}&from=-7d`
+).then((r) => r.json());
+
+// The week before
+const lastWeek = await fetch(
+  `https://social.scribe-atp.app/counts?action_type=subscribe&publication_uri=${encodeURIComponent(publicationUri)}&from=-14d&to=-7d`
+).then((r) => r.json());
+
+const delta = thisWeek.count - lastWeek.count;
+```
+
+<Callout>
+  A window can be at most 90 days long. Longer ranges return a 400 error.
+</Callout>
+
+## Grouped results
+
+Add `group_by` to break the count down by article, reader or day. The response then has a `groups` array as well as the `total`:
+
+```json
+{
+  "groups": [
+    { "key": "at://did:plc:.../site.standard.document/3mp...", "count": 17 },
+    { "key": "at://did:plc:.../site.standard.document/3mq...", "count":  9 }
+  ],
+  "total": 42
+}
+```
+
+**Most shared articles in the past 30 days:**
+
+```ts
+const res = await fetch(
+  `https://social.scribe-atp.app/counts?action_type=share&from=-30d&group_by=document_uri&order_by=count&limit=10`
+);
+const { groups, total } = await res.json();
+```
+
+**Daily like counts over the past week (for a sparkline):**
+
+```ts
+const res = await fetch(
+  `https://social.scribe-atp.app/counts?action_type=recommend&publication_uri=${encodeURIComponent(publicationUri)}&from=-7d&group_by=day&order_by=date`
+);
+const { groups } = await res.json();
+// groups: [{ key: "2026-06-26", count: 3 }, { key: "2026-06-27", count: 1 }, ...]
+```
+
+## Fetching counts in your loader
+
+For SSR frameworks, fetch counts in your route loader alongside the article to avoid client-side waterfalls:
+
+```ts
+// app/routes/blog.$slug.tsx (React Router v7/v8)
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const { article, uri: documentUri } = await fetchArticleBySlug(
+    'alice.bsky.social',
+    'https://alice.bsky.social',
+    params.slug,
+    request.signal,
+  );
+  const likeCount = await fetch(
+    `https://social.scribe-atp.app/counts?action_type=recommend&document_uri=${encodeURIComponent(documentUri)}`
+  ).then((r) => r.json()).then((d) => d.count as number).catch(() => null);
+  return { article, likeCount };
+}
+```
+
+The `.catch(() => null)` means a Social service outage can't break your article page.
+
+## CORS and allowed origins
+
+The Social service keeps an allowlist of website origins (like `https://norobots.blog`), and only sends CORS headers to those. Requests from your server (a loader or API route) aren't subject to CORS, so they work from anywhere, which is another reason to fetch counts on the server.
+
+<Callout type="tip">
+  If browser requests from your website are blocked, your origin isn't on the allowlist yet. Email [hello@skyscribe.app](mailto:hello@skyscribe.app) with your website's address and the Publication it shows. The same allowlist applies to the [social buttons](/guides/social).
+</Callout>
+
+## Rate limits
+
+The endpoint allows **60 requests per minute per IP address**. Beyond that you get `429 Too Many Requests`. If you fetch counts on the server for every page view, a busy site can hit this, so cache the counts for a minute or two.
+
+## Getting the AT URIs
+
+The AT URIs for `publication_uri` and `document_uri` come from your Site and article data:
+
+```ts
+import { fetchSite, fetchArticleBySlug } from '@skyscribe-sdk/core';
+
+const site = await fetchSite('alice.bsky.social', 'https://alice.bsky.social');
+// site.uri → publication_uri
+
+const { article, uri: documentUri } = await fetchArticleBySlug('alice.bsky.social', 'https://alice.bsky.social', slug);
+// documentUri → document_uri
+```
+
+See [Concepts](/concepts) for more on AT URIs.

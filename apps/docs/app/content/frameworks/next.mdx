@@ -1,0 +1,179 @@
+# Next.js
+
+`@skyscribe-sdk/next` is for the **Next.js 13+ App Router**. Its `createScribeSite` factory gives you ready-made `generateStaticParams` and `generateMetadata` implementations, and `articleMetadata` / `siteMetadata` build complete Open Graph metadata from fetched data. You fetch the content itself with `@skyscribe-sdk/core`, which the package installs for you.
+
+## Install
+
+```bash
+npm install @skyscribe-sdk/next
+```
+
+## Setup
+
+Call `createScribeSite` once per site, outside your components:
+
+```ts
+// lib/scribe.ts
+import { createScribeSite } from '@skyscribe-sdk/next';
+
+export const AUTHOR = 'alice.bsky.social';
+export const SITE_URL = 'https://alice.bsky.social';
+
+export const scribe = createScribeSite(AUTHOR, SITE_URL);
+```
+
+<Callout type="note" title="Route param names">
+  The generated params are named `groupSlug` and `articleSlug`, so your folders must be `[groupSlug]` and `[articleSlug]`. The examples use Next.js 15, where `params` is a Promise. On Next.js 13 and 14 it's a plain object; `await` works on both.
+</Callout>
+
+## Site index page
+
+```tsx
+// app/blog/page.tsx
+import { fetchSite } from '@skyscribe-sdk/core';
+import { scribe, AUTHOR, SITE_URL } from '@/lib/scribe';
+
+export const generateMetadata = scribe.generateSiteMetadata;
+
+export default async function BlogPage() {
+  const site = await fetchSite(AUTHOR, SITE_URL);
+
+  return (
+    <main>
+      <h1>{site.title}</h1>
+      {site.groups.map((group) => (
+        <section key={group.slug}>
+          <h2>{group.title}</h2>
+          <ul>
+            {group.articles.map((article) => (
+              <li key={article.uri}>
+                <a href={`/blog/${group.slug}/${article.slug}`}>{article.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </main>
+  );
+}
+```
+
+## Group page
+
+```tsx
+// app/blog/[groupSlug]/page.tsx
+import { notFound } from 'next/navigation';
+import { fetchSite } from '@skyscribe-sdk/core';
+import { scribe, AUTHOR, SITE_URL } from '@/lib/scribe';
+
+type Props = { params: Promise<{ groupSlug: string }> };
+
+export const generateStaticParams = scribe.generateGroupParams;
+
+export async function generateMetadata({ params }: Props) {
+  const { groupSlug } = await params;
+  return scribe.generateGroupMetadata(groupSlug);
+}
+
+export default async function GroupPage({ params }: Props) {
+  const { groupSlug } = await params;
+  const site = await fetchSite(AUTHOR, SITE_URL);
+  const group = site.groups.find((g) => g.slug === groupSlug);
+  if (!group) notFound();
+
+  return (
+    <section>
+      <h1>{group.title}</h1>
+      <ul>
+        {group.articles.map((article) => (
+          <li key={article.uri}>
+            <a href={`/blog/${group.slug}/${article.slug}`}>{article.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+## Article page
+
+```tsx
+// app/blog/[groupSlug]/[articleSlug]/page.tsx
+import { fetchArticleBySlug } from '@skyscribe-sdk/core';
+import { scribe, AUTHOR, SITE_URL } from '@/lib/scribe';
+
+type Props = { params: Promise<{ groupSlug: string; articleSlug: string }> };
+
+export const generateStaticParams = scribe.generateGroupArticleParams;
+
+export async function generateMetadata({ params }: Props) {
+  const { articleSlug } = await params;
+  return scribe.generateArticleMetadata(articleSlug);
+}
+
+export default async function ArticlePage({ params }: Props) {
+  const { articleSlug } = await params;
+  const { article } = await fetchArticleBySlug(AUTHOR, SITE_URL, articleSlug);
+
+  return (
+    <article>
+      <h1>{article.title}</h1>
+      {article.description && <p>{article.description}</p>}
+      <div className="scribe-content" dangerouslySetInnerHTML={{ __html: article.content }} />
+    </article>
+  );
+}
+```
+
+If you render articles from accounts you don't control, sanitise `content` first (see [Rendering the HTML](/quickstart#3-fetch-an-article)).
+
+## Richer metadata
+
+The factory's `generate*Metadata` functions work from the Site record alone: title, description and the splash image. For canonical URLs, `og:type`, Twitter Cards and the article's cover image, fetch the article and use `articleMetadata`:
+
+```ts
+import { fetchArticleBySlug, fetchSite } from '@skyscribe-sdk/core';
+import { articleMetadata } from '@skyscribe-sdk/next';
+
+export async function generateMetadata({ params }: Props) {
+  const { articleSlug } = await params;
+  const [{ article }, site] = await Promise.all([
+    fetchArticleBySlug(AUTHOR, SITE_URL, articleSlug),
+    fetchSite(AUTHOR, SITE_URL),
+  ]);
+  const base = articleMetadata(article, site);
+  return { ...base, title: `${article.title} | My Blog` };
+}
+```
+
+`siteMetadata(site)` does the same for site-level pages.
+
+## Publication verification route
+
+The [`site.standard` spec](https://standard.site/docs/verification/) lets apps confirm that a website belongs to a Publication by requesting `/.well-known/site.standard.publication`. `createWellKnownHandler` returns a route handler that serves the Publication's AT URI there. (For a Site with a path prefix, the spec adds the prefix after it, e.g. `/.well-known/site.standard.publication/blog`.)
+
+```ts
+// app/.well-known/site.standard.publication/route.ts
+import { createWellKnownHandler } from '@skyscribe-sdk/next';
+import { AUTHOR, SITE_URL } from '@/lib/scribe';
+
+export const GET = createWellKnownHandler(AUTHOR, SITE_URL);
+```
+
+## ISR (Incremental Static Regeneration)
+
+Control revalidation with Next.js's route segment config. The SDK doesn't manage it:
+
+```ts
+// Revalidate every hour
+export const revalidate = 3600;
+```
+
+## TypeScript types
+
+The main types from `@skyscribe-sdk/core` are re-exported:
+
+```ts
+import type { Site, Article, ArticleRef, SiteGroup } from '@skyscribe-sdk/next';
+```

@@ -9,9 +9,12 @@ export interface UseScribeArticleResult {
   error: Ref<Error | null>;
 }
 
+// Fetches by record key (rkey): current articles have opaque TID rkeys, so
+// a human-readable slug only matches very old records. Use useScribeArticleBySlug when
+// you have the slug from a URL.
 export function useScribeArticle(
   author: string,
-  articleSlug: string
+  rkey: string
 ): UseScribeArticleResult {
   const article = ref<Article | null>(null);
   const loading = ref(true);
@@ -19,7 +22,7 @@ export function useScribeArticle(
 
   const controller = new AbortController();
 
-  fetchArticle(author, articleSlug, controller.signal)
+  fetchArticle(author, rkey, controller.signal)
     .then((data) => {
       article.value = data;
       loading.value = false;
