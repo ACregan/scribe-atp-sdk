@@ -1,7 +1,7 @@
 # @skyscribe-sdk/core
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/core)](https://www.npmjs.com/package/@skyscribe-sdk/core)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 Framework-agnostic TypeScript functions for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. No runtime dependencies.
 
@@ -285,4 +285,4 @@ Scribe content is stored on the AT Protocol. Each author's articles live on thei
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)

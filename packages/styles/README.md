@@ -1,7 +1,7 @@
 # @skyscribe-sdk/styles
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/styles)](https://www.npmjs.com/package/@skyscribe-sdk/styles)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 Base CSS for rendering [SkyScribe](https://skyscribe.app) article content in consumer sites. Pure CSS — no build step, no JavaScript.
 

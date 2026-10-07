@@ -1,7 +1,7 @@
 # @skyscribe-sdk/nuxt
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/nuxt)](https://www.npmjs.com/package/@skyscribe-sdk/nuxt)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 Nuxt 3 module for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires Nuxt 3 or later.
 
@@ -150,4 +150,4 @@ import type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/nuxt";
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)

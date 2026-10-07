@@ -1,7 +1,7 @@
 # SkyScribe SDK
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/core?label=%40skyscribe-sdk%2Fcore)](https://www.npmjs.com/package/@skyscribe-sdk/core)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 A TypeScript SDK for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Authors write and publish articles in SkyScribe; this SDK is for developers who want to display that content in their own sites and apps.
 
@@ -421,4 +421,4 @@ Resolved publication (site) AT URIs are cached separately for 60 seconds. If a c
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE) — © 2025 Anthony Cregan
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE) — © 2025 Anthony Cregan

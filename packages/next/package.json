@@ -48,6 +48,6 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ACregan/scribe-atp-sdk.git"
+    "url": "git+https://github.com/ACregan/skyscribe-sdk.git"
   }
 }

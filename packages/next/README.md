@@ -1,7 +1,7 @@
 # @skyscribe-sdk/next
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/next)](https://www.npmjs.com/package/@skyscribe-sdk/next)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 Next.js App Router adapter for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires Next.js 13 or later.
 
@@ -169,4 +169,4 @@ import type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/next";
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)

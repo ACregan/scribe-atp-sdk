@@ -1,7 +1,7 @@
 # @skyscribe-sdk/vue
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/vue)](https://www.npmjs.com/package/@skyscribe-sdk/vue)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 Vue 3 composables for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires Vue 3 or later.
 
@@ -80,4 +80,4 @@ import type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/vue";
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)

@@ -1,7 +1,7 @@
 # @skyscribe-sdk/angular
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/angular)](https://www.npmjs.com/package/@skyscribe-sdk/angular)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 Angular service and injection functions for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires Angular 16 or later.
 
@@ -119,4 +119,4 @@ import type { Site, Article, ArticleRef, SiteGroup } from "@skyscribe-sdk/angula
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
