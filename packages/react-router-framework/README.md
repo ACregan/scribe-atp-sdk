@@ -1,7 +1,7 @@
 # @skyscribe-sdk/react-router-framework
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/react-router-framework)](https://www.npmjs.com/package/@skyscribe-sdk/react-router-framework)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 Loader factories for reading [SkyScribe](https://skyscribe.app) content in [React Router v7 framework mode](https://reactrouter.com).
 
@@ -162,4 +162,4 @@ import type { Site, Article, ArticleRef, SiteGroup, ArticleWithUri } from "@skys
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)

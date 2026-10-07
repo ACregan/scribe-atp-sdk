@@ -1,7 +1,7 @@
 # @skyscribe-sdk/social
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/social)](https://www.npmjs.com/package/@skyscribe-sdk/social)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 React components for adding social interactions — likes, shares, and subscriptions — to [SkyScribe](https://skyscribe.app) articles. Works with any React-based framework (React Router, Next.js, etc.).
 
@@ -218,4 +218,4 @@ State is stored under the keys `scribe:recommended:{documentUri}` and `scribe:su
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)

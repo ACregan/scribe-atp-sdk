@@ -1,7 +1,7 @@
 # @skyscribe-sdk/react
 
 [![npm](https://img.shields.io/npm/v/@skyscribe-sdk/react)](https://www.npmjs.com/package/@skyscribe-sdk/react)
-[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
 
 React hooks for reading [SkyScribe](https://skyscribe.app) content from the AT Protocol. Requires React 18 or later.
 
@@ -84,4 +84,4 @@ For Next.js App Router or other SSR frameworks, use [`@skyscribe-sdk/core`](http
 
 ## License
 
-[MIT](https://github.com/ACregan/scribe-atp-sdk/blob/main/LICENSE)
+[MIT](https://github.com/ACregan/skyscribe-sdk/blob/main/LICENSE)
